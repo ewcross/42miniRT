@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 12:45:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 18:02:09 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,47 +37,47 @@ typedef struct	s_struct
 typedef struct	r_struct
 {
 	char		res;
-	int			res_xy[2];
+	double		res_xy[2];
 
 	char		ambient;
-	float		ambient_ratio;
+	double		ambient_ratio;
 	int			ambient_colour[3];
 
 	char		cam;
-	float		cam_coords[3];
-	float		cam_normal[3];
-	float		cam_fov;
+	double		cam_xyz[3];
+	double		cam_normal[3];
+	double		cam_fov;
 
 	char		light;
-	float		light_coords[3];
-	float		light_brightness;
+	double		light_xyz[3];
+	double		light_brightness;
 	int			light_colour[3];
 
 	char		sphere;
-	float		sphere_coords[3];
-	float		sphere_diamete;
+	double		sphere_xyz[3];
+	double		sphere_diamete;
 	int			sphere_colour[3];
 
 	char		plane;
-	float		plane_coords[3];
-	float		plane_normal[3];
+	double		plane_xyz[3];
+	double		plane_normal[3];
 	int			plane_colours[3];
 
 	char		square;
-	float		square_coords[3];
-	float		square_normal[3];
-	float		square_side_size;
+	double		square_xyz[3];
+	double		square_normal[3];
+	double		square_side_size;
 	int			square_colour[3];
 
 	char		cylinder;
-	float		cylinder_coords[3];
-	float		cylinder_normal[3];
-	float		cylinder_diameter;
-	float		cylinder_height;
+	double		cylinder_xyz[3];
+	double		cylinder_normal[3];
+	double		cylinder_diameter;
+	double		cylinder_height;
 	int			cylnder_colour[3];
 
 	char		triangle;
-	float		coords_of_points[3][3];
+	double		coords_of_points[3][3];
 	int			triangle_colour[3];
 }				scene_struct;
 

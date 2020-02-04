@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 15:13:05 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 17:57:06 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	simple_atoi(char *str)
 		return (-1);
 }
 
-float	tenths(char *str)
+double	tenths(char *str)
 {
 	int	i;
 	int end_index;
@@ -71,13 +71,13 @@ float	tenths(char *str)
 	while (str[i] != '.' && str[i])
 		i++;
 	if (str[i] == '.')
-		return ((float)(pow(0.1, end_index - i - 1)));
+		return ((double)(pow(0.1, end_index - i - 1)));
 	return (1);
 }
 
-int	ft_atof(char *str, float *fl)
+int	ft_atof(char *str, double *fl)
 {
-	float	output;
+	double	output;
 	int		neg;
 	char	*str_copy;
 
@@ -120,7 +120,7 @@ int	get_colour(char *str, int *colour)
 	return (0);
 }
 
-int	get_xyz(char *str, float *xyz)
+int	get_xyz(char *str, double *xyz)
 {
 	int		i;
 	char	**strs;
@@ -178,7 +178,7 @@ int	R_func(char *line)
 int	A_func(char *line)
 {
 	char	**strs;
-	float	ratio;
+	double	ratio;
 	int		colour[3];
 
 	strs = ft_split(line, ' ');
@@ -209,8 +209,8 @@ int	c_func(char *line)
 int	l_func(char *line)
 {
 	char	**strs;
-	float	light_xyz[3];
-	float	brightness;
+	double	light_xyz[3];
+	double	brightness;
 	int		colour[3];
 
 	strs = ft_split(line, ' ');
@@ -245,8 +245,8 @@ int	s_func(char *line)
 int	p_func(char *line)
 {
 	char	**strs;
-	float	plane_xyz[3];
-	float	normal_xyz[3];
+	double	plane_xyz[3];
+	double	normal_xyz[3];
 	int		plane_colour[3];
 
 	strs = ft_split(line, ' ');
@@ -264,7 +264,7 @@ int	p_func(char *line)
 int	t_func(char *line)
 {
 	char	**strs;
-	float	points_xyz[3][3];
+	double	points_xyz[3][3];
 	int		triangle_colour[3];
 
 	strs = ft_split(line, ' ');
@@ -284,8 +284,8 @@ int	t_func(char *line)
 int	cam_func(char *line)
 {
 	char	**strs;
-	float	cam_xyz[3];
-	float	cam_norm[3];
+	double	cam_xyz[3];
+	double	cam_norm[3];
 	int		cam_fov;
 
 	strs = ft_split(line, ' ');
@@ -303,10 +303,10 @@ int	cam_func(char *line)
 int	cy_func(char *line)
 {
 	char	**strs;
-	float	cylinder_xyz[3];
-	float	normal_xyz[3];
-	float	diameter;
-	float	height;
+	double	cylinder_xyz[3];
+	double	normal_xyz[3];
+	double	diameter;
+	double	height;
 	int		cylinder_colour[3];
 
 	strs = ft_split(line, ' ');
@@ -333,8 +333,8 @@ int	cy_func(char *line)
 int	sp_func(char *line)
 {
 	char	**strs;
-	float	sphere_xyz[3];
-	float	diameter;
+	double	sphere_xyz[3];
+	double	diameter;
 	int		sphere_colour[3];
 
 	strs = ft_split(line, ' ');
@@ -352,9 +352,9 @@ int	sp_func(char *line)
 int	sq_func(char *line)
 {
 	char	**strs;
-	float	square_xyz[3];
-	float	normal_xyz[3];
-	float	side_size;
+	double	square_xyz[3];
+	double	normal_xyz[3];
+	double	side_size;
 	int		square_colour[3];
 
 	strs = ft_split(line, ' ');
