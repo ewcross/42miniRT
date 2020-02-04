@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/03 19:08:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 10:35:35 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int	simple_atoi(char *str)
 {
 	int output;
 
+	if (!str || !(*str))
+		return (-1);
 	output = 0;
 	while(*str > 47 && *str < 58)
 	{
@@ -28,6 +30,35 @@ int	simple_atoi(char *str)
 		return (-1);
 }
 
+int	ft_atof(char *str, float *fl)
+{
+	/*function convert string to float
+	  and store it in address provided
+	  returns -1 on error or 0 on success*/
+	printf("float here\n");
+	return (0);
+}
+
+int	get_colour(char *str, int *colour)
+{
+	/*convert string to colour - split by
+	  commas, then atoi on each section and
+	  store result in colour[0], [1] and [2]
+	  return -1 on error and 0 on success*/
+	printf("colour here\n");
+	return (0);
+}
+
+int	get_coords(char *str, int *coords)
+{
+	/*convert string to coordinates - split by
+	  commas, then atof on each section and
+	  store result in coords[0], [1] and [2]
+	  return -1 on error and 0 on success*/
+	printf("coords here\n");
+	return (0);
+}
+
 int	len_str_arr(char **str_arr)
 {
 	int	i;
@@ -38,7 +69,7 @@ int	len_str_arr(char **str_arr)
 	return (i);
 }
 
-/*should find and R and two strings of only digits, separated by only spaces*/
+/********************************/
 
 int	R_func(char *line)
 {
@@ -51,8 +82,6 @@ int	R_func(char *line)
 		return (-1);
 	res_x = simple_atoi(strs[1]);
 	res_y = simple_atoi(strs[2]);
-	printf("res_x = %d\n", res_x);
-	printf("res_y = %d\n", res_y);
 	if (res_x < 1 || res_y < 1)
 		return (-1);
 	return (0);
@@ -61,9 +90,15 @@ int	R_func(char *line)
 int	A_func(char *line)
 {
 	char	**strs;
+	float	light_ratio;
+	int		*colour;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
+		return (-1);
+	if (ft_atof(strs[1], &light_ratio) == -1)
+		return (-1);
+	if (get_colour(strs[2], colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -131,9 +166,18 @@ int	t_func(char *line)
 int	cam_func(char *line)
 {
 	char	**strs;
+	float	cam_pos[3];
+	float	cam_norm[3];
+	int		cam_fov;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
+		return (-1);
+	if (get_coords(strs[1], cam_pos) == -1)
+		return (-1);
+	if (get_coords(strs[2], cam_norm) == -1)
+		return (-1);
+	if (simple_atoi(strs[3]) < 1)
 		return (-1);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:25:45 by ecross            #+#    #+#             */
-/*   Updated: 2020/01/31 18:40:49 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 10:24:17 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 void add_line_to_img(void *win_struct)
 {
-	t_struct		*ws;
+	window_struct	*ws;
 	char			*img_addr;
 	int				bpp;
 	int				line_size;
@@ -37,7 +37,7 @@ void add_line_to_img(void *win_struct)
 
 int put_image(void *win_struct)
 {
-	t_struct *ws;
+	window_struct *ws;
 
 	ws = win_struct;
 	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 400, 400);
@@ -46,7 +46,7 @@ int put_image(void *win_struct)
 
 int set_keys(int keycode, void *win_struct)
 {
-	t_struct *ws;
+	window_struct *ws;
 
 	ws = win_struct;
 	if (keycode == 53)
@@ -66,7 +66,7 @@ int close_program(void *win_struct)
 
 int main(void)
 {
-	t_struct win_struct;
+	window_struct win_struct;
 	int win_size_x;
 	int win_size_y;
 
