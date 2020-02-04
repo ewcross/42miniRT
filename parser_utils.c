@@ -6,11 +6,40 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 12:54:00 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 15:13:05 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+
+void print_strs(char **strs)
+{
+	int i;
+	int j;
+	int len;
+
+	len = len_str_arr(strs);
+	i = 0;
+	printf("<");
+	while (strs[i])
+	{
+		printf("%s", strs[i]);
+		if (i < len - 1)
+			printf(",");
+		i++;
+	}
+	printf(">\n");
+}
+
+/********************************/
+
+
+
+
+
+
+
+/********************************/
 
 int	simple_atoi(char *str)
 {
@@ -30,32 +59,84 @@ int	simple_atoi(char *str)
 		return (-1);
 }
 
+float	tenths(char *str)
+{
+	int	i;
+	int end_index;
+
+	end_index = 0;
+	while (str[end_index])
+		end_index++;
+	i = 0;
+	while (str[i] != '.' && str[i])
+		i++;
+	if (str[i] == '.')
+		return ((float)(pow(0.1, end_index - i - 1)));
+	return (1);
+}
+
 int	ft_atof(char *str, float *fl)
 {
-	/*function convert string to float
-	  and store it in address provided
-	  returns -1 on error or 0 on success*/
-	printf("float here\n");
+	float	output;
+	int		neg;
+	char	*str_copy;
+
+	str_copy = str;
+	if (!str || !(*str))
+		return (-1);
+	output = 0;
+	neg = 1;
+	if (*str == '-' || *str == '+')
+		neg = 44 - *str++;
+	while((*str > 47 && *str < 58) || *str == '.')
+	{
+		if (*str != '.')
+			output = (*str - 48) + (output * 10);
+		str++;
+	}
+	if (*str)
+		return (-1);
+	*fl = output * neg * tenths(str_copy);
 	return (0);
 }
 
 int	get_colour(char *str, int *colour)
 {
-	/*convert string to colour - split by
-	  commas, then atoi on each section and
-	  store result in colour[0], [1] and [2]
-	  return -1 on error and 0 on success*/
-	printf("colour here\n");
+	int		i;
+	char	**strs;
+	
+	strs = ft_split(str, ',');
+	printf("colour strings:\n");
+	print_strs(strs);
+	if (len_str_arr(strs) != 3)
+		return (-1);
+	i = 0;
+	while (i < 3)
+	{
+		if ((colour[i] = simple_atoi(strs[i])) == -1 || colour[i] > 255)
+			return (-1);
+		i++;
+	}
 	return (0);
 }
 
-int	get_xyz(char *str, float *coords)
+int	get_xyz(char *str, float *xyz)
 {
-	/*convert string to coordinates - split by
-	  commas, then atof on each section and
-	  store result in coords[0], [1] and [2]
-	  return -1 on error and 0 on success*/
-	printf("coords here\n");
+	int		i;
+	char	**strs;
+
+	strs = ft_split(str, ',');
+	printf("xyz strings:\n");
+	print_strs(strs);
+	if (len_str_arr(strs) != 3)
+		return (-1);
+	i = 0;
+	while (i < 3)
+	{
+		if (ft_atof(strs[i], xyz + i) == -1)
+			return (-1);
+		i++;
+	}
 	return (0);
 }
 
@@ -68,6 +149,13 @@ int	len_str_arr(char **str_arr)
 		i++;
 	return (i);
 }
+
+/********************************/
+
+
+
+
+
 
 /********************************/
 
@@ -96,7 +184,7 @@ int	A_func(char *line)
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
-	if (ft_atof(strs[1], &ratio) == -1)
+	if (ft_atof(strs[1], &ratio) == -1 || ratio < 0)
 		return (-1);
 	if (get_colour(strs[2], colour) == -1)
 		return (-1);
@@ -130,10 +218,12 @@ int	l_func(char *line)
 		return (-1);
 	if (get_xyz(strs[1], light_xyz) == -1)
 		return (-1);
-	if (ft_atof(strs[2], &brightness) == -1)
+	if (ft_atof(strs[2], &brightness) == -1 || brightness < 0)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
+	printf("%f, %f, %f\n", light_xyz[X], light_xyz[Y], light_xyz[Z]);
+	printf("%d, %d, %d\n", colour[R], colour[G], colour[B]);
 	return (0);
 }
 
@@ -226,12 +316,17 @@ int	cy_func(char *line)
 		return (-1);
 	if (get_xyz(strs[2], normal_xyz) == -1)
 		return (-1);
-	if (ft_atof(strs[3], &diameter) == -1)
+	if (ft_atof(strs[3], &diameter) == -1 || diameter < 0)
 		return (-1);
-	if (ft_atof(strs[4], &height) == -1)
+	if (ft_atof(strs[4], &height) == -1 || height < 0)
 		return (-1);
 	if (get_colour(strs[5], cylinder_colour) == -1)
 		return (-1);
+	printf("cyl pos:\n\n(%f,%f,%f)\n\n", cylinder_xyz[X], cylinder_xyz[Y], cylinder_xyz[Z]);
+	printf("cyl norm:\n\n(%f,%f,%f)\n\n", normal_xyz[X], normal_xyz[Y], normal_xyz[Z]);
+	printf("cyl diameter:\n\n%f\n\n", diameter);
+	printf("cyl height:\n\n%f\n\n", height);
+	printf("cyl colour:\n\n(%d, %d, %d)\n\n", cylinder_colour[R], cylinder_colour[G], cylinder_colour[B]);
 	return (0);
 }
 
@@ -247,7 +342,7 @@ int	sp_func(char *line)
 		return (-1);
 	if (get_xyz(strs[1], sphere_xyz) == -1)
 		return (-1);
-	if (ft_atof(strs[2], &diameter) == -1)
+	if (ft_atof(strs[2], &diameter) == -1 || diameter < 0)
 		return (-1);
 	if (get_colour(strs[3], sphere_colour) == -1)
 		return (-1);
@@ -269,7 +364,7 @@ int	sq_func(char *line)
 		return (-1);
 	if (get_xyz(strs[2], normal_xyz) == -1)
 		return (-1);
-	if (ft_atof(strs[3], &side_size) == -1)
+	if (ft_atof(strs[3], &side_size) == -1 || side_size < 0)
 		return (-1);
 	if (get_colour(strs[4], square_colour) == -1)
 		return (-1);
