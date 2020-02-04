@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 10:35:35 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 12:54:00 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int	get_colour(char *str, int *colour)
 	return (0);
 }
 
-int	get_coords(char *str, int *coords)
+int	get_xyz(char *str, float *coords)
 {
 	/*convert string to coordinates - split by
 	  commas, then atof on each section and
@@ -90,13 +90,13 @@ int	R_func(char *line)
 int	A_func(char *line)
 {
 	char	**strs;
-	float	light_ratio;
-	int		*colour;
+	float	ratio;
+	int		colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
-	if (ft_atof(strs[1], &light_ratio) == -1)
+	if (ft_atof(strs[1], &ratio) == -1)
 		return (-1);
 	if (get_colour(strs[2], colour) == -1)
 		return (-1);
@@ -121,9 +121,18 @@ int	c_func(char *line)
 int	l_func(char *line)
 {
 	char	**strs;
+	float	light_xyz[3];
+	float	brightness;
+	int		colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
+		return (-1);
+	if (get_xyz(strs[1], light_xyz) == -1)
+		return (-1);
+	if (ft_atof(strs[2], &brightness) == -1)
+		return (-1);
+	if (get_colour(strs[3], colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -146,9 +155,18 @@ int	s_func(char *line)
 int	p_func(char *line)
 {
 	char	**strs;
+	float	plane_xyz[3];
+	float	normal_xyz[3];
+	int		plane_colour[3];
 
 	strs = ft_split(line, ' ');
-	if (len_str_arr(strs) != 4)
+	if (len_str_arr(strs) != 4 || strs[0][1] != 'l')
+		return (-1);
+	if (get_xyz(strs[1], plane_xyz) == -1)
+		return (-1);
+	if (get_xyz(strs[2], normal_xyz) == -1)
+		return (-1);
+	if (get_colour(strs[3], plane_colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -156,9 +174,19 @@ int	p_func(char *line)
 int	t_func(char *line)
 {
 	char	**strs;
+	float	points_xyz[3][3];
+	int		triangle_colour[3];
 
 	strs = ft_split(line, ' ');
-	if (len_str_arr(strs) != 5)
+	if (len_str_arr(strs) != 5 || strs[0][1] != 'r')
+		return (-1);
+	if (get_xyz(strs[1], points_xyz[0]) == -1)
+		return (-1);
+	if (get_xyz(strs[2], points_xyz[1]) == -1)
+		return (-1);
+	if (get_xyz(strs[3], points_xyz[2]) == -1)
+		return (-1);
+	if (get_colour(strs[4], triangle_colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -166,16 +194,16 @@ int	t_func(char *line)
 int	cam_func(char *line)
 {
 	char	**strs;
-	float	cam_pos[3];
+	float	cam_xyz[3];
 	float	cam_norm[3];
 	int		cam_fov;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
 		return (-1);
-	if (get_coords(strs[1], cam_pos) == -1)
+	if (get_xyz(strs[1], cam_xyz) == -1)
 		return (-1);
-	if (get_coords(strs[2], cam_norm) == -1)
+	if (get_xyz(strs[2], cam_norm) == -1)
 		return (-1);
 	if (simple_atoi(strs[3]) < 1)
 		return (-1);
@@ -185,9 +213,24 @@ int	cam_func(char *line)
 int	cy_func(char *line)
 {
 	char	**strs;
+	float	cylinder_xyz[3];
+	float	normal_xyz[3];
+	float	diameter;
+	float	height;
+	int		cylinder_colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 6)
+		return (-1);
+	if (get_xyz(strs[1], cylinder_xyz) == -1)
+		return (-1);
+	if (get_xyz(strs[2], normal_xyz) == -1)
+		return (-1);
+	if (ft_atof(strs[3], &diameter) == -1)
+		return (-1);
+	if (ft_atof(strs[4], &height) == -1)
+		return (-1);
+	if (get_colour(strs[5], cylinder_colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -195,9 +238,18 @@ int	cy_func(char *line)
 int	sp_func(char *line)
 {
 	char	**strs;
+	float	sphere_xyz[3];
+	float	diameter;
+	int		sphere_colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
+		return (-1);
+	if (get_xyz(strs[1], sphere_xyz) == -1)
+		return (-1);
+	if (ft_atof(strs[2], &diameter) == -1)
+		return (-1);
+	if (get_colour(strs[3], sphere_colour) == -1)
 		return (-1);
 	return (0);
 }
@@ -205,9 +257,21 @@ int	sp_func(char *line)
 int	sq_func(char *line)
 {
 	char	**strs;
+	float	square_xyz[3];
+	float	normal_xyz[3];
+	float	side_size;
+	int		square_colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5)
+		return (-1);
+	if (get_xyz(strs[1], square_xyz) == -1)
+		return (-1);
+	if (get_xyz(strs[2], normal_xyz) == -1)
+		return (-1);
+	if (ft_atof(strs[3], &side_size) == -1)
+		return (-1);
+	if (get_colour(strs[4], square_colour) == -1)
 		return (-1);
 	return (0);
 }

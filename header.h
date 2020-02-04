@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 10:29:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/04 12:45:09 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ typedef struct	s_struct
 	void *img_ptr;
 }				window_struct;
 
-typedef struct	s_struct
+typedef struct	r_struct
 {
 	char		res;
 	int			res_xy[2];
@@ -83,7 +83,7 @@ typedef struct	s_struct
 
 int		set_keys(int keycode, void *win_struct);
 int		draw_circle(void *win_struct);
-void	put_circle(t_struct *ws, int x, int y, int colour);
+void	put_circle(window_struct *ws, int x, int y, int colour);
 
 int		pos_in_set(char ch, char *set);
 void	init_func_arr(int (*func_arr[])(char *));
