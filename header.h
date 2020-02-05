@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/05 09:39:34 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/05 11:40:18 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <math.h>
 #include "mlx.h"
 #include "libft.h"
+#include "x11.h"
 
 #define CHARSET "RAclspt"
 #define R 0
@@ -29,15 +30,17 @@
 
 typedef struct	s_struct
 {
-	void *mlx_ptr;
-	void *win_ptr;
-	void *img_ptr;
+	void	*mlx_ptr;
+	void	*win_ptr;
+	void	*img_ptr;
+	int		res_x;
+	int		res_y;
 }				window_struct;
 
 typedef struct	r_struct
 {
 	char		res;
-	double		res_xy[2];
+	int			res_xy[2];
 
 	char		ambient;
 	double		ambient_ratio;
