@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/05 12:48:28 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/05 18:08:08 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int put_image(void *win_struct)
 	window_struct *ws;
 
 	ws = win_struct;
-	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, ws->res_x / 2, ws->res_y / 2);
+	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 0, 0);
 	return (0);
 }
 
@@ -96,18 +96,11 @@ int put_pixel(void *win_struct)
 void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int *colour)
 {
 	int	pixel_index;
-	int max;
 
-	max = 255;
-	pixel_index = x + ((bpp / 8) * line_size * y);
-	*(img_addr + pixel_index + 1) = colour[R];
-	*(img_addr + pixel_index + 2) = colour[G];
-	*(img_addr + pixel_index + 3) = colour[B];
-	/*colour random pixel to test*/
-	*img_addr = 0;
-	*(img_addr + 41) = max;
-	*(img_addr + 42) = 0;
-	*(img_addr + 43) = 0;
+	pixel_index = x + (line_size * y);
+	*(img_addr + pixel_index) = colour[B];
+	*(img_addr + pixel_index + 1) = colour[G];
+	*(img_addr + pixel_index + 2) = colour[R];
 }
 
 int initialise_window(window_struct *ws)
@@ -198,25 +191,35 @@ int main(void)
 	*/
 
 	ray_vector[Z] = distance_to_viewport;												/*set ray vector z to distance of vp from camera*/
-	//x = (s.res_xy[X] / 2) * -1;															/*min x value is negative half the canvas width*/
-	//while (x < s.res_xy[X] / 2)															/*max x value is positive half the canvas width*/
-	x = 0;
-	while (x < 1)
+	//x = 0;
+	x = -1 * s.res_xy[X] / 2;
+	while (x < s.res_xy[X] / 2)
 	{																					/*as Z+ is being used as vp normal, vp is in xy plane*/
-		//y = (s.res_xy[Y] / 2) * -1;														/*so half must be -x and half +x, and same for y*/
-		//while (y < s.res_xy[Y] / 2)
-		y = 0;
-		while (y < 1)
+		//y = 0;
+		y = -1 * s.res_xy[Y] / 2;
+		while (y < s.res_xy[Y] / 2)
 		{
-			ray_vector[X] = viewport_width * (x / s.res_xy[X]);							/*set ray vector x using ratio of x pixel pos to canvas width*/
-			ray_vector[Y] = viewport_height * (y / s.res_xy[Y]);						/*same for y*/
-			/*here need to apply cam_normal to ray_vector to rotate the vector*/
-			/*then for each sphere in scene, and for any other shapes*/
+			ray_vector[X] = (viewport_width * (x / s.res_xy[X]));// - (viewport_width / 2);
+			ray_vector[Y] = (/*-1 * */viewport_height * (y / s.res_xy[Y]));// + (viewport_height / 2);
+			/*if (x == 0 && y == 0)
+				printf("top left  (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
+			if (x == 0 && y == s.res_xy[Y])
+				printf("bot left  (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
+			if (x == s.res_xy[X] && y == 0)
+				printf("top right (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
+			if (x == s.res_xy[X] && y == s.res_xy[Y])
+				printf("bot right (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);*/
 			solve_quadratic(p1p2, s.cam_xyz, ray_vector, s.sphere_xyz, s.sphere_diameter);
 			if (p1p2[0] == INFINITY && p1p2[1] == INFINITY)
-				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
-			else
+			{
+				//printf("%f, %f\n", p1p2[0], p1p2[1]);
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s.sphere_colour);
+			}
+			else
+			{
+				//printf("%f, %f\n", p1p2[0], p1p2[1]);
+				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
+			}
 			y++;
 		}
 		x++;
