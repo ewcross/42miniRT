@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 18:02:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/05 09:39:34 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ typedef struct	r_struct
 
 	char		sphere;
 	double		sphere_xyz[3];
-	double		sphere_diamete;
+	double		sphere_diameter;
 	int			sphere_colour[3];
 
 	char		plane;
