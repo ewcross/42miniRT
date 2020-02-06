@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/05 18:08:08 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/06 09:24:21 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	calc_3d_vector(double *start, double *end, double *res)
 	res[2] = end[2] - start[2];
 }
 
-void	solve_quadratic(double *p1p2, double *cam_xyz, double *ray_vector, double *sphere_xyz, double sphere_diameter)
+int		solve_quadratic(double *p1p2, double *cam_xyz, double *ray_vector, double *sphere_xyz, double sphere_diameter)
 {
 	double	sphere_to_cam_vector[3];
 	double	a;
@@ -45,12 +45,13 @@ void	solve_quadratic(double *p1p2, double *cam_xyz, double *ray_vector, double *
 	c = calc_dot_prod(sphere_to_cam_vector, sphere_to_cam_vector) - (r * r);
 	discriminant = (b * b) - (4 * a * c);
 	if (discriminant < 0)
-		p1p2[0] = p1p2[1] = INFINITY;
-	else
 	{
-		p1p2[0] = ((-1 * b) + sqrt(discriminant)) / (2 * a);
-		p1p2[1] = ((-1 * b) - sqrt(discriminant)) / (2 * a);
+		p1p2[0] = p1p2[1] = INFINITY;
+		return (0);
 	}
+	p1p2[0] = ((-1 * b) + sqrt(discriminant)) / (2 * a);
+	p1p2[1] = ((-1 * b) - sqrt(discriminant)) / (2 * a);
+	return (1);
 }
 
 int put_image(void *win_struct)
@@ -58,7 +59,7 @@ int put_image(void *win_struct)
 	window_struct *ws;
 
 	ws = win_struct;
-	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 0, 0);
+	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 200, 200);
 	return (0);
 }
 
@@ -97,10 +98,13 @@ void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int 
 {
 	int	pixel_index;
 
+	//printf("pixel (%d, %d)\n", x, y);
 	pixel_index = x + (line_size * y);
-	*(img_addr + pixel_index) = colour[B];
-	*(img_addr + pixel_index + 1) = colour[G];
-	*(img_addr + pixel_index + 2) = colour[R];
+	//printf("pixel index = %d\n", pixel_index);
+	//printf("B = %d, G = %d, R = %d\n", colour[B], colour[G], colour[R]);
+	*(img_addr + pixel_index) = 0;
+	*(img_addr + pixel_index + 1) = 255;
+	*(img_addr + pixel_index + 2) = 0;
 }
 
 int initialise_window(window_struct *ws)
@@ -157,7 +161,7 @@ int main(void)
 	s.sphere_diameter = 12.5;
 	s.sphere_colour[R] = 255; 
 	s.sphere_colour[G] = 0; 
-	s.sphere_colour[B] = 255;
+	s.sphere_colour[B] = 0;
 
 	/*
 	  set values needed for ray tracing
@@ -190,35 +194,26 @@ int main(void)
 	  ray tracing algorithm
 	*/
 
+	printf("res_x = %d, res_y = %d\n", s.res_xy[X], s.res_xy[Y]);
 	ray_vector[Z] = distance_to_viewport;												/*set ray vector z to distance of vp from camera*/
-	//x = 0;
-	x = -1 * s.res_xy[X] / 2;
-	while (x < s.res_xy[X] / 2)
+	//x = s.res_xy[X] / 2;
+	x = 0;
+	while (x < s.res_xy[X] + 1)
 	{																					/*as Z+ is being used as vp normal, vp is in xy plane*/
-		//y = 0;
-		y = -1 * s.res_xy[Y] / 2;
-		while (y < s.res_xy[Y] / 2)
+		//y = s.res_xy[Y] / 2;
+		y = 0;
+		while (y < s.res_xy[Y] + 1)
 		{
-			ray_vector[X] = (viewport_width * (x / s.res_xy[X]));// - (viewport_width / 2);
-			ray_vector[Y] = (/*-1 * */viewport_height * (y / s.res_xy[Y]));// + (viewport_height / 2);
-			/*if (x == 0 && y == 0)
-				printf("top left  (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
-			if (x == 0 && y == s.res_xy[Y])
-				printf("bot left  (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
-			if (x == s.res_xy[X] && y == 0)
-				printf("top right (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
-			if (x == s.res_xy[X] && y == s.res_xy[Y])
-				printf("bot right (%.2f, %.2f, %.2f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);*/
-			solve_quadratic(p1p2, s.cam_xyz, ray_vector, s.sphere_xyz, s.sphere_diameter);
-			if (p1p2[0] == INFINITY && p1p2[1] == INFINITY)
-			{
-				//printf("%f, %f\n", p1p2[0], p1p2[1]);
-				colour_img_pixel(img_addr, x, y, bpp, line_size, s.sphere_colour);
-			}
+			//printf("x = %d, y = %d\n", x, y);
+			ray_vector[X] = (viewport_width * ((double)x / s.res_xy[X])) - (viewport_width / 2);
+			ray_vector[Y] = (-1 * viewport_height * ((double)y / s.res_xy[Y])) + (viewport_height / 2);
+			//printf("ray_vec = (%f, %f, %f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
+			if (!solve_quadratic(p1p2, s.cam_xyz, ray_vector, s.sphere_xyz, s.sphere_diameter))
+				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
 			else
 			{
-				//printf("%f, %f\n", p1p2[0], p1p2[1]);
-				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
+				colour_img_pixel(img_addr, x, y, bpp, line_size, s.sphere_colour);
+				//printf("%f and %f\n", p1p2[0], p1p2[1]);
 			}
 			y++;
 		}
