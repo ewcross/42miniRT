@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/06 09:24:21 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/07 18:03:49 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int put_image(void *win_struct)
 	window_struct *ws;
 
 	ws = win_struct;
-	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 200, 200);
+	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 0, 0);
 	return (0);
 }
 
@@ -94,19 +94,6 @@ int put_pixel(void *win_struct)
 
 /*probably put the image info in a struct*/
 
-void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int *colour)
-{
-	int	pixel_index;
-
-	//printf("pixel (%d, %d)\n", x, y);
-	pixel_index = x + (line_size * y);
-	//printf("pixel index = %d\n", pixel_index);
-	//printf("B = %d, G = %d, R = %d\n", colour[B], colour[G], colour[R]);
-	*(img_addr + pixel_index) = 0;
-	*(img_addr + pixel_index + 1) = 255;
-	*(img_addr + pixel_index + 2) = 0;
-}
-
 int initialise_window(window_struct *ws)
 {
 	/*initialisation of connection, creation of window and hooks*/
@@ -120,10 +107,38 @@ int initialise_window(window_struct *ws)
 	//mlx_loop_hook(ws->mlx_ptr, put_pixel, ws);
 	/*creation of image with same size as window*/	
 	ws->img_ptr = mlx_new_image(ws->mlx_ptr, ws->res_x, ws->res_y);
-	/*create image contents*/
 	
 	return (0);
 }
+
+void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int *colour)
+{
+	int	pixel_index;
+
+	pixel_index = (x * (bpp / 8)) + ((line_size) * y);
+	*(img_addr + pixel_index) = colour[B];
+	*(img_addr + pixel_index + 1) = colour[G];
+	*(img_addr + pixel_index + 2) = colour[R];
+}
+
+/*void	colour_img(char *img_addr, int width, int height)
+{
+	int x;
+	int y;
+	int *fuck;
+
+	x = 0;
+	while (x < width)
+	{
+		y = 0;
+		while (y < height)
+		{
+			colour_img_pixel(img_addr, x, y, 32, 4000, fuck);
+			y++;
+		}
+		x++;
+	}
+}*/
 
 int main(void)
 {
@@ -151,17 +166,17 @@ int main(void)
 	s.cam_fov = 60;
 	s.res_xy[X] = 1000;
 	s.res_xy[Y] = 625;
-	s.ambient_colour[X] = 100;
-	s.ambient_colour[Y] = 100;
-	s.ambient_colour[Z] = 100;
+	s.ambient_colour[X] = 0;
+	s.ambient_colour[Y] = 0;
+	s.ambient_colour[Z] = 0;
 
 	s.sphere_xyz[X] = 0;
 	s.sphere_xyz[Y] = 0;
-	s.sphere_xyz[Z] = 20;
-	s.sphere_diameter = 12.5;
-	s.sphere_colour[R] = 255; 
-	s.sphere_colour[G] = 0; 
-	s.sphere_colour[B] = 0;
+	s.sphere_xyz[Z] = 40;
+	s.sphere_diameter = 10;
+	s.sphere_colour[R] = 100; 
+	s.sphere_colour[G] = 200; 
+	s.sphere_colour[B] = 100;
 
 	/*
 	  set values needed for ray tracing
@@ -182,39 +197,32 @@ int main(void)
 	ws.res_x = s.res_xy[X];
 	ws.res_y = s.res_xy[Y];
 	initialise_window(&ws);
-	/*get img_addr and values needed by pixel_colouring function*/
+	
 	char	*img_addr;
 	int		bpp;
 	int		line_size;
 	int		endian;
 
 	img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
-
+	
 	/*
 	  ray tracing algorithm
 	*/
 
 	printf("res_x = %d, res_y = %d\n", s.res_xy[X], s.res_xy[Y]);
-	ray_vector[Z] = distance_to_viewport;												/*set ray vector z to distance of vp from camera*/
-	//x = s.res_xy[X] / 2;
+	ray_vector[Z] = distance_to_viewport;
 	x = 0;
-	while (x < s.res_xy[X] + 1)
-	{																					/*as Z+ is being used as vp normal, vp is in xy plane*/
-		//y = s.res_xy[Y] / 2;
+	while (x < s.res_xy[X])
+	{
 		y = 0;
-		while (y < s.res_xy[Y] + 1)
+		while (y < s.res_xy[Y])
 		{
-			//printf("x = %d, y = %d\n", x, y);
 			ray_vector[X] = (viewport_width * ((double)x / s.res_xy[X])) - (viewport_width / 2);
 			ray_vector[Y] = (-1 * viewport_height * ((double)y / s.res_xy[Y])) + (viewport_height / 2);
-			//printf("ray_vec = (%f, %f, %f)\n", ray_vector[X], ray_vector[Y], ray_vector[Z]);
 			if (!solve_quadratic(p1p2, s.cam_xyz, ray_vector, s.sphere_xyz, s.sphere_diameter))
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
 			else
-			{
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s.sphere_colour);
-				//printf("%f and %f\n", p1p2[0], p1p2[1]);
-			}
 			y++;
 		}
 		x++;
