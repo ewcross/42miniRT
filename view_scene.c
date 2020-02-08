@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/08 17:44:13 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/08 18:01:21 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,6 +196,7 @@ int main(void)
 	double	intersect_dist_min;
 	double	t_min;
 	double	scale;
+	double	light_adjust;
 	scene_struct s;
 	window_struct ws;
 
@@ -229,9 +230,9 @@ int main(void)
 	s.sphere_xyz[Y] = 0;
 	s.sphere_xyz[Z] = 40;
 	s.sphere_diameter = 10;
-	s.sphere_colour[R] = 100; 
-	s.sphere_colour[G] = 200; 
-	s.sphere_colour[B] = 100;
+	s.sphere_colour[R] = 50; 
+	s.sphere_colour[G] = 100; 
+	s.sphere_colour[B] = 120;
 
 	/*
 	  set values needed for ray tracing
@@ -266,9 +267,9 @@ int main(void)
 	  ray tracing algorithm
 	*/
 
-	pixel_colour[R] = 0;
-	pixel_colour[G] = 0;
-	pixel_colour[B] = 0;
+	pixel_colour[R] = s.sphere_colour[R];
+	pixel_colour[G] = s.sphere_colour[G];
+	pixel_colour[B] = s.sphere_colour[B];
 	t_min = INFINITY;
 	ray_vec[Z] = distance_to_viewport;
 	x = 0;
@@ -287,8 +288,10 @@ int main(void)
 			else
 			{
 				/*do lots of stuff to get correct colour - using t_min and the object which gave it*/
-				pixel_colour[G] = (double)255 * (s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min));
-				pixel_colour[R] = (double)255 * (s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min));
+				light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
+				pixel_colour[R] = (double)s.sphere_colour[R] * light_adjust;
+				pixel_colour[G] = (double)s.sphere_colour[G] * light_adjust;
+				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
