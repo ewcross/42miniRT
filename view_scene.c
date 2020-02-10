@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/08 18:01:21 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/10 14:12:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,20 @@
    window and image functions
 ********/
 
-int put_image(void *win_struct)
+int put_image(void *window_struct)
 {
-	window_struct *ws;
+	t_win_struct *ws;
 
-	ws = win_struct;
+	ws = window_struct;
 	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 0, 0);
 	return (0);
 }
 
-int set_keys(int keycode, void *win_struct)
+int set_keys(int keycode, void *window_struct)
 {
-	window_struct *ws;
+	t_win_struct *ws;
 
-	ws = win_struct;
+	ws = window_struct;
 	if (keycode == 53)
 	{
 		mlx_destroy_window(ws->mlx_ptr, ws->win_ptr);
@@ -40,21 +40,21 @@ int set_keys(int keycode, void *win_struct)
 	return (0);
 }
 
-int close_program(void *win_struct)
+int close_program(void *window_struct)
 {
 	exit(0);
 }
 
-int put_pixel(void *win_struct)
+int put_pixel(void *window_struct)
 {
-	window_struct *ws;
+	t_win_struct *ws;
 	
-	ws = win_struct;
+	ws = window_struct;
 	mlx_pixel_put(ws->mlx_ptr, ws->win_ptr, ws->res_x / 2, ws->res_y / 2, 0xff00ff);
 	return (0);
 }
 
-int initialise_window(window_struct *ws)
+int initialise_window(t_win_struct *ws)
 {
 	ws->mlx_ptr = mlx_init();
 	ws->win_ptr = mlx_new_window(ws->mlx_ptr, ws->res_x, ws->res_y, "window");
@@ -108,7 +108,7 @@ void	calc_unit_vec(double *vec, double *unit_vec)
 	unit_vec[2] = vec[2] / mag;
 }
 
-double	calc_light_intensity(double *ray_vec, scene_struct *s, double t_min)
+double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 {
 	/*compute surface point coordinates*/
 	/*cam pos + t_min(unit ray vector)*/
@@ -197,8 +197,8 @@ int main(void)
 	double	t_min;
 	double	scale;
 	double	light_adjust;
-	scene_struct s;
-	window_struct ws;
+	t_scene_struct s;
+	t_win_struct ws;
 
 	/*
 	  section to be replaced by the parser
@@ -218,9 +218,9 @@ int main(void)
 	s.ambient_colour[Y] = 0;
 	s.ambient_colour[Z] = 0;
 
-	s.light_xyz[X] = 50;
+	s.light_xyz[X] = 10;
 	s.light_xyz[Y] = 30;
-	s.light_xyz[Z] = 50;
+	s.light_xyz[Z] = 10;
 	s.light_brightness = 0.5;
 	s.light_colour[X] = 255;
 	s.light_colour[Y] = 255;
@@ -230,9 +230,9 @@ int main(void)
 	s.sphere_xyz[Y] = 0;
 	s.sphere_xyz[Z] = 40;
 	s.sphere_diameter = 10;
-	s.sphere_colour[R] = 50; 
+	s.sphere_colour[R] = 255; 
 	s.sphere_colour[G] = 100; 
-	s.sphere_colour[B] = 120;
+	s.sphere_colour[B] = 0;
 
 	/*
 	  set values needed for ray tracing

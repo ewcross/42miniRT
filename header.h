@@ -6,38 +6,38 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/08 11:40:50 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/10 14:12:51 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HEADER_H
-#define HEADER_H
+# define HEADER_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include <math.h>
-#include "mlx.h"
-#include "libft.h"
-#include "x11.h"
+# include <stdio.h>
+# include <unistd.h>
+# include <math.h>
+# include "mlx.h"
+# include "libft.h"
+# include "x11.h"
 
-#define CHARSET "RAclspt"
-#define R 0
-#define G 1
-#define B 2
-#define X 0
-#define Y 1
-#define Z 2
+# define CHARSET "RAclspt"
+# define R 0
+# define G 1
+# define B 2
+# define X 0
+# define Y 1
+# define Z 2
 
-typedef struct	s_struct
+typedef struct	s_win_struct
 {
-	void	*mlx_ptr;
-	void	*win_ptr;
-	void	*img_ptr;
-	int		res_x;
-	int		res_y;
-}				window_struct;
+	void		*mlx_ptr;
+	void		*win_ptr;
+	void		*img_ptr;
+	int			res_x;
+	int			res_y;
+}				t_win_struct;
 
-typedef struct	r_struct
+typedef struct	s_scene_struct
 {
 	char		res;
 	int			res_xy[2];
@@ -82,11 +82,11 @@ typedef struct	r_struct
 	char		triangle;
 	double		coords_of_points[3][3];
 	int			triangle_colour[3];
-}				scene_struct;
+}				t_scene_struct;
 
-int		set_keys(int keycode, void *win_struct);
-int		draw_circle(void *win_struct);
-void	put_circle(window_struct *ws, int x, int y, int colour);
+int		set_keys(int keycode, void *t_win_struct);
+int		draw_circle(void *t_win_struct);
+void	put_circle(t_win_struct *ws, int x, int y, int colour);
 
 int		pos_in_set(char ch, char *set);
 void	init_func_arr(int (*func_arr[])(char *));
