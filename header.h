@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/10 14:12:51 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/10 15:14:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ typedef struct	s_scene_struct
 	char		plane;
 	double		plane_xyz[3];
 	double		plane_normal[3];
-	int			plane_colours[3];
+	int			plane_colour[3];
 
 	char		square;
 	double		square_xyz[3];

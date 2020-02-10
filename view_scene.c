@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/10 14:12:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/10 15:13:55 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int 
    maths functions
 ********/
 
-float	calc_dot_prod(double *vec1, double *vec2)
+double	calc_dot_prod(double *vec1, double *vec2)
 {
 	return ((vec1[0] * vec2[0]) + (vec1[1] * vec2[1]) + (vec1[2] * vec2[2]));
 }
@@ -150,6 +150,22 @@ double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 	return (s->light_brightness * fraction);
 }
 
+double	plane_intercept(double vp_distance, double *cam_xyz, double *ray_vec, double *plane_xyz, double *plane_normal)
+{
+	double	t_min;
+	double	ray_normal_dot;
+	double	plane_to_cam_vec[3];
+
+	calc_3d_vector(cam_xyz, plane_xyz, plane_to_cam_vec);
+	ray_normal_dot = calc_dot_prod(ray_vec, plane_normal);
+	if (!ray_normal_dot)
+		return (INFINITY);
+	t_min = (-1 * calc_dot_prod(plane_to_cam_vec, plane_normal)) / ray_normal_dot;
+	if (t_min < vp_distance)
+		return (INFINITY);
+	return (t_min);
+}
+
 double	solve_quadratic(double *cam_xyz, double *ray_vec, double *sphere_xyz, double sphere_diameter)
 {
 	double	sphere_to_cam_vec[3];
@@ -163,6 +179,7 @@ double	solve_quadratic(double *cam_xyz, double *ray_vec, double *sphere_xyz, dou
 	calc_3d_vector(sphere_xyz, cam_xyz, sphere_to_cam_vec);
 	r = sphere_diameter / 2;
 	a = calc_dot_prod(ray_vec, ray_vec);
+	/*maybe see here if using a normlised ray vector makes a difference*/
 	b = 2 * calc_dot_prod(sphere_to_cam_vec, ray_vec);
 	c = calc_dot_prod(sphere_to_cam_vec, sphere_to_cam_vec) - (r * r);
 	discriminant = (b * b) - (4 * a * c);
@@ -234,6 +251,16 @@ int main(void)
 	s.sphere_colour[G] = 100; 
 	s.sphere_colour[B] = 0;
 
+	s.plane_xyz[X] = 0;
+	s.plane_xyz[Y] = 10;
+	s.plane_xyz[Z] = 10;
+	s.plane_normal[X] = 0;
+	s.plane_normal[Y] = 1;
+	s.plane_normal[Z] = 0;
+	s.plane_colour[R] = 255; 
+	s.plane_colour[G] = 100; 
+	s.plane_colour[B] = 0;
+	
 	/*
 	  set values needed for ray tracing
 	*/
@@ -282,16 +309,18 @@ int main(void)
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s.res_xy[Y])) + (viewport_height / 2);
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
-			t_min = solve_quadratic(s.cam_xyz, ray_vec, s.sphere_xyz, s.sphere_diameter);
+			//t_min = solve_quadratic(s.cam_xyz, ray_vec, s.sphere_xyz, s.sphere_diameter);
+			t_min = plane_intercept(distance_to_viewport, s.cam_xyz, ray_vec, s.plane_xyz, s.plane_normal);
+			//printf("t_min = %f\n", t_min);
 			if (t_min == INFINITY)
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
 			else
 			{
 				/*do lots of stuff to get correct colour - using t_min and the object which gave it*/
-				light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
+				/*light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
 				pixel_colour[R] = (double)s.sphere_colour[R] * light_adjust;
 				pixel_colour[G] = (double)s.sphere_colour[G] * light_adjust;
-				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;
+				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;*/
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
