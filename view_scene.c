@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/10 15:13:55 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/10 18:00:23 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,13 @@ double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 	/*here using sphere so normal is just vector between center and surface point*/
 	/*normal calculation functions should always give a normalised vector*/
 	
-	calc_3d_vector(s->sphere_xyz, obj_surface_xyz, obj_norm_vec);
-	calc_unit_vec(obj_norm_vec, obj_norm_vec);
+	/*for sphere*/
+	//calc_3d_vector(s->sphere_xyz, obj_surface_xyz, obj_norm_vec);
+	//calc_unit_vec(obj_norm_vec, obj_norm_vec);
+	/*for plane*/
+	obj_norm_vec[X] = s->plane_normal[X];
+	obj_norm_vec[Y] = s->plane_normal[Y];
+	obj_norm_vec[Z] = s->plane_normal[Z];
 	
 	/*compute dot product of normal and light ray*/
 	/*if the dot product is negative, means angle between vectors of more than 90, which
@@ -160,7 +165,7 @@ double	plane_intercept(double vp_distance, double *cam_xyz, double *ray_vec, dou
 	ray_normal_dot = calc_dot_prod(ray_vec, plane_normal);
 	if (!ray_normal_dot)
 		return (INFINITY);
-	t_min = (-1 * calc_dot_prod(plane_to_cam_vec, plane_normal)) / ray_normal_dot;
+	t_min = (1 * calc_dot_prod(plane_to_cam_vec, plane_normal)) / ray_normal_dot;
 	if (t_min < vp_distance)
 		return (INFINITY);
 	return (t_min);
@@ -235,27 +240,27 @@ int main(void)
 	s.ambient_colour[Y] = 0;
 	s.ambient_colour[Z] = 0;
 
-	s.light_xyz[X] = 10;
-	s.light_xyz[Y] = 30;
-	s.light_xyz[Z] = 10;
-	s.light_brightness = 0.5;
+	s.light_xyz[X] = 15;
+	s.light_xyz[Y] = 0;
+	s.light_xyz[Z] = 0;
+	s.light_brightness = 0.6;
 	s.light_colour[X] = 255;
 	s.light_colour[Y] = 255;
 	s.light_colour[Z] = 255;
 	
 	s.sphere_xyz[X] = 0;
-	s.sphere_xyz[Y] = 0;
-	s.sphere_xyz[Z] = 40;
+	s.sphere_xyz[Y] = 10;
+	s.sphere_xyz[Z] = 50;
 	s.sphere_diameter = 10;
-	s.sphere_colour[R] = 255; 
-	s.sphere_colour[G] = 100; 
+	s.sphere_colour[R] = 0; 
+	s.sphere_colour[G] = 255; 
 	s.sphere_colour[B] = 0;
 
-	s.plane_xyz[X] = 0;
-	s.plane_xyz[Y] = 10;
-	s.plane_xyz[Z] = 10;
-	s.plane_normal[X] = 0;
-	s.plane_normal[Y] = 1;
+	s.plane_xyz[X] = 5;
+	s.plane_xyz[Y] = 0;
+	s.plane_xyz[Z] = 0;
+	s.plane_normal[X] = 1;
+	s.plane_normal[Y] = 0;
 	s.plane_normal[Z] = 0;
 	s.plane_colour[R] = 255; 
 	s.plane_colour[G] = 100; 
@@ -309,18 +314,25 @@ int main(void)
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s.res_xy[Y])) + (viewport_height / 2);
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
+			/*when calculating shadows, will need any interceptions of light ray with any objects,
+			  not just t_min - as the dark side of the sphere from vp could still cast a shadow, so
+			  the equation solving functions should always return 1 or 0, and store t_min in a
+			  passed variable, instead of returning t_min*/
 			//t_min = solve_quadratic(s.cam_xyz, ray_vec, s.sphere_xyz, s.sphere_diameter);
 			t_min = plane_intercept(distance_to_viewport, s.cam_xyz, ray_vec, s.plane_xyz, s.plane_normal);
-			//printf("t_min = %f\n", t_min);
 			if (t_min == INFINITY)
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
 			else
 			{
 				/*do lots of stuff to get correct colour - using t_min and the object which gave it*/
-				/*light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
+				/*if light is behind the plane - it should not appear lit - can maybe just include the
+				  plane itelf when calculating shadow rays for the plane - only as long as all shadows
+				  get ambient lighting at minimum - if shadows are fully black, this won't work as the plane
+				  will just appear totally black*/
+				light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
 				pixel_colour[R] = (double)s.sphere_colour[R] * light_adjust;
 				pixel_colour[G] = (double)s.sphere_colour[G] * light_adjust;
-				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;*/
+				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
