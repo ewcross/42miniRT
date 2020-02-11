@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 11:36:10 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 14:48:55 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,6 @@ void	init_win_struct(t_win_struct *ws)
 	ws->img_ptr = NULL;
 	ws->res_x = 0;
 	ws->res_y = 0;
-}
-
-void	init_scene_struct(t_scene_struct *s)
-{
-	s->cam_list = NULL;
-	s->l_list = NULL;
-	s->sp_list = NULL;
-	s->pl_list = NULL;
-	s->sq_list = NULL;
-	s->cy_list = NULL;
-	s->tr_list = NULL;
 }
 
 int		pos_in_set(char ch, char *set)
@@ -81,12 +70,26 @@ int main(int argc, char **argv)
 	char *line;
 	t_scene_struct s;
 	t_win_struct ws;
+	t_obj_struct *elem;
 
 	init_win_struct(&ws);
-	init_scene_struct(&s);
+	s.obj_list = NULL;
 
 	line = argv[1];
-	if (parse_line(line, &s))
+	if (parse_line(line, &s) == -2)
 		printf("check line: \"%s\"\n", line);
+	else if (parse_line(line, &s))
+		printf("malloc error\n");
+	printf("printing obj list:\n\n");
+	if (s.obj_list)
+	{
+		elem = s.obj_list;
+		while (elem)
+		{
+			printf("\nelem:\n\n");
+			print_elem(elem);
+			elem = elem->next;
+		}
+	}
 	return (0);
 }

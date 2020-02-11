@@ -6,11 +6,49 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 11:50:37 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 14:49:45 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+
+void	fill_coords(double *src, double *dst)
+{
+	if (!src || !(*src))
+	{
+		dst[X] = 0;
+		dst[Y] = 0;
+		dst[Z] = 0;
+		return ;
+	}
+	dst[X] = src[X];
+	dst[Y] = src[Y];
+	dst[Z] = src[Z];
+}
+
+void	fill_colour(int *src, int *dst)
+{
+	if (!src || !(*src))
+	{
+		dst[X] = 0;
+		dst[Y] = 0;
+		dst[Z] = 0;
+		return ;
+	}
+	dst[R] = src[R];
+	dst[G] = src[G];
+	dst[B] = src[B];
+}
+	
+void	print_elem(t_obj_struct *elem)
+{
+	printf("type: %c\n", elem->id);
+	printf("xyz: %f,%f,%f\n", elem->xyz[X], elem->xyz[Y], elem->xyz[Z]);
+	printf("normal: %f,%f,%f\n", elem->normal[X], elem->normal[Y], elem->normal[Z]);
+	printf("colour ptr: %p\n", elem->colour);
+	printf("colour: %d,%d,%d\n", elem->colour[X], elem->colour[Y], elem->colour[Z]);
+	printf("data: %f\n", elem->data.doubl);
+}
 
 void	print_strs(char **strs)
 {
@@ -192,8 +230,6 @@ int	l_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	printf("%f, %f, %f\n", light_xyz[X], light_xyz[Y], light_xyz[Z]);
-	printf("%d, %d, %d\n", colour[R], colour[G], colour[B]);
 	return (0);
 }
 
@@ -251,23 +287,54 @@ int	t_func(char *line, t_scene_struct *s)
 	return (0);
 }
 
+t_obj_struct	*create_elem(char id, double *xyz, double *normal, int *colour)
+{
+	t_obj_struct *elem;
+
+	if(!(elem = (t_obj_struct*)malloc(sizeof(t_obj_struct))))
+		return (NULL);
+	elem->id = id;
+	fill_coords(xyz, elem->xyz);
+	fill_coords(normal, elem->normal);
+	fill_colour(colour, elem->colour);
+	elem->next = NULL;
+	return (elem);
+}
+
+void	add_elem(t_scene_struct *s, t_obj_struct *elem)
+{
+	t_obj_struct *obj;
+
+	if (!s->obj_list)
+		s->obj_list = elem;
+	return ;
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->next = elem;
+}
+
 int	cam_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	cam_xyz[3];
-	double	cam_norm[3];
-	double	cam_fov;
+	char			**strs;
+	double			xyz[3];
+	double			normal[3];
+	double			fov;
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
 		return (-1);
-	if (get_xyz(strs[1], cam_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
-	if (get_xyz(strs[2], cam_norm) == -1)
+	if (get_xyz(strs[2], normal) == -1)
 		return (-1);
-	if (ft_atof(strs[3], &cam_fov) == -1 || cam_fov < 0)
+	if (ft_atof(strs[3], &fov) == -1 || fov < 0)
 		return (-1);
-	/*add to cam chain and store*/
+	if(!(elem = create_elem('C', xyz, normal, NULL)))
+		return (-2);
+	elem->data.doubl = fov;
+	add_elem(s, elem);
 	return (0);
 }
 
@@ -276,8 +343,7 @@ int	cy_func(char *line, t_scene_struct *s)
 	char	**strs;
 	double	cylinder_xyz[3];
 	double	normal_xyz[3];
-	double	diameter;
-	double	height;
+	double	diameter_height[2];
 	int		cylinder_colour[3];
 
 	strs = ft_split(line, ' ');
@@ -287,17 +353,12 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_xyz(strs[2], normal_xyz) == -1)
 		return (-1);
-	if (ft_atof(strs[3], &diameter) == -1 || diameter < 0)
+	if (ft_atof(strs[3], diameter_height) == -1 || diameter_height[0] < 0)
 		return (-1);
-	if (ft_atof(strs[4], &height) == -1 || height < 0)
+	if (ft_atof(strs[4], diameter_height + 1) == -1 || diameter_height[1] < 0)
 		return (-1);
 	if (get_colour(strs[5], cylinder_colour) == -1)
 		return (-1);
-	printf("cyl pos:\n\n(%f,%f,%f)\n\n", cylinder_xyz[X], cylinder_xyz[Y], cylinder_xyz[Z]);
-	printf("cyl norm:\n\n(%f,%f,%f)\n\n", normal_xyz[X], normal_xyz[Y], normal_xyz[Z]);
-	printf("cyl diameter:\n\n%f\n\n", diameter);
-	printf("cyl height:\n\n%f\n\n", height);
-	printf("cyl colour:\n\n(%d, %d, %d)\n\n", cylinder_colour[R], cylinder_colour[G], cylinder_colour[B]);
 	return (0);
 }
 
