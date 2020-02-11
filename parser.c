@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 14:48:55 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 16:37:06 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,8 @@ int		parse_line(char *line, t_scene_struct *s)
 /*replace with parser function - start of parsing process*/
 int main(int argc, char **argv)
 {
-	char *line;
+	int		fd;
+	char	*line;
 	t_scene_struct s;
 	t_win_struct ws;
 	t_obj_struct *elem;
@@ -75,12 +76,21 @@ int main(int argc, char **argv)
 	init_win_struct(&ws);
 	s.obj_list = NULL;
 
-	line = argv[1];
-	if (parse_line(line, &s) == -2)
-		printf("check line: \"%s\"\n", line);
-	else if (parse_line(line, &s))
-		printf("malloc error\n");
-	printf("printing obj list:\n\n");
+	fd = open("file.rt", O_RDONLY);
+	while (get_next_line(fd, &line))
+	{
+		if (parse_line(line, &s))
+			printf("\n\n***ERROR***\ncheck line: \"%s\"\n", line);
+	}
+	//get_next_line(fd, &line);
+	//if (parse_line(line, &s))
+	//	printf("check line: \"%s\"\n", line);
+
+	printf("printing struct basics:\n\n");
+	printf("res_x = %d, res_y %d\n\n", s.res_xy[X], s.res_xy[Y]);
+	printf("ambient ratio  = %f\n", s.ambient_ratio);
+	printf("ambient colour: %d,%d,%d\n\n", s.ambient_colour[R], s.ambient_colour[G], s.ambient_colour[B]);
+	printf("printing obj list:\n");
 	if (s.obj_list)
 	{
 		elem = s.obj_list;

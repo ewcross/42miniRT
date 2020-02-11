@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 14:47:33 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 17:12:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <math.h>
 # include "mlx.h"
 # include "libft.h"
+# include "libgnl.h"
 # include "x11.h"
 
 # define CHARSET "RAclspt"

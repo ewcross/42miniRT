@@ -6,38 +6,81 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 14:49:45 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 17:11:37 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-void	fill_coords(double *src, double *dst)
+void	fill_doubles(double *src, double *dst, int len)
 {
-	if (!src || !(*src))
+	int	i;
+
+	i = 0;
+	if (!src)
 	{
-		dst[X] = 0;
-		dst[Y] = 0;
-		dst[Z] = 0;
+		while (i < len)
+		{	
+			dst[i] = 0;
+			i++;
+		}
 		return ;
 	}
-	dst[X] = src[X];
-	dst[Y] = src[Y];
-	dst[Z] = src[Z];
+	while (i < len)
+	{
+		dst[i] = src[i];
+		i++;
+	}
 }
 
-void	fill_colour(int *src, int *dst)
+void	fill_ints(int *src, int *dst, int len)
 {
-	if (!src || !(*src))
+	int	i;
+
+	i = 0;
+	if (!src)
 	{
-		dst[X] = 0;
-		dst[Y] = 0;
-		dst[Z] = 0;
+		while (i < len)
+		{	
+			dst[i] = 0;
+			i++;
+		}
 		return ;
 	}
-	dst[R] = src[R];
-	dst[G] = src[G];
-	dst[B] = src[B];
+	while (i < len)
+	{
+		dst[i] = src[i];
+		i++;
+	}
+}
+
+t_obj_struct	*create_elem(char id, double *xyz, double *normal, int *colour)
+{
+	t_obj_struct *elem;
+
+	if(!(elem = (t_obj_struct*)malloc(sizeof(t_obj_struct))))
+		return (NULL);
+	elem->id = id;
+	fill_doubles(xyz, elem->xyz, 3);
+	fill_doubles(normal, elem->normal, 3);
+	fill_ints(colour, elem->colour, 3);
+	elem->next = NULL;
+	return (elem);
+}
+
+void	add_elem(t_scene_struct *s, t_obj_struct *elem)
+{
+	t_obj_struct *obj;
+
+	if (!s->obj_list)
+	{
+		s->obj_list = elem;
+		return ;
+	}
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->next = elem;
 }
 	
 void	print_elem(t_obj_struct *elem)
@@ -47,7 +90,11 @@ void	print_elem(t_obj_struct *elem)
 	printf("normal: %f,%f,%f\n", elem->normal[X], elem->normal[Y], elem->normal[Z]);
 	printf("colour ptr: %p\n", elem->colour);
 	printf("colour: %d,%d,%d\n", elem->colour[X], elem->colour[Y], elem->colour[Z]);
-	printf("data: %f\n", elem->data.doubl);
+	printf("data double: %f\n", elem->data.doubl);
+	printf("tr: (%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)\n", elem->data.tr_points[0][0], elem->data.tr_points[0][1], elem->data.tr_points[0][2],
+				 								   elem->data.tr_points[1][0], elem->data.tr_points[1][1], elem->data.tr_points[1][2],
+				 								   elem->data.tr_points[2][0], elem->data.tr_points[2][1], elem->data.tr_points[2][2]);
+	printf("data cy: d = %f, h = %f\n", elem->data.cy_diam_height[0], elem->data.cy_diam_height[1]);
 }
 
 void	print_strs(char **strs)
@@ -127,7 +174,6 @@ int	get_colour(char *str, int *colour)
 	char	**strs;
 	
 	strs = ft_split(str, ',');
-	print_strs(strs);
 	if (len_str_arr(strs) != 3)
 		return (-1);
 	i = 0;
@@ -146,7 +192,6 @@ int	get_xyz(char *str, double *xyz)
 	char	**strs;
 
 	strs = ft_split(str, ',');
-	print_strs(strs);
 	if (len_str_arr(strs) != 3)
 		return (-1);
 	i = 0;
@@ -192,10 +237,11 @@ int	a_func(char *line, t_scene_struct *s)
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
-	if (ft_atof(strs[1], &ratio) == -1 || ratio < 0)
+	if (ft_atof(strs[1], &(s->ambient_ratio)) == -1 || ratio < 0)
 		return (-1);
 	if (get_colour(strs[2], colour) == -1)
 		return (-1);
+	fill_ints(colour, s->ambient_colour, 3);
 	return (0);
 }
 
@@ -216,20 +262,25 @@ int	c_func(char *line, t_scene_struct *s)
 
 int	l_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	light_xyz[3];
-	double	brightness;
-	int		colour[3];
+	char			**strs;
+	double			xyz[3];
+	double			brightness;
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
 		return (-1);
-	if (get_xyz(strs[1], light_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
 	if (ft_atof(strs[2], &brightness) == -1 || brightness < 0)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
+	if(!(elem = create_elem('l', xyz, NULL, colour)))
+		return (-2);
+	elem->data.doubl = brightness;
+	add_elem(s, elem);
 	return (0);
 }
 
@@ -250,68 +301,52 @@ int	s_func(char *line, t_scene_struct *s)
 
 int	p_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	plane_xyz[3];
-	double	normal_xyz[3];
-	int		plane_colour[3];
+	char			**strs;
+	double			xyz[3];
+	double			normal[3];
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4 || strs[0][1] != 'l')
 		return (-1);
-	if (get_xyz(strs[1], plane_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
-	if (get_xyz(strs[2], normal_xyz) == -1)
+	if (get_xyz(strs[2], normal) == -1)
 		return (-1);
-	if (get_colour(strs[3], plane_colour) == -1)
+	if (get_colour(strs[3], colour) == -1)
 		return (-1);
+	if(!(elem = create_elem('p', xyz, normal, colour)))
+		return (-2);
+	add_elem(s, elem);
 	return (0);
 }
 
 int	t_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	points_xyz[3][3];
-	int		triangle_colour[3];
+	char			**strs;
+	double			points[3][3];
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5 || strs[0][1] != 'r')
 		return (-1);
-	if (get_xyz(strs[1], points_xyz[0]) == -1)
+	if (get_xyz(strs[1], points[0]) == -1)
 		return (-1);
-	if (get_xyz(strs[2], points_xyz[1]) == -1)
+	if (get_xyz(strs[2], points[1]) == -1)
 		return (-1);
-	if (get_xyz(strs[3], points_xyz[2]) == -1)
+	if (get_xyz(strs[3], points[2]) == -1)
 		return (-1);
-	if (get_colour(strs[4], triangle_colour) == -1)
+	if (get_colour(strs[4], colour) == -1)
 		return (-1);
+	if(!(elem = create_elem('t', NULL, NULL, colour)))
+		return (-2);
+	fill_doubles(points[0], elem->data.tr_points[0], 3);
+	fill_doubles(points[1], elem->data.tr_points[1], 3);
+	fill_doubles(points[2], elem->data.tr_points[2], 3);
+	add_elem(s, elem);
 	return (0);
-}
-
-t_obj_struct	*create_elem(char id, double *xyz, double *normal, int *colour)
-{
-	t_obj_struct *elem;
-
-	if(!(elem = (t_obj_struct*)malloc(sizeof(t_obj_struct))))
-		return (NULL);
-	elem->id = id;
-	fill_coords(xyz, elem->xyz);
-	fill_coords(normal, elem->normal);
-	fill_colour(colour, elem->colour);
-	elem->next = NULL;
-	return (elem);
-}
-
-void	add_elem(t_scene_struct *s, t_obj_struct *elem)
-{
-	t_obj_struct *obj;
-
-	if (!s->obj_list)
-		s->obj_list = elem;
-	return ;
-	obj = s->obj_list;
-	while (obj->next)
-		obj = obj->next;
-	obj->next = elem;
 }
 
 int	cam_func(char *line, t_scene_struct *s)
@@ -340,44 +375,54 @@ int	cam_func(char *line, t_scene_struct *s)
 
 int	cy_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	cylinder_xyz[3];
-	double	normal_xyz[3];
-	double	diameter_height[2];
-	int		cylinder_colour[3];
+	char			**strs;
+	double			xyz[3];
+	double			normal[3];
+	double			diameter_height[2];
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 6)
 		return (-1);
-	if (get_xyz(strs[1], cylinder_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
-	if (get_xyz(strs[2], normal_xyz) == -1)
+	if (get_xyz(strs[2], normal) == -1)
 		return (-1);
-	if (ft_atof(strs[3], diameter_height) == -1 || diameter_height[0] < 0)
+	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	if (ft_atof(strs[4], diameter_height + 1) == -1 || diameter_height[1] < 0)
+	if (ft_atof(strs[4], diameter_height) == -1 || diameter_height[0] < 0)
 		return (-1);
-	if (get_colour(strs[5], cylinder_colour) == -1)
+	if (ft_atof(strs[5], diameter_height + 1) == -1 || diameter_height[1] < 0)
 		return (-1);
+	if(!(elem = create_elem('c', xyz, normal, colour)))
+		return (-2);
+	fill_doubles(diameter_height, elem->data.cy_diam_height, 2);
+	add_elem(s, elem);
 	return (0);
 }
 
 int	sp_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	sphere_xyz[3];
-	double	diameter;
-	int		sphere_colour[3];
+	char			**strs;
+	double			xyz[3];
+	double			diameter;
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
 		return (-1);
-	if (get_xyz(strs[1], sphere_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
 	if (ft_atof(strs[2], &diameter) == -1 || diameter < 0)
 		return (-1);
-	if (get_colour(strs[3], sphere_colour) == -1)
+	if (get_colour(strs[3], colour) == -1)
 		return (-1);
+	if(!(elem = create_elem('S', xyz, NULL, colour)))
+		return (-2);
+	elem->data.doubl = diameter;
+	add_elem(s, elem);
 	return (0);
 }
 
