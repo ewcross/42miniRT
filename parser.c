@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 16:37:06 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 17:17:40 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ int		parse_line(char *line, t_scene_struct *s)
 	i = 0;
 	while (line[i] == ' ')
 		i++;
+	if (!line[i])
+		return (0);
 	if ((pos = pos_in_set(line[i], CHARSET)) > -1)
 		return(func_arr[pos](line, s));
 	else
@@ -82,10 +84,6 @@ int main(int argc, char **argv)
 		if (parse_line(line, &s))
 			printf("\n\n***ERROR***\ncheck line: \"%s\"\n", line);
 	}
-	//get_next_line(fd, &line);
-	//if (parse_line(line, &s))
-	//	printf("check line: \"%s\"\n", line);
-
 	printf("printing struct basics:\n\n");
 	printf("res_x = %d, res_y %d\n\n", s.res_xy[X], s.res_xy[Y]);
 	printf("ambient ratio  = %f\n", s.ambient_ratio);

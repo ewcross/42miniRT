@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 17:11:37 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 17:14:49 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -428,22 +428,27 @@ int	sp_func(char *line, t_scene_struct *s)
 
 int	sq_func(char *line, t_scene_struct *s)
 {
-	char	**strs;
-	double	square_xyz[3];
-	double	normal_xyz[3];
-	double	side_size;
-	int		square_colour[3];
+	char			**strs;
+	double			xyz[3];
+	double			normal[3];
+	double			side_size;
+	int				colour[3];
+	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5)
 		return (-1);
-	if (get_xyz(strs[1], square_xyz) == -1)
+	if (get_xyz(strs[1], xyz) == -1)
 		return (-1);
-	if (get_xyz(strs[2], normal_xyz) == -1)
+	if (get_xyz(strs[2], normal) == -1)
 		return (-1);
 	if (ft_atof(strs[3], &side_size) == -1 || side_size < 0)
 		return (-1);
-	if (get_colour(strs[4], square_colour) == -1)
+	if (get_colour(strs[4], colour) == -1)
 		return (-1);
+	if(!(elem = create_elem('s', xyz, normal, colour)))
+		return (-2);
+	elem->data.doubl = side_size;
+	add_elem(s, elem);
 	return (0);
 }
