@@ -1,2 +1,0 @@
-starting byte of pixel = x pos + (4 x line length x y pos)
-(pixel is 4 bytes - colour then alpha)

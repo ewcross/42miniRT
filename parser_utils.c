@@ -6,40 +6,23 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/04 17:57:06 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/11 11:50:37 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-void print_strs(char **strs)
+void	print_strs(char **strs)
 {
 	int i;
-	int j;
-	int len;
 
-	len = len_str_arr(strs);
 	i = 0;
-	printf("<");
 	while (strs[i])
 	{
-		printf("%s", strs[i]);
-		if (i < len - 1)
-			printf(",");
+		printf("%s\n", strs[i]);
 		i++;
 	}
-	printf(">\n");
 }
-
-/********************************/
-
-
-
-
-
-
-
-/********************************/
 
 int	simple_atoi(char *str)
 {
@@ -106,7 +89,6 @@ int	get_colour(char *str, int *colour)
 	char	**strs;
 	
 	strs = ft_split(str, ',');
-	printf("colour strings:\n");
 	print_strs(strs);
 	if (len_str_arr(strs) != 3)
 		return (-1);
@@ -126,7 +108,6 @@ int	get_xyz(char *str, double *xyz)
 	char	**strs;
 
 	strs = ft_split(str, ',');
-	printf("xyz strings:\n");
 	print_strs(strs);
 	if (len_str_arr(strs) != 3)
 		return (-1);
@@ -150,32 +131,21 @@ int	len_str_arr(char **str_arr)
 	return (i);
 }
 
-/********************************/
-
-
-
-
-
-
-/********************************/
-
-int	R_func(char *line)
+int	r_func(char *line, t_scene_struct *s)
 {
-	int		res_x;
-	int		res_y;
 	char	**strs;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
-	res_x = simple_atoi(strs[1]);
-	res_y = simple_atoi(strs[2]);
-	if (res_x < 1 || res_y < 1)
+	s->res_xy[X] = simple_atoi(strs[1]);
+	s->res_xy[Y] = simple_atoi(strs[2]);
+	if (s->res_xy[X] < 1 || s->res_xy[Y] < 1)
 		return (-1);
 	return (0);
 }
 
-int	A_func(char *line)
+int	a_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	ratio;
@@ -191,7 +161,7 @@ int	A_func(char *line)
 	return (0);
 }
 
-int	c_func(char *line)
+int	c_func(char *line, t_scene_struct *s)
 {
 	int i;
 
@@ -199,14 +169,14 @@ int	c_func(char *line)
 	while (line[i] == ' ')
 		i++;
 	if (line[i + 1] == ' ')
-		return(cam_func(line));
+		return(cam_func(line, s));
 	else if (line[i + 1] == 'y')
-		return(cy_func(line));
+		return(cy_func(line, s));
 	else
 		return (-1);
 }
 
-int	l_func(char *line)
+int	l_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	light_xyz[3];
@@ -227,7 +197,7 @@ int	l_func(char *line)
 	return (0);
 }
 
-int	s_func(char *line)
+int	s_func(char *line, t_scene_struct *s)
 {
 	int i;
 
@@ -235,14 +205,14 @@ int	s_func(char *line)
 	while (line[i] == ' ')
 		i++;
 	if (line[i + 1] == 'p')
-		return(sp_func(line));
+		return(sp_func(line, s));
 	else if (line[i + 1] == 'q')
-		return(sq_func(line));
+		return(sq_func(line, s));
 	else
 		return (-1);
 }
 
-int	p_func(char *line)
+int	p_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	plane_xyz[3];
@@ -261,7 +231,7 @@ int	p_func(char *line)
 	return (0);
 }
 
-int	t_func(char *line)
+int	t_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	points_xyz[3][3];
@@ -281,12 +251,12 @@ int	t_func(char *line)
 	return (0);
 }
 
-int	cam_func(char *line)
+int	cam_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	cam_xyz[3];
 	double	cam_norm[3];
-	int		cam_fov;
+	double	cam_fov;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -295,12 +265,13 @@ int	cam_func(char *line)
 		return (-1);
 	if (get_xyz(strs[2], cam_norm) == -1)
 		return (-1);
-	if (simple_atoi(strs[3]) < 1)
+	if (ft_atof(strs[3], &cam_fov) == -1 || cam_fov < 0)
 		return (-1);
+	/*add to cam chain and store*/
 	return (0);
 }
 
-int	cy_func(char *line)
+int	cy_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	cylinder_xyz[3];
@@ -330,7 +301,7 @@ int	cy_func(char *line)
 	return (0);
 }
 
-int	sp_func(char *line)
+int	sp_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	sphere_xyz[3];
@@ -349,7 +320,7 @@ int	sp_func(char *line)
 	return (0);
 }
 
-int	sq_func(char *line)
+int	sq_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 	double	square_xyz[3];

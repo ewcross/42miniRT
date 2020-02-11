@@ -1,1 +1,0 @@
-gcc -lmlx -framework OpenGL -framework AppKit
