@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 15:20:40 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 16:56:29 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ void	add_l_elem(t_scene_struct *s, t_l_struct *elem)
 	
 void	print_elem(t_obj_struct *elem)
 {
-	printf("type: %c\n", elem->id);
+	printf("type: %d\n", elem->id);
 	printf("xyz: %f,%f,%f\n", elem->xyz[X], elem->xyz[Y], elem->xyz[Z]);
 	printf("normal: %f,%f,%f\n", elem->normal[X], elem->normal[Y], elem->normal[Z]);
 	printf("colour ptr: %p\n", elem->colour);

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 16:27:16 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 16:56:02 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ int		parser(t_scene_struct *s, char *file)
 			elem = elem->next;
 		}
 	}
-	printf("printing cam list:\n");
+	/*printf("printing cam list:\n");
 	if (s->cam_list)
 	{
 		cam = s->cam_list;
@@ -114,6 +114,6 @@ int		parser(t_scene_struct *s, char *file)
 			printf("\nlight\n\n");
 			light = light->next;
 		}
-	}
+	}*/
 	return (0);
 }

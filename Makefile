@@ -6,7 +6,7 @@
 #    By: ecross <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/07 15:11:23 by ecross            #+#    #+#              #
-#    Updated: 2020/02/12 16:33:42 by ecross           ###   ########.fr        #
+#    Updated: 2020/02/12 16:35:50 by ecross           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ CFLAGS = -Wall -Wextra -Werror
 
 .c.o: ${GCC} ${CFLAGS} -c $< -o ${<:.c=.o}
 
-${NAME}:	${OBJS} clean
+${NAME}:	${OBJS}
 	${GMM} ${OBJS} ${LIBS}
 
 all:		${NAME}

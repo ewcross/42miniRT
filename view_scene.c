@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 16:32:45 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 17:18:23 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,12 +160,12 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	/*normal calculation functions should always give a normalised vector*/
 	
 	/*for sphere*/
-	//calc_3d_vector(s->sphere_xyz, obj_surface_xyz, obj_norm_vec);
-	//calc_unit_vec(obj_norm_vec, obj_norm_vec);
+	calc_3d_vector(obj->xyz, obj_surface_xyz, obj_norm_vec);
+	calc_unit_vec(obj_norm_vec, obj_norm_vec);
 	/*for plane*/
-	obj_norm_vec[X] = obj->normal[X];
-	obj_norm_vec[Y] = obj->normal[Y];
-	obj_norm_vec[Z] = obj->normal[Z];
+	//obj_norm_vec[X] = obj->normal[X];
+	//obj_norm_vec[Y] = obj->normal[Y];
+	//obj_norm_vec[Z] = obj->normal[Z];
 	
 	/*compute dot product of normal and light ray*/
 	/*if the dot product is negative, means angle between vectors of more than 90, which
@@ -244,7 +244,7 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
    main
 ********/
 
-int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
+int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_size)
 {
 	int		x;
 	int		y;
@@ -262,12 +262,13 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 	t_obj_struct	*pl;
 
 	int		bpp = 32;
-	int		line_size = 4000;
 	
 	/*
 	  set values needed for ray tracing
 	*/
 
+	printf("res_x = %d\n", s->res_xy[X]);
+	printf("res_y = %d\n", s->res_xy[Y]);
 	viewport_width = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
 	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
 	intersect_dist_max = 100000;
@@ -280,10 +281,11 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 
 	scale_light(s);
 	printf("\nscaled lights:\n\n");
+	printf("a brightness = %f\n", s->ambient_ratio);
 	l = s->l_list;
 	while (l)
 	{
-		printf("\nl brightness = %.2f\n", l->brightness);
+		printf("\nl brightness = %f\n", l->brightness);
 		l = l->next;
 	}
 
@@ -293,7 +295,9 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 
 	l = s->l_list;
 	sp = get_next_elem(s->obj_list, 's');
+	print_elem(sp);
 	pl = get_next_elem(s->obj_list, 'p');
+	print_elem(sp);
 	t_min = INFINITY;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
@@ -352,7 +356,6 @@ int		main(void)
 	s.viewport_distance = 1;
 	parser(&s, file);
 
-	printf("***************\n");
 	/*
 	  set up window and create image for ray tracing
 	*/
@@ -364,10 +367,9 @@ int		main(void)
 	cam = s.cam_list;
 	while(cam)
 	{
-		printf("\ncam\n");
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
-		trace_rays(&s, cam, img_addr);
+		img_addr = mlx_get_data_addr(img_ptr, &bpp, &line_size, &endian);
+		trace_rays(&s, cam, img_addr, line_size);
 		/*add new image to list of images in win_struct*/
 		/*currently only one camera so just point ws.img_ptr to img_ptr*/
 		ws.img_ptr = img_ptr;
