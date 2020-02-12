@@ -6,11 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 16:56:29 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 19:27:20 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+#include "structs.h"
 
 void	fill_doubles(double *src, double *dst, int len)
 {
@@ -372,6 +373,7 @@ int	p_func(char *line, t_scene_struct *s)
 		return (-1);
 	if(!(elem = create_obj_elem('p', xyz, normal, colour)))
 		return (-2);
+	elem->get_norm = p_normal;
 	add_obj_elem(s, elem);
 	return (0);
 }
@@ -475,6 +477,7 @@ int	sp_func(char *line, t_scene_struct *s)
 	if(!(elem = create_obj_elem('s', xyz, NULL, colour)))
 		return (-2);
 	elem->data.doubl = diameter;
+	elem->get_norm = sp_normal;
 	add_obj_elem(s, elem);
 	return (0);
 }

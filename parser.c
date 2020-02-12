@@ -6,11 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 16:56:02 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 19:16:07 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+#include "structs.h"
 
 void	init_win_struct(t_win_struct *ws)
 {
@@ -37,7 +38,7 @@ int		pos_in_set(char ch, char *set)
 	return (-1);
 }
 
-void	init_func_arr(int (*func_arr[])(char *, t_scene_struct *))
+void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *))
 {
 	func_arr[0] = r_func;
 	func_arr[1] = a_func;
@@ -54,7 +55,7 @@ int		parse_line(char *line, t_scene_struct *s)
 	int		pos;
 	int		(*func_arr[7])(char *, t_scene_struct *);
 
-	init_func_arr(func_arr);
+	init_parse_func_arr(func_arr);
 	i = 0;
 	while (line[i] == ' ')
 		i++;

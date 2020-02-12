@@ -6,11 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 17:18:23 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 19:32:55 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+#include "structs.h"
 
 /********
    window and image functions
@@ -108,7 +109,7 @@ void	calc_unit_vec(double *vec, double *unit_vec)
 	unit_vec[1] = vec[1] / mag;
 	unit_vec[2] = vec[2] / mag;
 }
-	
+
 void	scale_light(t_scene_struct *s)
 {
 	double		light_total;
@@ -116,7 +117,6 @@ void	scale_light(t_scene_struct *s)
 	t_l_struct	*light;
 
 	light_total = 0;
-	/*for each light in light list*/
 	light = s->l_list;
 	while (light)
 	{
@@ -125,7 +125,6 @@ void	scale_light(t_scene_struct *s)
 	}
 	scale = 1 / (s->ambient_ratio + light_total);
 	s->ambient_ratio *= scale;
-	/*for each light in light list*/
 	light = s->l_list;
 	while (light)
 	{
@@ -160,8 +159,9 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	/*normal calculation functions should always give a normalised vector*/
 	
 	/*for sphere*/
-	calc_3d_vector(obj->xyz, obj_surface_xyz, obj_norm_vec);
-	calc_unit_vec(obj_norm_vec, obj_norm_vec);
+	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
+	//calc_3d_vector(obj->xyz, obj_surface_xyz, obj_norm_vec);
+	//calc_unit_vec(obj_norm_vec, obj_norm_vec);
 	/*for plane*/
 	//obj_norm_vec[X] = obj->normal[X];
 	//obj_norm_vec[Y] = obj->normal[Y];
