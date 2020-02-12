@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 11:17:51 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 14:05:26 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ int		parser(t_scene_struct *s, char *file)
 	int				fd;
 	char			*line;
 	t_obj_struct	*elem;
+	t_cam_struct	*cam;
+	t_l_struct		*light;
 
 	fd = open(file, O_RDONLY);
 	while (get_next_line(fd, &line))
@@ -91,6 +93,26 @@ int		parser(t_scene_struct *s, char *file)
 			printf("\nelem:\n\n");
 			print_elem(elem);
 			elem = elem->next;
+		}
+	}
+	printf("printing cam list:\n");
+	if (s->cam_list)
+	{
+		cam = s->cam_list;
+		while (cam)
+		{
+			printf("\ncamera\n\n");
+			cam = cam->next;
+		}
+	}
+	printf("printing light list:\n");
+	if (s->l_list)
+	{
+		light = s->l_list;
+		while (light)
+		{
+			printf("\nlight\n\n");
+			light = light->next;
 		}
 	}
 	return (0);

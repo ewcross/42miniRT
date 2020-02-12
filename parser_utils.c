@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 11:18:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 13:52:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void	fill_ints(int *src, int *dst, int len)
 	}
 }
 
-t_obj_struct	*create_elem(char id, double *xyz, double *normal, int *colour)
+t_obj_struct	*create_obj_elem(char id, double *xyz, double *normal, int *colour)
 {
 	t_obj_struct *elem;
 
@@ -68,19 +68,75 @@ t_obj_struct	*create_elem(char id, double *xyz, double *normal, int *colour)
 	return (elem);
 }
 
-void	add_elem(t_scene_struct *s, t_obj_struct *elem)
+t_cam_struct	*create_cam_elem(double *xyz, double *normal, double fov)
 {
-	t_obj_struct *obj;
+	t_cam_struct *elem;
+
+	if(!(elem = (t_cam_struct*)malloc(sizeof(t_cam_struct))))
+		return (NULL);
+	fill_doubles(xyz, elem->xyz, 3);
+	fill_doubles(normal, elem->normal, 3);
+	elem->fov = fov;
+	elem->next = NULL;
+	return (elem);
+}
+
+t_l_struct	*create_l_elem(double *xyz, double brightness, int *colour)
+{
+	t_l_struct *elem;
+
+	if(!(elem = (t_l_struct*)malloc(sizeof(t_l_struct))))
+		return (NULL);
+	fill_doubles(xyz, elem->xyz, 3);
+	fill_ints(colour, elem->colour, 3);
+	elem->brightness = brightness;
+	elem->next = NULL;
+	return (elem);
+}
+
+void	add_obj_elem(t_scene_struct *s, t_obj_struct *elem)
+{
+	t_obj_struct *temp;
 
 	if (!s->obj_list)
 	{
 		s->obj_list = elem;
 		return ;
 	}
-	obj = s->obj_list;
-	while (obj->next)
-		obj = obj->next;
-	obj->next = elem;
+	temp = s->obj_list;
+	while (temp->next)
+		temp = temp->next;
+	temp->next = elem;
+}
+
+void	add_cam_elem(t_scene_struct *s, t_cam_struct *elem)
+{
+	t_cam_struct *temp;
+
+	if (!s->cam_list)
+	{
+		s->cam_list = elem;
+		return ;
+	}
+	temp = s->cam_list;
+	while (temp->next)
+		temp = temp->next;
+	temp->next = elem;
+}
+
+void	add_l_elem(t_scene_struct *s, t_l_struct *elem)
+{
+	t_l_struct *temp;
+
+	if (!s->l_list)
+	{
+		s->l_list = elem;
+		return ;
+	}
+	temp = s->l_list;
+	while (temp->next)
+		temp = temp->next;
+	temp->next = elem;
 }
 	
 void	print_elem(t_obj_struct *elem)
@@ -265,7 +321,7 @@ int	l_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			brightness;
 	int				colour[3];
-	t_obj_struct	*elem;
+	t_l_struct		*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -276,10 +332,9 @@ int	l_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	if(!(elem = create_elem('l', xyz, NULL, colour)))
+	if(!(elem = create_l_elem(xyz, brightness, colour)))
 		return (-2);
-	elem->data.doubl = brightness;
-	add_elem(s, elem);
+	add_l_elem(s, elem);
 	return (0);
 }
 
@@ -315,9 +370,9 @@ int	p_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	if(!(elem = create_elem('p', xyz, normal, colour)))
+	if(!(elem = create_obj_elem('p', xyz, normal, colour)))
 		return (-2);
-	add_elem(s, elem);
+	add_obj_elem(s, elem);
 	return (0);
 }
 
@@ -339,12 +394,12 @@ int	t_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[4], colour) == -1)
 		return (-1);
-	if(!(elem = create_elem('t', NULL, NULL, colour)))
+	if(!(elem = create_obj_elem('t', NULL, NULL, colour)))
 		return (-2);
 	fill_doubles(points[0], elem->data.tr_points[0], 3);
 	fill_doubles(points[1], elem->data.tr_points[1], 3);
 	fill_doubles(points[2], elem->data.tr_points[2], 3);
-	add_elem(s, elem);
+	add_obj_elem(s, elem);
 	return (0);
 }
 
@@ -354,7 +409,7 @@ int	cam_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			normal[3];
 	double			fov;
-	t_obj_struct	*elem;
+	t_cam_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -365,10 +420,9 @@ int	cam_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (ft_atof(strs[3], &fov) == -1 || fov < 0)
 		return (-1);
-	if(!(elem = create_elem('C', xyz, normal, NULL)))
+	if(!(elem = create_cam_elem(xyz, normal, fov)))
 		return (-2);
-	elem->data.doubl = fov;
-	add_elem(s, elem);
+	add_cam_elem(s, elem);
 	return (0);
 }
 
@@ -394,10 +448,10 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (ft_atof(strs[5], diameter_height + 1) == -1 || diameter_height[1] < 0)
 		return (-1);
-	if(!(elem = create_elem('c', xyz, normal, colour)))
+	if(!(elem = create_obj_elem('c', xyz, normal, colour)))
 		return (-2);
 	fill_doubles(diameter_height, elem->data.cy_diam_height, 2);
-	add_elem(s, elem);
+	add_obj_elem(s, elem);
 	return (0);
 }
 
@@ -418,10 +472,10 @@ int	sp_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	if(!(elem = create_elem('S', xyz, NULL, colour)))
+	if(!(elem = create_obj_elem('S', xyz, NULL, colour)))
 		return (-2);
 	elem->data.doubl = diameter;
-	add_elem(s, elem);
+	add_obj_elem(s, elem);
 	return (0);
 }
 
@@ -445,9 +499,9 @@ int	sq_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[4], colour) == -1)
 		return (-1);
-	if(!(elem = create_elem('s', xyz, normal, colour)))
+	if(!(elem = create_obj_elem('s', xyz, normal, colour)))
 		return (-2);
 	elem->data.doubl = side_size;
-	add_elem(s, elem);
+	add_obj_elem(s, elem);
 	return (0);
 }

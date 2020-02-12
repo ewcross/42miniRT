@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 11:23:05 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 15:15:12 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,19 +110,31 @@ void	calc_unit_vec(double *vec, double *unit_vec)
 	
 void	scale_light(t_scene_struct *s)
 {
-	double scale;
+	double		light_total;
+	double		scale;
+	t_l_struct	light;
 
-	/*edit to scale multiple lights*/
-	scale = 1 / (s->ambient_ratio + s->light_brightness);
+	light_total = 0;
+	/*for each light in light list*/
+	light = s->l_list;
+	while (light)
+	{
+		light_total += light->brightness;
+		light = light->next;
+	}
+	scale = 1 / (s->ambient_ratio + light_total);
 	s->ambient_ratio *= scale;
-	s->light_brightness *= scale;
+	/*for each light in light list*/
+	light = s->l_list;
+	while (light)
+	{
+		light->brightness *= scale;
+		light = light->next;
+	}
 }
 
-double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
+double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *obj, double *ray_vec, double t_min)
 {
-	/*compute surface point coordinates*/
-	/*cam pos + t_min(unit ray vector)*/
-
 	double	dot;
 	double	fraction;
 	double	ray_unit_vec[3];
@@ -130,14 +142,17 @@ double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 	double	surface_to_light_vec[3];
 	double	obj_norm_vec[3];
 	
+	/*compute surface point coordinates*/
+	/*cam pos + t_min(unit ray vector)*/
+	
 	calc_unit_vec(ray_vec, ray_unit_vec);
-	obj_surface_xyz[X] = s->cam_xyz[X] + (t_min * ray_unit_vec[X]);
-	obj_surface_xyz[Y] = s->cam_xyz[Y] + (t_min * ray_unit_vec[Y]);
-	obj_surface_xyz[Z] = s->cam_xyz[Z] + (t_min * ray_unit_vec[Z]);
+	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
+	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
+	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
 
 	/*compute vector from surface pos to light*/
 
-	calc_3d_vector(obj_surface_xyz, s->light_xyz, surface_to_light_vec);
+	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
 
 	/*compute surface normal (normalised) - need identifier of which object - use function array*/
 	/*here using sphere so normal is just vector between center and surface point*/
@@ -147,9 +162,9 @@ double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 	//calc_3d_vector(s->sphere_xyz, obj_surface_xyz, obj_norm_vec);
 	//calc_unit_vec(obj_norm_vec, obj_norm_vec);
 	/*for plane*/
-	obj_norm_vec[X] = s->plane_normal[X];
-	obj_norm_vec[Y] = s->plane_normal[Y];
-	obj_norm_vec[Z] = s->plane_normal[Z];
+	obj_norm_vec[X] = obj->normal[X];
+	obj_norm_vec[Y] = obj->normal[Y];
+	obj_norm_vec[Z] = obj->normal[Z];
 	
 	/*compute dot product of normal and light ray*/
 	/*if the dot product is negative, means angle between vectors of more than 90, which
@@ -161,29 +176,27 @@ double	calc_light_intensity(double *ray_vec, t_scene_struct *s, double t_min)
 	/*compute intensity from spot light*/
 	fraction = dot / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
 	
-	/*return this fraction of spot light intensity plus ambient light intensity*/
-	return (s->light_brightness * fraction);
+	/*return this fraction of spot light intensity*/
+	return (light->brightness * fraction);
 }
 
-int		plane_intercept(double *t_min, double vp_distance, double *cam_xyz, double *ray_vec, double *plane_xyz, double *plane_normal)
+int		plane_intercept(double *t_min, t_cam_struct *cam, double *ray_vec, t_obj_struct *pl)
 {
 	double	ray_normal_dot;
 	double	plane_to_cam_vec[3];
 
-	calc_3d_vector(cam_xyz, plane_xyz, plane_to_cam_vec);
+	calc_3d_vector(cam->xyz, pl->xyz, plane_to_cam_vec);
 	ray_normal_dot = calc_dot_prod(ray_vec, plane_normal);
 	if (!ray_normal_dot)
 	{
 		*t_min = INFINITY;
 		return (0);
 	}
-	*t_min = calc_dot_prod(plane_to_cam_vec, plane_normal) / ray_normal_dot;
-	if (*t_min < vp_distance)
-		return (0);
+	*t_min = calc_dot_prod(plane_to_cam_vec, pl->normal) / ray_normal_dot;
 	return (1);
 }
 
-int		solve_quadratic(double *t_min, double *ray_vec, t_scene_struct *s)
+int		solve_quadratic(double *t_min, double *ray_vec, t_obj_struct *sp, t_cam_struct *cam)
 {
 	double	sphere_to_cam_vec[3];
 	double	a;
@@ -193,8 +206,8 @@ int		solve_quadratic(double *t_min, double *ray_vec, t_scene_struct *s)
 	double	discriminant;
 	double	smallest_root;
 
-	calc_3d_vector(s->sphere_xyz, s->cam_xyz, sphere_to_cam_vec);
-	r = s->sphere_diameter / 2;
+	calc_3d_vector(sp->xyz, cam->xyz, sphere_to_cam_vec);
+	r = sp->data.doubl / 2;
 	a = calc_dot_prod(ray_vec, ray_vec);
 	/*maybe see here if using a normlised ray vector makes a difference*/
 	b = 2 * calc_dot_prod(sphere_to_cam_vec, ray_vec);
@@ -216,7 +229,7 @@ int		solve_quadratic(double *t_min, double *ray_vec, t_scene_struct *s)
    main
 ********/
 
-int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
+int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 {
 	int		x;
 	int		y;
@@ -231,6 +244,7 @@ int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
 	double	light_adjust;
 	
 	t_win_struct ws;
+	t_l_struct	light;
 
 	int		bpp;
 	int		line_size;
@@ -241,8 +255,8 @@ int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
 	  set values needed for ray tracing
 	*/
 
-	viewport_width = (2 * tan((cam->data.doubl * (M_PI / 180)) / 2) * s->viewport_distance);	/*calc vp width using horizontal FOV*/
-	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);						/*calc vp height using screen res ratio*/
+	viewport_width = (2 * tan((cam->data.doubl * (M_PI / 180)) / 2) * s->viewport_distance);
+	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
 	intersect_dist_max = 100000;
 	intersect_dist_min = s->viewport_distance;
 
@@ -251,37 +265,39 @@ int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
 	  so that total light intensity is always 1.0
 	*/
 
-	/*need to edit to deal with list*/
 	scale_light(&s);
+	printf("\nscaled lights:\n\n");
+	light = s->l_list;
+	while (light)
+	{
+		printf("\nl brightness = %.2f\n", light->brightness);
+		light = light->next;
+	}
 
 	/*
 	  ray tracing algorithm
 	*/
 
 	t_min = INFINITY;
-	ray_vec[Z] = s.viewport_distance;
+	ray_vec[Z] = s->viewport_distance;
 	x = 0;
-	while (x < s.res_xy[X])
+	while (x < s->res_xy[X])
 	{
 		y = 0;
-		while (y < s.res_xy[Y])
+		while (y < s->res_xy[Y])
 		{
-			ray_vec[X] = (viewport_width * ((double)x / s.res_xy[X])) - (viewport_width / 2);
-			ray_vec[Y] = (-1 * viewport_height * ((double)y / s.res_xy[Y])) + (viewport_height / 2);
+			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
+			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
-			/*when calculating shadows, will need any interceptions of light ray with any objects,
-			  not just t_min - as the dark side of the sphere from vp could still cast a shadow, so
-			  the equation solving functions should always return 1 or 0, and store t_min in a
-			  passed variable, instead of returning t_min*/
-			//if (!solve_quadratic(&t_min, ray_vec, &s))
-			if (!plane_intercept(&t_min, s.viewport_distance, s.cam_xyz, ray_vec, s.plane_xyz, s.plane_normal))
-				colour_img_pixel(img_addr, x, y, bpp, line_size, s.ambient_colour);
-			else
+			//if (!solve_quadratic(&t_min, ray_vec, sphere_struct, cam))
+			if (!plane_intercept(&t_min, cam, ray_vec, plane_struct))
+				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
+			else if (t_min > s->viewport_distance)
 			{
-				/*do lots of stuff to get correct colour - using t_min and the object which gave it*/
 				/*if light is behind the plane - it should not appear lit*/
-				light_adjust = s.ambient_ratio + calc_light_intensity(ray_vec, &s, t_min);
+				/*for each light in light list*/
+				light_adjust = s->ambient_ratio + calc_light_intensity(cam, l_struct, obj_struct, ray_vec, t_min);
 				pixel_colour[R] = (double)s.sphere_colour[R] * light_adjust;
 				pixel_colour[G] = (double)s.sphere_colour[G] * light_adjust;
 				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;
@@ -293,13 +309,18 @@ int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
 	}
 }
 
-t_obj_struct	*get_next_elem(t_obj_struct *current, char id)
+t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 {
-	/*
-	   iterate until current element is found
-	   then iterate until the next element with id is found
-	   return NULL if not found
-	 */
+	if (!start)
+		return (start);
+	start = start->next;
+	while (start)
+	{
+		if (start->id == id)
+			return (start);
+		start = start->next;
+	}
+	return (start);
 }
 
 int		main(void)
@@ -311,6 +332,7 @@ int		main(void)
 	  also need to generate a new image for each camera found
 	  ray tracer needs to be passed scene struct, camera struct and image address*/
 	
+	char			first;
 	char			*file;
 	void			*img_addr;
 	t_scene_struct	s;
@@ -331,16 +353,22 @@ int		main(void)
 	ws.res_y = s.res_xy[Y];
 	initialise_window(&ws);
 	
-	/*for each cam in obj_list*/	
+	first = 0;
+	cam = s.obj_list;
+	if (cam->id == 'C')
+		first = 1;
+	while(first == 1 || (cam = get_next_elem(cam, 'C')))
 	{
-		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
-		/*trace_rays(&s, cam_stuct_addr, img_addr);*/
+		print_elem(cam);
+		printf("\n\n");
+		//img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
+		//img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
+		//trace_rays(&s, cam, img_addr);
 		/*add new image to list of images in win_struct*/
 		/*currently only one camera so just point ws.img_ptr to img_ptr*/
-		ws.img_ptr = img_ptr;
+		//ws.img_ptr = img_ptr;
+		first = 0;
 	}
-	
-	mlx_loop(ws.mlx_ptr);
+	//mlx_loop(ws.mlx_ptr);
 	/*free stuff*/
 }

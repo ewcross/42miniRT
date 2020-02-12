@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 11:23:10 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 15:15:13 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,22 @@ typedef struct			s_win_struct
 	int					res_y;
 }						t_win_struct;
 
+typedef struct			s_cam_struct
+{
+	double				xyz[3];
+	double				normal[3];
+	double				fov;
+	struct s_cam_struct	*next;
+}						t_cam_struct;
+
+typedef struct			s_l_struct
+{
+	double				xyz[3];
+	double				brightness;
+	int					colour[3];
+	struct s_l_struct	*next;
+}						t_l_struct;
+
 typedef union			u_obj_data_union
 {
 	double				doubl;
@@ -62,6 +78,8 @@ typedef struct			s_scene_struct
 	double				ambient_ratio;
 	int					ambient_colour[3];
 	t_obj_struct		*obj_list;
+	t_cam_struct		*cam_list;
+	t_l_struct			*l_list;
 }						t_scene_struct;
 
 int						set_keys(int keycode, void *t_win_struct);
@@ -72,6 +90,7 @@ int						parse_line(char *line, t_scene_struct *s);
 int						len_str_arr(char **str_arr);
 int						simple_atoi(char *str);
 void					print_elem(t_obj_struct *elem);
+int						parser(t_scene_struct *s, char *file);
 int						r_func(char *line, t_scene_struct *s);
 int						a_func(char *line, t_scene_struct *s);
 int						c_func(char *line, t_scene_struct *s);
