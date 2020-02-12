@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 15:15:12 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 15:44:10 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ int set_keys(int keycode, void *window_struct)
 
 int close_program(void *window_struct)
 {
+	(void)window_struct;
 	exit(0);
 }
 
@@ -58,7 +59,7 @@ int initialise_window(t_win_struct *ws)
 {
 	ws->mlx_ptr = mlx_init();
 	ws->win_ptr = mlx_new_window(ws->mlx_ptr, ws->res_x, ws->res_y, "window");
-	if (!ws->win_ptr)	/*need to initialise struct values*/
+	if (!ws->win_ptr)
 		return (1);
 	mlx_hook(ws->win_ptr, DESTROYNOTIFY, NOEVENTMASK, close_program, 0);
 	mlx_key_hook(ws->win_ptr, set_keys, ws);
@@ -225,6 +226,20 @@ int		solve_quadratic(double *t_min, double *ray_vec, t_obj_struct *sp, t_cam_str
 	return (1);
 }
 
+t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
+{
+	if (!start)
+		return (start);
+	start = start->next;
+	while (start)
+	{
+		if (start->id == id)
+			return (start);
+		start = start->next;
+	}
+	return (start);
+}
+
 /********
    main
 ********/
@@ -243,14 +258,14 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 	double	scale;
 	double	light_adjust;
 	
-	t_win_struct ws;
-	t_l_struct	light;
+	t_l_struct		*l;
+	t_obj_struct	*sp;
+	t_obj_struct	*pl;
 
-	int		bpp;
-	int		line_size;
-	int		endian;
-	char	*img_addr;
-
+	int		bpp = 32;
+	int		line_size = 4000;
+	int		endian = 0;
+	
 	/*
 	  set values needed for ray tracing
 	*/
@@ -265,19 +280,22 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 	  so that total light intensity is always 1.0
 	*/
 
-	scale_light(&s);
+	scale_light(s);
 	printf("\nscaled lights:\n\n");
-	light = s->l_list;
-	while (light)
+	l = s->l_list;
+	while (l)
 	{
-		printf("\nl brightness = %.2f\n", light->brightness);
-		light = light->next;
+		printf("\nl brightness = %.2f\n", l->brightness);
+		l = l->next;
 	}
 
 	/*
 	  ray tracing algorithm
 	*/
 
+	l = s->l_list;
+	sp = get_next_elem(s->obj_list, 's');
+	pl = get_next_elem(s->obj_list, 'p');
 	t_min = INFINITY;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
@@ -290,37 +308,23 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
-			//if (!solve_quadratic(&t_min, ray_vec, sphere_struct, cam))
-			if (!plane_intercept(&t_min, cam, ray_vec, plane_struct))
+			//if (!plane_intercept(&t_min, cam, ray_vec, pl))
+			if (!solve_quadratic(&t_min, ray_vec, sp, cam))
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
 			else if (t_min > s->viewport_distance)
 			{
 				/*if light is behind the plane - it should not appear lit*/
 				/*for each light in light list*/
-				light_adjust = s->ambient_ratio + calc_light_intensity(cam, l_struct, obj_struct, ray_vec, t_min);
-				pixel_colour[R] = (double)s.sphere_colour[R] * light_adjust;
-				pixel_colour[G] = (double)s.sphere_colour[G] * light_adjust;
-				pixel_colour[B] = (double)s.sphere_colour[B] * light_adjust;
+				light_adjust = s->ambient_ratio + calc_light_intensity(cam, l, sp, ray_vec, t_min);
+				pixel_colour[R] = (double)sp->colour[R] * light_adjust;
+				pixel_colour[G] = (double)sp->colour[G] * light_adjust;
+				pixel_colour[B] = (double)sp->colour[B] * light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
 		}
 		x++;
 	}
-}
-
-t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
-{
-	if (!start)
-		return (start);
-	start = start->next;
-	while (start)
-	{
-		if (start->id == id)
-			return (start);
-		start = start->next;
-	}
-	return (start);
 }
 
 int		main(void)
@@ -332,12 +336,16 @@ int		main(void)
 	  also need to generate a new image for each camera found
 	  ray tracer needs to be passed scene struct, camera struct and image address*/
 	
-	char			first;
 	char			*file;
-	void			*img_addr;
+	void			*img_ptr;
+	char			*img_addr;
 	t_scene_struct	s;
 	t_win_struct	ws;
-	t_obj_struct	*cam;
+	t_cam_struct	*cam;
+	
+	int		bpp;
+	int		line_size;
+	int		endian;
 
 	file = "file.rt";
 	init_win_struct(&ws);
@@ -353,22 +361,18 @@ int		main(void)
 	ws.res_y = s.res_xy[Y];
 	initialise_window(&ws);
 	
-	first = 0;
-	cam = s.obj_list;
-	if (cam->id == 'C')
-		first = 1;
-	while(first == 1 || (cam = get_next_elem(cam, 'C')))
+	cam = s.cam_list;
+	while(cam)
 	{
-		print_elem(cam);
-		printf("\n\n");
-		//img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		//img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
-		//trace_rays(&s, cam, img_addr);
+		printf("\ncam\n");
+		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
+		img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
+		trace_rays(&s, cam, img_addr);
 		/*add new image to list of images in win_struct*/
 		/*currently only one camera so just point ws.img_ptr to img_ptr*/
-		//ws.img_ptr = img_ptr;
-		first = 0;
+		ws.img_ptr = img_ptr;
+		cam = cam->next;
 	}
-	//mlx_loop(ws.mlx_ptr);
+	mlx_loop(ws.mlx_ptr);
 	/*free stuff*/
 }

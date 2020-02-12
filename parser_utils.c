@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 13:52:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 15:20:40 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -472,7 +472,7 @@ int	sp_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[3], colour) == -1)
 		return (-1);
-	if(!(elem = create_obj_elem('S', xyz, NULL, colour)))
+	if(!(elem = create_obj_elem('s', xyz, NULL, colour)))
 		return (-2);
 	elem->data.doubl = diameter;
 	add_obj_elem(s, elem);
@@ -499,7 +499,7 @@ int	sq_func(char *line, t_scene_struct *s)
 		return (-1);
 	if (get_colour(strs[4], colour) == -1)
 		return (-1);
-	if(!(elem = create_obj_elem('s', xyz, normal, colour)))
+	if(!(elem = create_obj_elem('q', xyz, normal, colour)))
 		return (-2);
 	elem->data.doubl = side_size;
 	add_obj_elem(s, elem);
