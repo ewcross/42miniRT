@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 11:29:51 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 11:23:05 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,61 +216,42 @@ int		solve_quadratic(double *t_min, double *ray_vec, t_scene_struct *s)
    main
 ********/
 
-int main(void)
+int trace_rays(t_scene_struct *s, t_obj_struct *cam, void *img_addr)
 {
 	int		x;
 	int		y;
-	int		bpp;
-	int		line_size;
-	int		endian;
 	int		pixel_colour[3];
-	char	*img_addr;
+	double	ray_vec[3];
 	double	viewport_width;
 	double	viewport_height;
-	double	viewport_pix_xyz[3];
-	double	ray_vec[3];
 	double	intersect_dist_max;
 	double	intersect_dist_min;
 	double	t_min;
 	double	scale;
 	double	light_adjust;
-	t_scene_struct s;
+	
 	t_win_struct ws;
 
-	init_win_struct(&ws);
-	init_scene_struct(&s);
-
-	/*
-	  section to be replaced by the parser
-	*/
-
-	dummy_parser(&s);
+	int		bpp;
+	int		line_size;
+	int		endian;
+	char	*img_addr;
 
 	/*
 	  set values needed for ray tracing
 	*/
 
-	viewport_width = (2 * tan((s.cam_fov * (M_PI / 180)) / 2) * s.viewport_distance);	/*calc vp width using horizontal FOV*/
-	viewport_height = s.res_xy[Y] * (viewport_width / s.res_xy[X]);						/*calc vp height using screen res ratio*/
+	viewport_width = (2 * tan((cam->data.doubl * (M_PI / 180)) / 2) * s->viewport_distance);	/*calc vp width using horizontal FOV*/
+	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);						/*calc vp height using screen res ratio*/
 	intersect_dist_max = 100000;
-	intersect_dist_min = s.viewport_distance;
+	intersect_dist_min = s->viewport_distance;
 
-	/*
-	  set up window and create image for ray tracing
-	*/
-
-	ws.res_x = s.res_xy[X];
-	ws.res_y = s.res_xy[Y];
-	initialise_window(&ws);
-	/*for each cam struct in cam list*/
-	ws.img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-	img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
-	
 	/*
 	  function to scale the light intensity of each light source
 	  so that total light intensity is always 1.0
 	*/
 
+	/*need to edit to deal with list*/
 	scale_light(&s);
 
 	/*
@@ -310,10 +291,56 @@ int main(void)
 		}
 		x++;
 	}
-	
+}
+
+t_obj_struct	*get_next_elem(t_obj_struct *current, char id)
+{
 	/*
-	  run loop
+	   iterate until current element is found
+	   then iterate until the next element with id is found
+	   return NULL if not found
+	 */
+}
+
+int		main(void)
+{
+	/*
+	  generate scene struct
+	  use parser to fill with scene information
+	  loop through obj structs and for each camera found, call ray tracer
+	  also need to generate a new image for each camera found
+	  ray tracer needs to be passed scene struct, camera struct and image address*/
+	
+	char			*file;
+	void			*img_addr;
+	t_scene_struct	s;
+	t_win_struct	ws;
+	t_obj_struct	*cam;
+
+	file = "file.rt";
+	init_win_struct(&ws);
+	s.obj_list = NULL;
+	s.viewport_distance = 1;
+	parser(&s, file);
+
+	/*
+	  set up window and create image for ray tracing
 	*/
 
+	ws.res_x = s.res_xy[X];
+	ws.res_y = s.res_xy[Y];
+	initialise_window(&ws);
+	
+	/*for each cam in obj_list*/	
+	{
+		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
+		img_addr = mlx_get_data_addr(ws.img_ptr, &bpp, &line_size, &endian);
+		/*trace_rays(&s, cam_stuct_addr, img_addr);*/
+		/*add new image to list of images in win_struct*/
+		/*currently only one camera so just point ws.img_ptr to img_ptr*/
+		ws.img_ptr = img_ptr;
+	}
+	
 	mlx_loop(ws.mlx_ptr);
+	/*free stuff*/
 }

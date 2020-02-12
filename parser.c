@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 17:17:40 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 11:17:51 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,32 +66,26 @@ int		parse_line(char *line, t_scene_struct *s)
 		return (-1);
 }
 
-/*replace with parser function - start of parsing process*/
-int main(int argc, char **argv)
+int		parser(t_scene_struct *s, char *file)
 {
-	int		fd;
-	char	*line;
-	t_scene_struct s;
-	t_win_struct ws;
-	t_obj_struct *elem;
+	int				fd;
+	char			*line;
+	t_obj_struct	*elem;
 
-	init_win_struct(&ws);
-	s.obj_list = NULL;
-
-	fd = open("file.rt", O_RDONLY);
+	fd = open(file, O_RDONLY);
 	while (get_next_line(fd, &line))
 	{
-		if (parse_line(line, &s))
+		if (parse_line(line, s))
 			printf("\n\n***ERROR***\ncheck line: \"%s\"\n", line);
 	}
 	printf("printing struct basics:\n\n");
-	printf("res_x = %d, res_y %d\n\n", s.res_xy[X], s.res_xy[Y]);
-	printf("ambient ratio  = %f\n", s.ambient_ratio);
-	printf("ambient colour: %d,%d,%d\n\n", s.ambient_colour[R], s.ambient_colour[G], s.ambient_colour[B]);
+	printf("res_x = %d, res_y %d\n\n", s->res_xy[X], s->res_xy[Y]);
+	printf("ambient ratio  = %f\n", s->ambient_ratio);
+	printf("ambient colour: %d,%d,%d\n\n", s->ambient_colour[R], s->ambient_colour[G], s->ambient_colour[B]);
 	printf("printing obj list:\n");
-	if (s.obj_list)
+	if (s->obj_list)
 	{
-		elem = s.obj_list;
+		elem = s->obj_list;
 		while (elem)
 		{
 			printf("\nelem:\n\n");

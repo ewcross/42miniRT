@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/11 17:14:49 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 11:18:38 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,13 +231,12 @@ int	r_func(char *line, t_scene_struct *s)
 int	a_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
-	double	ratio;
 	int		colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
-	if (ft_atof(strs[1], &(s->ambient_ratio)) == -1 || ratio < 0)
+	if (ft_atof(strs[1], &(s->ambient_ratio)) == -1 || s->ambient_ratio < 0)
 		return (-1);
 	if (get_colour(strs[2], colour) == -1)
 		return (-1);
