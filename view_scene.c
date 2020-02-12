@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 15:44:10 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 16:32:45 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void	scale_light(t_scene_struct *s)
 {
 	double		light_total;
 	double		scale;
-	t_l_struct	light;
+	t_l_struct	*light;
 
 	light_total = 0;
 	/*for each light in light list*/
@@ -187,7 +187,7 @@ int		plane_intercept(double *t_min, t_cam_struct *cam, double *ray_vec, t_obj_st
 	double	plane_to_cam_vec[3];
 
 	calc_3d_vector(cam->xyz, pl->xyz, plane_to_cam_vec);
-	ray_normal_dot = calc_dot_prod(ray_vec, plane_normal);
+	ray_normal_dot = calc_dot_prod(ray_vec, pl->normal);
 	if (!ray_normal_dot)
 	{
 		*t_min = INFINITY;
@@ -255,7 +255,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 	double	intersect_dist_max;
 	double	intersect_dist_min;
 	double	t_min;
-	double	scale;
 	double	light_adjust;
 	
 	t_l_struct		*l;
@@ -264,13 +263,12 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 
 	int		bpp = 32;
 	int		line_size = 4000;
-	int		endian = 0;
 	
 	/*
 	  set values needed for ray tracing
 	*/
 
-	viewport_width = (2 * tan((cam->data.doubl * (M_PI / 180)) / 2) * s->viewport_distance);
+	viewport_width = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
 	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
 	intersect_dist_max = 100000;
 	intersect_dist_min = s->viewport_distance;
@@ -325,6 +323,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 		}
 		x++;
 	}
+	return (0);
 }
 
 int		main(void)
@@ -353,6 +352,7 @@ int		main(void)
 	s.viewport_distance = 1;
 	parser(&s, file);
 
+	printf("***************\n");
 	/*
 	  set up window and create image for ray tracing
 	*/

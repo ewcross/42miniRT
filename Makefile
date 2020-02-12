@@ -6,11 +6,11 @@
 #    By: ecross <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/07 15:11:23 by ecross            #+#    #+#              #
-#    Updated: 2020/02/12 15:29:38 by ecross           ###   ########.fr        #
+#    Updated: 2020/02/12 16:33:42 by ecross           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = libftprintf.a
+NAME = a.out
 
 SRCS = 	parser.c \
 		parser_utils.c \
@@ -23,14 +23,14 @@ LIBS = libft.a \
 
 RM = rm -f
 
-GCC = gcc
+GMM = gcc libmlx.a -framework OpenGL -framework AppKit
 
 CFLAGS = -Wall -Wextra -Werror
 
 .c.o: ${GCC} ${CFLAGS} -c $< -o ${<:.c=.o}
 
-${NAME}:	${OBJS}
-	ggm ${OBJS} ${LIBS}
+${NAME}:	${OBJS} clean
+	${GMM} ${OBJS} ${LIBS}
 
 all:		${NAME}
 

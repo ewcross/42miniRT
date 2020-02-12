@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 15:44:17 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/12 16:27:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ int						parse_line(char *line, t_scene_struct *s);
 int						len_str_arr(char **str_arr);
 int						simple_atoi(char *str);
 void					print_elem(t_obj_struct *elem);
+void					init_win_struct(t_win_struct *ws);
 int						parser(t_scene_struct *s, char *file);
 int						r_func(char *line, t_scene_struct *s);
 int						a_func(char *line, t_scene_struct *s);
