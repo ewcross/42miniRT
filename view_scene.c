@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 14:06:37 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 14:59:01 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,14 @@ void	scale_light(t_scene_struct *s)
 	}
 }
 
-double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *obj, double *ray_vec, double t_min)
+int		shadow_ray(double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
+{
+	/*check if point_to_light ray intercepts with any other objects*/
+	return(0);
+}
+
+double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *obj,
+								t_obj_struct *obj_list, double *ray_vec, double t_min)
 {
 	double	dot;
 	double	fraction;
@@ -141,17 +148,27 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	double	obj_surface_xyz[3];
 	double	surface_to_light_vec[3];
 	double	obj_norm_vec[3];
-	
+
+	/*find point on surface*/
 	calc_unit_vec(ray_vec, ray_unit_vec);
 	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
 	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
 	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
+	/*find point to light vector*/
 	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
+	/*here need to check if it is a shadow ray*/
+	/*if so, point gets no light from this light, so return 0*/
+	if (shadow_ray(surface_to_light_vec, obj, obj_list))
+		return (0);
+	/*get normal to surface at that point*/
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	/*if the dot product is negative, means angle between vectors of more than 90, which
 	  means light source is behind the point - so no illumination*/
+	/*get dot product of surface->light and normal*/
+	/*if this is less than 0, angle is greater than 90, so it will be in shadow*/
 	if ((dot = calc_dot_prod(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
+	/*finally calculate fraction of light intensity that the point recieves*/
 	fraction = dot / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
 	return (light->brightness * fraction);
 }
@@ -223,6 +240,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	l = s->l_list;
 	first_obj = s->obj_list;
 	obj = first_obj;
+	light_adjust = 0;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
 	while (x < s->res_xy[X])
@@ -232,9 +250,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 		{
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
-			/*for each object in object list - find t_min, if this is the smallest found so far
-			  store it in t_min var and keep track of which object this was*/
-			/*if t_min is still infinity after this, put background colour*/
 			t_min = INFINITY;
 			while (obj)
 			{
@@ -254,8 +269,9 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			else
 			{
 				/*if light is behind the plane - it should not appear lit*/
+				//light_adjust = s->ambient_ratio;
 				/*for each light in light list*/
-				//light_adjust = s->ambient_ratio + calc_light_intensity(cam, l, obj, ray_vec, t_min);
+					//light_adjust += calc_light_intensity(cam, l, obj, s->obj_list, ray_vec, t_min);
 				//pixel_colour[R] *= light_adjust;
 				//pixel_colour[G] *= light_adjust;
 				//pixel_colour[B] *= light_adjust;
@@ -292,6 +308,7 @@ int		main(void)
 	init_win_struct(&ws);
 	s.obj_list = NULL;
 	s.viewport_distance = 1;
+	/*need to initialise scene struct*/
 	parser(&s, file);
 
 	/*
