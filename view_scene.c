@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 12:50:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 14:06:37 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,8 +223,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	l = s->l_list;
 	first_obj = s->obj_list;
 	obj = first_obj;
-	t_min = INFINITY;
-	temp_t_min = INFINITY;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
 	while (x < s->res_xy[X])
@@ -237,10 +235,10 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
 			/*if t_min is still infinity after this, put background colour*/
+			t_min = INFINITY;
 			while (obj)
 			{
-				if (obj->id == 's')
-					obj->solve(&temp_t_min, ray_vec, cam, obj);
+				obj->solve(&temp_t_min, ray_vec, cam, obj);
 				if (temp_t_min < t_min && temp_t_min > s->viewport_distance)
 				{
 					t_min = temp_t_min;
@@ -258,9 +256,9 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 				/*if light is behind the plane - it should not appear lit*/
 				/*for each light in light list*/
 				//light_adjust = s->ambient_ratio + calc_light_intensity(cam, l, obj, ray_vec, t_min);
-				//pixel_colour[R] = (double)obj->colour[R] * light_adjust;
-				//pixel_colour[G] = (double)obj->colour[G] * light_adjust;
-				//pixel_colour[B] = (double)obj->colour[B] * light_adjust;
+				//pixel_colour[R] *= light_adjust;
+				//pixel_colour[G] *= light_adjust;
+				//pixel_colour[B] *= light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
