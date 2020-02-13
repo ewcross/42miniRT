@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 11:58:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:11:50 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,23 @@ int	solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam,
 		smallest_root = ((-1 * b) - sqrt(discriminant)) / (2 * a);
 	*t_min = smallest_root;
 	return (1);
+}
+
+int	sq_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl)
+{
+	*t_min = INFINITY;
+	return (0);
+}
+int	tr_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl)
+{
+	*t_min = INFINITY;
+	return (0);
+}
+int	cy_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl)
+{
+	*t_min = INFINITY;
+	return (0);
 }

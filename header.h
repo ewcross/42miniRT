@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 12:06:07 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:42:19 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,16 @@ void	sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 
-int		plane_intercept(double *t_min, double *ray_vec, t_cam_struct *cam, t_obj_struct *pl);
-int		solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam, t_obj_struct *sp);
+int		solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam,
+						t_obj_struct *sp);
+int		plane_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+						t_obj_struct *pl);
+int		sq_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl);
+int		tr_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl);
+int		cy_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+					t_obj_struct *pl);
 
 void	calc_3d_vector(double *start, double *end, double *res);
 void	calc_unit_vec(double *vec, double *unit_vec);

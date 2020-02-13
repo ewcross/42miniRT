@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 11:59:58 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:11:33 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -409,6 +409,7 @@ int	t_func(char *line, t_scene_struct *s)
 	fill_doubles(points[1], elem->data.tr_points[1], 3);
 	fill_doubles(points[2], elem->data.tr_points[2], 3);
 	elem->get_norm = tr_normal;
+	elem->solve = tr_intercept;
 	add_obj_elem(s, elem);
 	return (0);
 }
@@ -462,6 +463,7 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-2);
 	fill_doubles(diameter_height, elem->data.cy_diam_height, 2);
 	elem->get_norm = cy_normal;
+	elem->solve = cy_intercept;
 	add_obj_elem(s, elem);
 	return (0);
 }
@@ -516,6 +518,7 @@ int	sq_func(char *line, t_scene_struct *s)
 		return (-2);
 	elem->data.doubl = side_size;
 	elem->get_norm = sq_normal;
+	elem->solve = sq_intercept;
 	add_obj_elem(s, elem);
 	return (0);
 }
