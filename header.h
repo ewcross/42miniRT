@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 19:32:26 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:06:07 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,19 @@
 void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+
+int		plane_intercept(double *t_min, double *ray_vec, t_cam_struct *cam, t_obj_struct *pl);
+int		solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam, t_obj_struct *sp);
+
+void	calc_3d_vector(double *start, double *end, double *res);
+void	calc_unit_vec(double *vec, double *unit_vec);
+double	calc_dot_prod(double *vec1, double *vec2);
+
+void	fill_doubles(double *src, double *dst, int len);
 int		set_keys(int keycode, void *t_win_struct);
+
 int		pos_in_set(char ch, char *set);
 void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));
 int		parse_line(char *line, t_scene_struct *s);
@@ -42,6 +54,7 @@ int		simple_atoi(char *str);
 void	print_elem(t_obj_struct *elem);
 void	init_win_struct(t_win_struct *ws);
 int		parser(t_scene_struct *s, char *file);
+
 int		r_func(char *line, t_scene_struct *s);
 int		a_func(char *line, t_scene_struct *s);
 int		c_func(char *line, t_scene_struct *s);

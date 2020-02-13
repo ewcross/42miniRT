@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 19:32:55 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:05:57 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,88 +142,18 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	double	surface_to_light_vec[3];
 	double	obj_norm_vec[3];
 	
-	/*compute surface point coordinates*/
-	/*cam pos + t_min(unit ray vector)*/
-	
 	calc_unit_vec(ray_vec, ray_unit_vec);
 	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
 	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
 	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
-
-	/*compute vector from surface pos to light*/
-
 	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
-
-	/*compute surface normal (normalised) - need identifier of which object - use function array*/
-	/*here using sphere so normal is just vector between center and surface point*/
-	/*normal calculation functions should always give a normalised vector*/
-	
-	/*for sphere*/
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
-	//calc_3d_vector(obj->xyz, obj_surface_xyz, obj_norm_vec);
-	//calc_unit_vec(obj_norm_vec, obj_norm_vec);
-	/*for plane*/
-	//obj_norm_vec[X] = obj->normal[X];
-	//obj_norm_vec[Y] = obj->normal[Y];
-	//obj_norm_vec[Z] = obj->normal[Z];
-	
-	/*compute dot product of normal and light ray*/
 	/*if the dot product is negative, means angle between vectors of more than 90, which
 	  means light source is behind the point - so no illumination*/
-
 	if ((dot = calc_dot_prod(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
-
-	/*compute intensity from spot light*/
 	fraction = dot / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
-	
-	/*return this fraction of spot light intensity*/
 	return (light->brightness * fraction);
-}
-
-int		plane_intercept(double *t_min, t_cam_struct *cam, double *ray_vec, t_obj_struct *pl)
-{
-	double	ray_normal_dot;
-	double	plane_to_cam_vec[3];
-
-	calc_3d_vector(cam->xyz, pl->xyz, plane_to_cam_vec);
-	ray_normal_dot = calc_dot_prod(ray_vec, pl->normal);
-	if (!ray_normal_dot)
-	{
-		*t_min = INFINITY;
-		return (0);
-	}
-	*t_min = calc_dot_prod(plane_to_cam_vec, pl->normal) / ray_normal_dot;
-	return (1);
-}
-
-int		solve_quadratic(double *t_min, double *ray_vec, t_obj_struct *sp, t_cam_struct *cam)
-{
-	double	sphere_to_cam_vec[3];
-	double	a;
-	double	b;
-	double	c;
-	double	r;
-	double	discriminant;
-	double	smallest_root;
-
-	calc_3d_vector(sp->xyz, cam->xyz, sphere_to_cam_vec);
-	r = sp->data.doubl / 2;
-	a = calc_dot_prod(ray_vec, ray_vec);
-	/*maybe see here if using a normlised ray vector makes a difference*/
-	b = 2 * calc_dot_prod(sphere_to_cam_vec, ray_vec);
-	c = calc_dot_prod(sphere_to_cam_vec, sphere_to_cam_vec) - (r * r);
-	discriminant = (b * b) - (4 * a * c);
-	if (discriminant < 0)
-	{
-		*t_min = INFINITY;
-		return (0);
-	}
-	smallest_root = ((-1 * b) + sqrt(discriminant)) / (2 * a);
-	if (((-1 * b) - sqrt(discriminant)) / (2 * a) < smallest_root)
-		smallest_root = ((-1 * b) - sqrt(discriminant)) / (2 * a);
-	*t_min = smallest_root;
-	return (1);
 }
 
 t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
@@ -240,10 +170,6 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 	return (start);
 }
 
-/********
-   main
-********/
-
 int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_size)
 {
 	int		x;
@@ -258,8 +184,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	double	light_adjust;
 	
 	t_l_struct		*l;
-	t_obj_struct	*sp;
-	t_obj_struct	*pl;
+	t_obj_struct	*obj;
 
 	int		bpp = 32;
 	
@@ -294,12 +219,13 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	*/
 
 	l = s->l_list;
-	sp = get_next_elem(s->obj_list, 's');
-	print_elem(sp);
-	pl = get_next_elem(s->obj_list, 'p');
-	print_elem(sp);
+	if (!(obj = get_next_elem(s->obj_list, 's')))
+		if (!(obj = get_next_elem(s->obj_list, 'p')))
+			return (1);
+	print_elem(obj);
 	t_min = INFINITY;
 	ray_vec[Z] = s->viewport_distance;
+	printf("\n\ngot element before ray tracing\n\n");
 	x = 0;
 	while (x < s->res_xy[X])
 	{
@@ -310,17 +236,16 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			/*for each object in object list - find t_min, if this is the smallest found so far
 			  store it in t_min var and keep track of which object this was*/
-			//if (!plane_intercept(&t_min, cam, ray_vec, pl))
-			if (!solve_quadratic(&t_min, ray_vec, sp, cam))
+			if (!obj->solve(&t_min, ray_vec, cam, obj))
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
 			else if (t_min > s->viewport_distance)
 			{
 				/*if light is behind the plane - it should not appear lit*/
 				/*for each light in light list*/
-				light_adjust = s->ambient_ratio + calc_light_intensity(cam, l, sp, ray_vec, t_min);
-				pixel_colour[R] = (double)sp->colour[R] * light_adjust;
-				pixel_colour[G] = (double)sp->colour[G] * light_adjust;
-				pixel_colour[B] = (double)sp->colour[B] * light_adjust;
+				light_adjust = s->ambient_ratio + calc_light_intensity(cam, l, obj, ray_vec, t_min);
+				pixel_colour[R] = (double)obj->colour[R] * light_adjust;
+				pixel_colour[G] = (double)obj->colour[G] * light_adjust;
+				pixel_colour[B] = (double)obj->colour[B] * light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;

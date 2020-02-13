@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 19:31:57 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/13 12:07:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ typedef struct			s_obj_struct
 	int					colour[3];
 	t_obj_data_union	data;	
 	void				(*get_norm)(double *, struct s_obj_struct *, double *);
+	int					(*solve)(double *, double *, t_cam_struct *, struct s_obj_struct *);
 	struct s_obj_struct *next;
 }						t_obj_struct;
 
