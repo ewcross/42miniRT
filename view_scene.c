@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 14:59:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/14 15:41:33 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,9 +201,11 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	double	temp_t_min;
 	double	light_adjust;
 	
-	t_l_struct		*l;
+	t_l_struct		*light;
+	t_l_struct		*first_light;
 	t_obj_struct	*obj;
 	t_obj_struct	*first_obj;
+	t_obj_struct	*closest_obj;
 
 	int		bpp = 32;
 	
@@ -226,21 +228,20 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	scale_light(s);
 	printf("\nscaled lights:\n\n");
 	printf("a brightness = %f\n", s->ambient_ratio);
-	l = s->l_list;
-	while (l)
+	light = s->l_list;
+	while (light)
 	{
-		printf("\nl brightness = %f\n", l->brightness);
-		l = l->next;
+		printf("\nbrightness = %f\n", light->brightness);
+		light = light->next;
 	}
 
 	/*
 	  ray tracing algorithm
 	*/
 
-	l = s->l_list;
 	first_obj = s->obj_list;
-	obj = first_obj;
-	light_adjust = 0;
+	closest_obj = NULL;
+	first_light = s->l_list;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
 	while (x < s->res_xy[X])
@@ -248,33 +249,36 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 		y = 0;
 		while (y < s->res_xy[Y])
 		{
+			light_adjust = s->ambient_ratio;
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			t_min = INFINITY;
+			obj = first_obj;
 			while (obj)
 			{
 				obj->solve(&temp_t_min, ray_vec, cam, obj);
 				if (temp_t_min < t_min && temp_t_min > s->viewport_distance)
 				{
 					t_min = temp_t_min;
-					pixel_colour[R] = (double)obj->colour[R];
-					pixel_colour[G] = (double)obj->colour[G];
-					pixel_colour[B] = (double)obj->colour[B];
+					closest_obj = obj;
 				}
 				obj = obj->next;
 			}
-			obj = first_obj;
 			if (t_min == INFINITY)
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
 			else
 			{
 				/*if light is behind the plane - it should not appear lit*/
-				//light_adjust = s->ambient_ratio;
 				/*for each light in light list*/
-					//light_adjust += calc_light_intensity(cam, l, obj, s->obj_list, ray_vec, t_min);
-				//pixel_colour[R] *= light_adjust;
-				//pixel_colour[G] *= light_adjust;
-				//pixel_colour[B] *= light_adjust;
+				light = first_light;
+				while(light)
+				{
+					light_adjust += calc_light_intensity(cam, light, closest_obj, s->obj_list, ray_vec, t_min);
+					light = light->next;
+				}
+				pixel_colour[R] = (double)closest_obj->colour[R] * light_adjust;
+				pixel_colour[G] = (double)closest_obj->colour[G] * light_adjust;
+				pixel_colour[B] = (double)closest_obj->colour[B] * light_adjust;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
