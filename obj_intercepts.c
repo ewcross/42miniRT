@@ -6,20 +6,20 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/13 12:11:50 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/18 18:21:57 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
 
-int	plane_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
+int	plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 					t_obj_struct *pl)
 {
 	double	ray_normal_dot;
 	double	plane_to_cam_vec[3];
 
-	calc_3d_vector(cam->xyz, pl->xyz, plane_to_cam_vec);
+	calc_3d_vector(ray_orig_xyz, pl->xyz, plane_to_cam_vec);
 	ray_normal_dot = calc_dot_prod(ray_vec, pl->normal);
 	if (!ray_normal_dot)
 	{
@@ -30,7 +30,7 @@ int	plane_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
 	return (1);
 }
 
-int	solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam,
+int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 					t_obj_struct *sp)
 {
 	double	sphere_to_cam_vec[3];
@@ -41,7 +41,7 @@ int	solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam,
 	double	discriminant;
 	double	smallest_root;
 
-	calc_3d_vector(sp->xyz, cam->xyz, sphere_to_cam_vec);
+	calc_3d_vector(sp->xyz, ray_orig_xyz, sphere_to_cam_vec);
 	r = sp->data.doubl / 2;
 	a = calc_dot_prod(ray_vec, ray_vec);
 	/*maybe see here if using a normlised ray vector makes a difference*/
@@ -60,20 +60,22 @@ int	solve_quadratic(double *t_min, double *ray_vec, t_cam_struct *cam,
 	return (1);
 }
 
-int	sq_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
-					t_obj_struct *pl)
+int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *pl)
 {
 	*t_min = INFINITY;
 	return (0);
 }
-int	tr_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
-					t_obj_struct *pl)
+
+int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *pl)
 {
 	*t_min = INFINITY;
 	return (0);
 }
-int	cy_intercept(double *t_min, double *ray_vec, t_cam_struct *cam,
-					t_obj_struct *pl)
+
+int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *pl)
 {
 	*t_min = INFINITY;
 	return (0);

@@ -1,7 +1,5 @@
 to do:
 
-			- change cam func to use create_cam elem
-			- change light func to use create_l_elem
-			- chage all others to use create_obj_elem
-			- compile without add elem for cam and light to check compilation
-			- try add_elem with sizeof, or make new add functions for cam and l
+			- change 'cam' in all intercept calculator functions to
+			  'ray_start' or something more generic, as these are also
+			  used to calculate shadow rays
