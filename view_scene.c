@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/19 11:04:58 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/19 18:46:18 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,9 @@ void	scale_light(t_scene_struct *s)
 int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
 {
 	double	t_min;
-	
+	double	light_unit_vec[3];
+
+	calc_unit_vec(light_vec, light_unit_vec);
 	t_min = INFINITY;
 	while (obj_list)
 	{
@@ -147,13 +149,8 @@ int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj
 		}
 		/*need more conditions here for other cases*/
 		/*might need to normalise vector first to test mag*/
-		if (obj_list->solve(&t_min, light_vec, surface_xyz, obj_list) &&
-				t_min > 0 && t_min < calc_vector_mag(light_vec))
-		{
-			printf("t_min = %f\n", t_min);
-			printf("mag = %f\n", calc_vector_mag(light_vec));
+		if (obj_list->solve(&t_min, light_unit_vec, surface_xyz, obj_list) && t_min > 0 && t_min < calc_vector_mag(light_vec))
 			return (1);
-		}
 		obj_list = obj_list->next;
 	}
 	return(0);
@@ -164,7 +161,7 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 	double	mag1;
 	double	mag2;
 	double	dot;
-	double	*cam_to_plane_vec;
+	double	cam_to_plane_vec[3];
 
 	calc_3d_vector(cam_xyz, obj_xyz, cam_to_plane_vec);
 	dot = calc_dot_prod(cam_to_plane_vec, obj_norm);
@@ -189,10 +186,17 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	double	obj_norm_vec[3];
 
 	/*find point on surface*/
-	calc_unit_vec(ray_vec, ray_unit_vec);
-	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
-	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
-	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
+	/*here assuming unit vec not used in ray tracing part*/
+	//calc_unit_vec(ray_vec, ray_unit_vec);
+	//obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
+	//obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
+	//obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
+
+	/*here assuming ray vec is already a unit vector*/
+	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_vec[X]);
+	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_vec[Y]);
+	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_vec[Z]);
+
 	/*find point to light vector*/
 	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
 	/*here need to check if it is a shadow ray*/
@@ -203,8 +207,7 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	if (obj->id != 's')
 		choose_correct_normal(cam->xyz, obj->xyz, obj_norm_vec);
-	/*if the dot product is negative, means angle between vectors of more than 90, which
-	  means light source is behind the point - so no illumination*/
+	//printf("obj norm vec (%f,%f,%f)\n", obj_norm_vec[X], obj_norm_vec[Y], obj_norm_vec[Z]);
 	/*get dot product of surface->light and normal*/
 	/*if this is less than 0, angle is greater than 90, so it will be in shadow*/
 	if ((dot = calc_dot_prod(surface_to_light_vec, obj_norm_vec)) < 0)
@@ -293,6 +296,8 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			light_adjust = s->ambient_ratio;
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
+			/*using unit vec as ray vector*/
+			calc_unit_vec(ray_vec, ray_vec);
 			t_min = INFINITY;
 			obj = first_obj;
 			while (obj)
