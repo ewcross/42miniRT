@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/18 18:21:57 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/19 10:51:15 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	discriminant;
 	double	smallest_root;
 
+	/*revisit using normalised vector here*/
 	calc_3d_vector(sp->xyz, ray_orig_xyz, sphere_to_cam_vec);
 	r = sp->data.doubl / 2;
 	a = calc_dot_prod(ray_vec, ray_vec);
-	/*maybe see here if using a normlised ray vector makes a difference*/
 	b = 2 * calc_dot_prod(sphere_to_cam_vec, ray_vec);
 	c = calc_dot_prod(sphere_to_cam_vec, sphere_to_cam_vec) - (r * r);
 	discriminant = (b * b) - (4 * a * c);

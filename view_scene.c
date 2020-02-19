@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/18 19:26:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/19 11:04:58 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,10 +133,10 @@ void	scale_light(t_scene_struct *s)
 	}
 }
 
-int		shadow_ray(double *xyz, double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
+int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
 {
 	double	t_min;
-
+	
 	t_min = INFINITY;
 	while (obj_list)
 	{
@@ -146,8 +146,14 @@ int		shadow_ray(double *xyz, double *light_vec, t_obj_struct *obj, t_obj_struct 
 			continue;
 		}
 		/*need more conditions here for other cases*/
-		if (obj_list->solve(&t_min, light_vec, xyz, obj_list) && t_min > 0)
+		/*might need to normalise vector first to test mag*/
+		if (obj_list->solve(&t_min, light_vec, surface_xyz, obj_list) &&
+				t_min > 0 && t_min < calc_vector_mag(light_vec))
+		{
+			printf("t_min = %f\n", t_min);
+			printf("mag = %f\n", calc_vector_mag(light_vec));
 			return (1);
+		}
 		obj_list = obj_list->next;
 	}
 	return(0);
@@ -303,8 +309,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
 			else
 			{
-				/*if light is behind the plane - it should not appear lit*/
-				/*for each light in light list*/
 				light = first_light;
 				while(light)
 				{
