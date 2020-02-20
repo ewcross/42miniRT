@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/18 18:22:41 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 14:12:19 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 void	calc_3d_vector(double *start, double *end, double *res);
 void	calc_unit_vec(double *vec, double *unit_vec);
 double	calc_dot_prod(double *vec1, double *vec2);
+void	calc_cross_prod(double *vec1, double *vec2, double *res);
+double	calc_vector_mag(double *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
 int		set_keys(int keycode, void *t_win_struct);

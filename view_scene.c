@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/19 20:26:47 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 14:30:35 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,13 @@ void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int 
 double	calc_dot_prod(double *vec1, double *vec2)
 {
 	return ((vec1[0] * vec2[0]) + (vec1[1] * vec2[1]) + (vec1[2] * vec2[2]));
+}
+
+void	calc_cross_prod(double *vec1, double *vec2, double *res)
+{
+	res[X] = (vec1[Y] * vec2[Z]) - (vec1[Z] * vec2[Y]);
+	res[Y] = (vec1[Z] * vec2[X]) - (vec1[X] * vec2[Z]);
+	res[Z] = (vec1[X] * vec2[Y]) - (vec1[Y] * vec2[X]);
 }
 
 void	calc_3d_vector(double *start, double *end, double *res)
@@ -196,7 +203,7 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_vec[X]);
 	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_vec[Y]);
 	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_vec[Z]);
-
+	
 	/*find point to light vector*/
 	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
 	/*here need to check if it is a shadow ray*/
@@ -207,7 +214,6 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	if (obj->id != 's')
 		choose_correct_normal(cam->xyz, obj->xyz, obj_norm_vec);
-	//printf("obj norm vec (%f,%f,%f)\n", obj_norm_vec[X], obj_norm_vec[Y], obj_norm_vec[Z]);
 	/*get dot product of surface->light and normal*/
 	/*if this is less than 0, angle is greater than 90, so it will be in shadow*/
 	if ((dot = calc_dot_prod(surface_to_light_vec, obj_norm_vec)) < 0)
@@ -296,7 +302,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			light_adjust = s->ambient_ratio;
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
-			/*using unit vec as ray vector*/
 			calc_unit_vec(ray_vec, ray_vec);
 			t_min = INFINITY;
 			obj = first_obj;
