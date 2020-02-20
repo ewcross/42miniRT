@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 14:30:35 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 15:11:30 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,13 @@ void	calc_cross_prod(double *vec1, double *vec2, double *res)
 	res[X] = (vec1[Y] * vec2[Z]) - (vec1[Z] * vec2[Y]);
 	res[Y] = (vec1[Z] * vec2[X]) - (vec1[X] * vec2[Z]);
 	res[Z] = (vec1[X] * vec2[Y]) - (vec1[Y] * vec2[X]);
+}
+
+void	scale_vector(double *vec, double factor)
+{
+	vec[X] *= factor;
+	vec[Y] *= factor;
+	vec[Z] *= factor;
 }
 
 void	calc_3d_vector(double *start, double *end, double *res)

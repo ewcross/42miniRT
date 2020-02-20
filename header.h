@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 14:12:19 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 14:43:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void	calc_3d_vector(double *start, double *end, double *res);
 void	calc_unit_vec(double *vec, double *unit_vec);
 double	calc_dot_prod(double *vec1, double *vec2);
 void	calc_cross_prod(double *vec1, double *vec2, double *res);
+void	scale_vector(double *vec, double factor);
 double	calc_vector_mag(double *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
