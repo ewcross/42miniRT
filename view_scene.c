@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 15:11:30 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 17:19:01 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,12 +83,12 @@ void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int 
    maths functions
 ********/
 
-double	calc_dot_prod(double *vec1, double *vec2)
+double	dot(double *vec1, double *vec2)
 {
 	return ((vec1[0] * vec2[0]) + (vec1[1] * vec2[1]) + (vec1[2] * vec2[2]));
 }
 
-void	calc_cross_prod(double *vec1, double *vec2, double *res)
+void	cross(double *vec1, double *vec2, double *res)
 {
 	res[X] = (vec1[Y] * vec2[Z]) - (vec1[Z] * vec2[Y]);
 	res[Y] = (vec1[Z] * vec2[X]) - (vec1[X] * vec2[Z]);
@@ -174,14 +174,14 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 {
 	double	mag1;
 	double	mag2;
-	double	dot;
+	double	dot_prod;
 	double	cam_to_plane_vec[3];
 
 	calc_3d_vector(cam_xyz, obj_xyz, cam_to_plane_vec);
-	dot = calc_dot_prod(cam_to_plane_vec, obj_norm);
+	dot_prod = dot(cam_to_plane_vec, obj_norm);
 	mag1 = calc_vector_mag(cam_to_plane_vec);
 	mag2 = calc_vector_mag(obj_norm);
-	if ((dot / mag1 * mag2) > cos(M_PI / 2))
+	if ((dot_prod / mag1 * mag2) > cos(M_PI / 2))
 	{
 		obj_norm[X] *= -1;
 		obj_norm[Y] *= -1;
@@ -192,7 +192,7 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *obj,
 								t_obj_struct *obj_list, double *ray_vec, double t_min)
 {
-	double	dot;
+	double	dot_prod;
 	double	fraction;
 	double	ray_unit_vec[3];
 	double	obj_surface_xyz[3];
@@ -223,10 +223,10 @@ double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *
 		choose_correct_normal(cam->xyz, obj->xyz, obj_norm_vec);
 	/*get dot product of surface->light and normal*/
 	/*if this is less than 0, angle is greater than 90, so it will be in shadow*/
-	if ((dot = calc_dot_prod(surface_to_light_vec, obj_norm_vec)) < 0)
+	if ((dot_prod = dot(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
 	/*finally calculate fraction of light intensity that the point recieves*/
-	fraction = dot / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
+	fraction = dot_prod / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
 	return (light->brightness * fraction);
 }
 

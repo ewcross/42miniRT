@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 10:29:31 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 18:02:56 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -385,6 +385,19 @@ int	p_func(char *line, t_scene_struct *s)
 	return (0);
 }
 
+void	calc_tr_normal(t_obj_struct *tr)
+{
+	double	vec1[3];
+	double	vec2[3];
+	double	cross_prod[3];
+
+	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[1], vec1);
+	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[2], vec2);
+	cross(vec1, vec2, cross_prod);
+	fill_doubles(cross_prod, tr->normal, 3);
+	calc_unit_vec(tr->normal, tr->normal);
+}
+
 int	t_func(char *line, t_scene_struct *s)
 {
 	char			**strs;
@@ -408,6 +421,7 @@ int	t_func(char *line, t_scene_struct *s)
 	fill_doubles(points[0], elem->data.tr_points[0], 3);
 	fill_doubles(points[1], elem->data.tr_points[1], 3);
 	fill_doubles(points[2], elem->data.tr_points[2], 3);
+	calc_tr_normal(elem);
 	elem->get_norm = tr_normal;
 	elem->solve = tr_intercept;
 	add_obj_elem(s, elem);

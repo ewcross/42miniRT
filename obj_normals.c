@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 18:49:04 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 10:48:10 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 17:51:21 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,6 @@ void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 
 void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
-	return ;
+	fill_doubles(obj->normal, norm, 3);
+	calc_unit_vec(norm, norm);
 }
