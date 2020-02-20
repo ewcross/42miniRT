@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 15:11:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/20 17:10:35 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,12 +82,32 @@ int		sq_solve(double *t_min, double *point, t_obj_struct *sq)
 	printf("------\n");*/
 	if (dot == 0)
 	{
-		if (calc_vector_mag(point_vec) <= sq->data.doubl)
+		if (calc_vector_mag(point_vec) < sq->data.doubl)
 			return (1);
 		return (0);
 	}
 	if (dot < 0)
 		dot *= -1;
+	if (dot < 0.707107 * calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
+	{
+		ref_vec[X] = sq->data.doubl;
+		ref_vec[Y] = 0;
+		dot = calc_dot_prod(ref_vec, point_vec);
+	}
+	if (dot < 0)
+		dot *= -1;
+	/*if (dot == calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
+	{
+		if (calc_vector_mag(point_vec) < sq->data.doubl)
+			return (1);
+		return (0);
+	}*/
+	/*if (dot == calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
+	{
+		if (calc_vector_mag(point_vec) < sq->data.doubl)
+			return (1);
+		return (0);
+	}*/
 	if (sqrt(dot) <= sq->data.doubl)
 		return (1);
 	return (0);
@@ -119,14 +139,27 @@ int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 }
 
 int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *pl)
+				t_obj_struct *tr)
 {
+	double	v1[3];
+	double	v2[3];
+	double	v3[3];
+	double	u_v[2];
+	double	obj_surface_xyz[3];
+	
 	*t_min = INFINITY;
+	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
+	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
+	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
+	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[2], v1);
+	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[1], v2);
+	calc_3d_vector(tr->data.tr_points[0], obj_surface_xyz, v3);
+	u_v[0] = 1;
 	return (0);
 }
 
 int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *pl)
+				t_obj_struct *cy)
 {
 	*t_min = INFINITY;
 	return (0);
