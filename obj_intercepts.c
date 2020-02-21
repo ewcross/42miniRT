@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 14:45:33 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 19:45:20 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,22 +75,15 @@ int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
 	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
 	get_corners(sq, corners);
-	/*get vector between P (in plane) and one corner*/
 	calc_3d_vector(corners[0], obj_surface_xyz, v);
-	/*get vectors from this corner and adjacent corners - 2 edges*/
 	calc_3d_vector(corners[0], corners[2], e1);
 	calc_3d_vector(corners[0], corners[3], e2);
-	/*printf("v (%.2f, %.2f, %.2f)\n", v[X], v[Y], v[Z]);
-	printf("e1 (%.2f, %.2f, %.2f)\n", e1[X], e1[Y], e1[Z]);
-	printf("e2 (%.2f, %.2f, %.2f)\n", e2[X], e2[Y], e2[Z]);*/
 	if (dot(v, e1) < 0 || dot(v, e2) < 0)
 		*t_min = INFINITY;
-	else if (dot(v, e1) > calc_vector_mag(e1) || dot(v, e2) > calc_vector_mag(e2))
+	else if (dot(v, e1) > dot(e1, e1) || dot(v, e2) > dot(e2, e2))
 		*t_min = INFINITY;
 	if (*t_min == INFINITY)
 		return (0);
-	printf("sq centre %f,%f,%f\n", sq->xyz[X], sq->xyz[Y], sq->xyz[Z]);
-	printf("sq size %f\n", sq->data.doubl);
 	return (1);
 }
 
@@ -128,9 +121,43 @@ int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
+void	get_end_point(double *end, double *orig, t_obj_struct *cy)
+{
+	/*make need to make sure same end is used regardless of normal direction*/
+	end[X] = cy->xyz[X] + (cy->data.cy_d_h[1] / 2 * cy->normal[X]);
+	end[Y] = cy->xyz[Y] + (cy->data.cy_d_h[1] / 2 * cy->normal[Y]);
+	end[Z] = cy->xyz[Z] + (cy->data.cy_d_h[1] / 2 * cy->normal[Z]);
+	end[X] -= orig[X];
+	end[Y] -= orig[Y];
+	end[Z] -= orig[Z];
+}
+
 int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *cy)
 {
-	*t_min = INFINITY;
-	return (0);
+	double	discriminant;
+	double	smallest;
+	double	ray_norm[3];
+	double	end_norm[3];
+	double	end[3];
+
+	calc_unit_vec(cy->normal, cy->normal);
+	get_end_point(end, ray_orig_xyz, cy);
+	cross(ray_vec, cy->normal, ray_norm);
+	/*this means ray is parallel to cylinder - will need to
+	  change when adding caps probably*/
+	if (calc_vector_mag(ray_norm) == 0)
+		return (0);
+	discriminant = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0], 2);
+	discriminant -= pow(dot(end, ray_norm), 2);
+	if (discriminant < 0)
+		return (0);
+	cross(end, cy->normal, end_norm);
+	smallest = dot(ray_norm, end_norm) + sqrt(discriminant);
+	smallest /= dot(ray_norm, ray_norm);
+	*t_min = dot(ray_norm, end_norm) - sqrt(discriminant);
+	*t_min /= dot(ray_norm, ray_norm);
+	if (smallest < *t_min)
+		*t_min = smallest;
+	return (1);
 }

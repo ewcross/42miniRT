@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 10:21:25 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 19:45:22 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct			s_l_struct
 typedef union			u_obj_data_union
 {
 	double				doubl;
-	double				cy_diam_height[2];
+	double				cy_d_h[2];
 	double				tr_points[3][3];
 }						t_obj_data_union;
 

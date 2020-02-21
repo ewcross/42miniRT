@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 14:45:35 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 19:18:16 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ void	print_elem(t_obj_struct *elem)
 	printf("tr: (%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)\n", elem->data.tr_points[0][0], elem->data.tr_points[0][1], elem->data.tr_points[0][2],
 				 								   elem->data.tr_points[1][0], elem->data.tr_points[1][1], elem->data.tr_points[1][2],
 				 								   elem->data.tr_points[2][0], elem->data.tr_points[2][1], elem->data.tr_points[2][2]);
-	printf("data cy: d = %f, h = %f\n", elem->data.cy_diam_height[0], elem->data.cy_diam_height[1]);
+	printf("data cy: d = %f, h = %f\n", elem->data.cy_d_h[0], elem->data.cy_d_h[1]);
 	printf("norm function ptr: %p\n", elem->get_norm);
 }
 
@@ -481,7 +481,7 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-1);
 	if(!(elem = create_obj_elem('c', xyz, normal, colour)))
 		return (-2);
-	fill_doubles(diameter_height, elem->data.cy_diam_height, 2);
+	fill_doubles(diameter_height, elem->data.cy_d_h, 2);
 	elem->get_norm = cy_normal;
 	elem->solve = cy_intercept;
 	add_obj_elem(s, elem);
