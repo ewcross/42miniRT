@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 12:22:47 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 14:45:33 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,37 +63,34 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *sq)
 {
-	int		i;
 	double	obj_surface_xyz[3];
+	double	v[3];
 	double	e1[3];
 	double	e2[3];
 	double	corners[4][3];
 
 	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, sq))
 		return (0);
-	i = -1;
-	while (++i < 3)
-		obj_surface_xyz[i] = ray_orig_xyz[i] + (*t_min * ray_vec[i]);
+	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
+	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
+	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
 	get_corners(sq, corners);
-	/*
-	printf("p1 (%.2f, %.2f, %.2f)\n", corners[0][X], corners[0][Y], corners[0][Z]);
-	printf("p2 (%.2f, %.2f, %.2f)\n", corners[1][X], corners[1][Y], corners[1][Z]);
-	printf("p3 (%.2f, %.2f, %.2f)\n", corners[2][X], corners[2][Y], corners[2][Z]);
-	printf("p4 (%.2f, %.2f, %.2f)\n", corners[3][X], corners[3][Y], corners[3][Z]);
-	*/
 	/*get vector between P (in plane) and one corner*/
-	calc_3d_vector(corners[0], obj_surface_xyz, point_vec);
+	calc_3d_vector(corners[0], obj_surface_xyz, v);
 	/*get vectors from this corner and adjacent corners - 2 edges*/
 	calc_3d_vector(corners[0], corners[2], e1);
 	calc_3d_vector(corners[0], corners[3], e2);
-	if (dot() < 0 || dot() < 0)
+	/*printf("v (%.2f, %.2f, %.2f)\n", v[X], v[Y], v[Z]);
+	printf("e1 (%.2f, %.2f, %.2f)\n", e1[X], e1[Y], e1[Z]);
+	printf("e2 (%.2f, %.2f, %.2f)\n", e2[X], e2[Y], e2[Z]);*/
+	if (dot(v, e1) < 0 || dot(v, e2) < 0)
 		*t_min = INFINITY;
-	else if (dot() > dot())
-		*t_min = INFINITY;
-	else if (dot() > dot())
+	else if (dot(v, e1) > calc_vector_mag(e1) || dot(v, e2) > calc_vector_mag(e2))
 		*t_min = INFINITY;
 	if (*t_min == INFINITY)
 		return (0);
+	printf("sq centre %f,%f,%f\n", sq->xyz[X], sq->xyz[Y], sq->xyz[Z]);
+	printf("sq size %f\n", sq->data.doubl);
 	return (1);
 }
 

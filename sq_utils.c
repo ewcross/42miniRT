@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/21 11:37:07 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 11:37:58 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 14:32:15 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	get_perp_vec(double *norm, double *perp_vec)
 	int		i;
 	double	dummy_vec[3];
 
-	dummy_vec[X] = norm[X] + 0.1;
+	dummy_vec[X] = norm[X] + 0.5;
 	dummy_vec[Y] = norm[Y];
 	dummy_vec[Z] = norm[Z];
 	cross(norm, dummy_vec, perp_vec);
@@ -64,17 +64,9 @@ void	get_corners(t_obj_struct *sq, double corners[][3])
 	double	diagonal1[3];
 	double	diagonal2[3];
 
-	/*generate linearly independent vector*/
-	/*handle zero normal case*/
 	get_perp_vec(sq->normal, diagonal1);
-	/*calculate cross of two vectors to give vector perpendicular to both
-	  and so to the square normal and normalise this vector - this is one square diagonal*/
-	calc_unit_vec(diagonal1, diagonal1);
-	/*calculate cross of this diagonal with the normal to give a vector perpendicular
-	  to both and normalise this - this is the second diagonal*/
 	cross(sq->normal, diagonal1, diagonal2);
+	calc_unit_vec(diagonal1, diagonal1);
 	calc_unit_vec(diagonal2, diagonal2);
-	/*each pair of opposite square corners is found by moving side_size/2 along
-	  each diagonal form the centre in opposite directions*/
 	fill_corners(corners, sq, diagonal1, diagonal2);
 }
