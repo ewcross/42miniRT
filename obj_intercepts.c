@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 18:08:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 10:50:54 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,56 +60,68 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
-int		sq_solve(double *t_min, double *point, t_obj_struct *sq)
+void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2)
 {
-	double	dot_prod;
-	double	dummy_vec[3];
-	double	ref_vec[3];
-	double	point_vec[3];
+	int		i;
+	int		j;
+	double	len;
 
+	len = sqrt(2 * pow(sq->data.doubl / 2, 2));
+	i = 0;
+	while (i < 4)
+	{
+		j = 0;
+		while (j < 3)
+		{
+			if (i < 2)
+				c[i][j] = sq->xyz[j] + (pow(-1, i) * len * d1[j]);
+			else
+				c[i][j] = sq->xyz[j] + (pow(-1, i) * len * d2[j]);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	get_corners(t_obj_struct *sq, double corners[][3])
+{
+	double	dummy_vec[3];
+	double	diagonal1[3];
+	double	diagonal2[3];
+
+	/*generate linearly independent vector*/
 	dummy_vec[X] = sq->normal[X] + 0.1;
 	dummy_vec[Y] = sq->normal[Y];
 	dummy_vec[Z] = sq->normal[Z];
-	cross(sq->normal, dummy_vec, ref_vec);
-	calc_unit_vec(ref_vec, ref_vec);
-	scale_vector(ref_vec, sq->data.doubl);
-	calc_3d_vector(sq->xyz, point, point_vec);
-	dot_prod = dot(ref_vec, point_vec);
-	/*printf("------\n");
-	printf("normal: %f, %f, %f\n", sq->normal[X], sq->normal[Y], sq->normal[Z]);
-	printf("ref   : %f, %f, %f\n", ref_vec[X], ref_vec[Y], ref_vec[Z]);
-	//printf("point : %f, %f, %f\n", point_vec[X], point_vec[Y], point_vec[Z]);
-	printf("------\n");*/
-	if (dot_prod == 0)
-	{
-		if (calc_vector_mag(point_vec) < sq->data.doubl)
-			return (1);
-		return (0);
-	}
-	if (dot_prod < 0)
-		dot_prod *= -1;
-	if (dot_prod < 0.707107 * calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
-	{
-		ref_vec[X] = sq->data.doubl;
-		ref_vec[Y] = 0;
-		dot_prod = dot(ref_vec, point_vec);
-	}
-	if (dot_prod < 0)
-		dot_prod *= -1;
-	/*if (dot == calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
-	{
-		if (calc_vector_mag(point_vec) < sq->data.doubl)
-			return (1);
-		return (0);
-	}*/
-	/*if (dot == calc_vector_mag(point_vec) * calc_vector_mag(ref_vec))
-	{
-		if (calc_vector_mag(point_vec) < sq->data.doubl)
-			return (1);
-		return (0);
-	}*/
-	if (sqrt(dot_prod) <= sq->data.doubl)
-		return (1);
+	/*calculate cross of two vectors to give vector perpendicular to both
+	  and so to the square normal and normalise this vector - this is one square diagonal*/
+	printf("dummy (%.2f, %.2f, %.2f)\n", dummy_vec[X], dummy_vec[Y], dummy_vec[Z]);
+	cross(sq->normal, dummy_vec, diagonal1);
+	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
+	calc_unit_vec(diagonal1, diagonal1);
+	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
+	/*calculate cross of this diagonal with the normal to give a vector perpendicular
+	  to both and normalise this - this is the second diagonal*/
+	cross(sq->normal, diagonal1, diagonal2);
+	calc_unit_vec(diagonal2, diagonal2);
+	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
+	printf("d2 (%.2f, %.2f, %.2f)\n", diagonal2[X], diagonal2[Y], diagonal2[Z]);
+	/*each pair of opposite square corners is found by moving side_size/2 along
+	  each diagonal form the centre in opposite directions*/
+	fill_corners(corners, sq, diagonal1, diagonal2);
+}
+
+int		sq_solve(double *t_min, double *point, t_obj_struct *sq)
+{
+	double	corners[4][3];
+
+	get_corners(sq, corners);
+	/*
+	printf("p1 (%.2f, %.2f, %.2f)\n", corners[0][X], corners[0][Y], corners[0][Z]);
+	printf("p2 (%.2f, %.2f, %.2f)\n", corners[1][X], corners[1][Y], corners[1][Z]);
+	printf("p3 (%.2f, %.2f, %.2f)\n", corners[2][X], corners[2][Y], corners[2][Z]);
+	printf("p4 (%.2f, %.2f, %.2f)\n", corners[3][X], corners[3][Y], corners[3][Z]);
+	*/
 	return (0);
 }
 
@@ -147,7 +159,6 @@ int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	u_v[2];
 	double	obj_surface_xyz[3];
 
-	fill_doubles(tr->data.tr_points[0], tr->xyz, 3);
 	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, tr))
 		return (0);
 	/*if (*t_min < distance_to_viewport) to not check triangle points which are behind viewport

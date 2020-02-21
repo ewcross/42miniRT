@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/20 17:19:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 10:50:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int initialise_window(t_win_struct *ws)
 		return (1);
 	mlx_hook(ws->win_ptr, DESTROYNOTIFY, NOEVENTMASK, close_program, 0);
 	mlx_key_hook(ws->win_ptr, set_keys, ws);
-	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
+	x_loop_hook(ws->mlx_ptr, put_image, ws);
 	
 	return (0);
 }
@@ -118,7 +118,9 @@ void	calc_unit_vec(double *vec, double *unit_vec)
 {
 	double mag;
 
-	mag = calc_vector_mag(vec);;
+	mag = calc_vector_mag(vec);
+	if (mag == 0)
+		return ;
 	unit_vec[0] = vec[0] / mag;
 	unit_vec[1] = vec[1] / mag;
 	unit_vec[2] = vec[2] / mag;
