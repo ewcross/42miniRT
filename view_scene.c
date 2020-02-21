@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 10:50:59 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 11:23:29 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int initialise_window(t_win_struct *ws)
 		return (1);
 	mlx_hook(ws->win_ptr, DESTROYNOTIFY, NOEVENTMASK, close_program, 0);
 	mlx_key_hook(ws->win_ptr, set_keys, ws);
-	x_loop_hook(ws->mlx_ptr, put_image, ws);
+	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
 	
 	return (0);
 }

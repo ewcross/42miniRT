@@ -6,12 +6,16 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 09:34:10 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 11:33:58 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
+
+/*ERRORS TO HANDLE*/
+
+/*normal of 0,0,0*/
 
 void	fill_doubles(double *src, double *dst, int len)
 {

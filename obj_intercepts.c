@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 10:50:54 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/21 12:22:47 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,61 +60,20 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
-void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2)
+int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *sq)
 {
 	int		i;
-	int		j;
-	double	len;
-
-	len = sqrt(2 * pow(sq->data.doubl / 2, 2));
-	i = 0;
-	while (i < 4)
-	{
-		j = 0;
-		while (j < 3)
-		{
-			if (i < 2)
-				c[i][j] = sq->xyz[j] + (pow(-1, i) * len * d1[j]);
-			else
-				c[i][j] = sq->xyz[j] + (pow(-1, i) * len * d2[j]);
-			j++;
-		}
-		i++;
-	}
-}
-
-void	get_corners(t_obj_struct *sq, double corners[][3])
-{
-	double	dummy_vec[3];
-	double	diagonal1[3];
-	double	diagonal2[3];
-
-	/*generate linearly independent vector*/
-	dummy_vec[X] = sq->normal[X] + 0.1;
-	dummy_vec[Y] = sq->normal[Y];
-	dummy_vec[Z] = sq->normal[Z];
-	/*calculate cross of two vectors to give vector perpendicular to both
-	  and so to the square normal and normalise this vector - this is one square diagonal*/
-	printf("dummy (%.2f, %.2f, %.2f)\n", dummy_vec[X], dummy_vec[Y], dummy_vec[Z]);
-	cross(sq->normal, dummy_vec, diagonal1);
-	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
-	calc_unit_vec(diagonal1, diagonal1);
-	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
-	/*calculate cross of this diagonal with the normal to give a vector perpendicular
-	  to both and normalise this - this is the second diagonal*/
-	cross(sq->normal, diagonal1, diagonal2);
-	calc_unit_vec(diagonal2, diagonal2);
-	printf("d1 (%.2f, %.2f, %.2f)\n", diagonal1[X], diagonal1[Y], diagonal1[Z]);
-	printf("d2 (%.2f, %.2f, %.2f)\n", diagonal2[X], diagonal2[Y], diagonal2[Z]);
-	/*each pair of opposite square corners is found by moving side_size/2 along
-	  each diagonal form the centre in opposite directions*/
-	fill_corners(corners, sq, diagonal1, diagonal2);
-}
-
-int		sq_solve(double *t_min, double *point, t_obj_struct *sq)
-{
+	double	obj_surface_xyz[3];
+	double	e1[3];
+	double	e2[3];
 	double	corners[4][3];
 
+	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, sq))
+		return (0);
+	i = -1;
+	while (++i < 3)
+		obj_surface_xyz[i] = ray_orig_xyz[i] + (*t_min * ray_vec[i]);
 	get_corners(sq, corners);
 	/*
 	printf("p1 (%.2f, %.2f, %.2f)\n", corners[0][X], corners[0][Y], corners[0][Z]);
@@ -122,32 +81,20 @@ int		sq_solve(double *t_min, double *point, t_obj_struct *sq)
 	printf("p3 (%.2f, %.2f, %.2f)\n", corners[2][X], corners[2][Y], corners[2][Z]);
 	printf("p4 (%.2f, %.2f, %.2f)\n", corners[3][X], corners[3][Y], corners[3][Z]);
 	*/
-	return (0);
-}
-
-int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *sq)
-{
-	double	ray_normal_dot;
-	double	mag;
-	double	plane_to_cam_vec[3];
-	double	obj_surface_xyz[3];
-
-	calc_3d_vector(ray_orig_xyz, sq->xyz, plane_to_cam_vec);
-	ray_normal_dot = dot(ray_vec, sq->normal);
-	*t_min = INFINITY;
-	if (!ray_normal_dot)
+	/*get vector between P (in plane) and one corner*/
+	calc_3d_vector(corners[0], obj_surface_xyz, point_vec);
+	/*get vectors from this corner and adjacent corners - 2 edges*/
+	calc_3d_vector(corners[0], corners[2], e1);
+	calc_3d_vector(corners[0], corners[3], e2);
+	if (dot() < 0 || dot() < 0)
+		*t_min = INFINITY;
+	else if (dot() > dot())
+		*t_min = INFINITY;
+	else if (dot() > dot())
+		*t_min = INFINITY;
+	if (*t_min == INFINITY)
 		return (0);
-	*t_min = dot(plane_to_cam_vec, sq->normal) / ray_normal_dot;
-	/*here could check if t_min is larger than distance to viewport to
-	  reduce checking rays unecessarily*/
-	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
-	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
-	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
-	if (sq_solve(t_min, obj_surface_xyz, sq))
-		return (1);
-	*t_min = INFINITY;
-	return (0);
+	return (1);
 }
 
 int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
