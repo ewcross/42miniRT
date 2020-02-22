@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 19:45:20 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 10:42:58 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,12 +124,28 @@ int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 void	get_end_point(double *end, double *orig, t_obj_struct *cy)
 {
 	/*make need to make sure same end is used regardless of normal direction*/
-	end[X] = cy->xyz[X] + (cy->data.cy_d_h[1] / 2 * cy->normal[X]);
-	end[Y] = cy->xyz[Y] + (cy->data.cy_d_h[1] / 2 * cy->normal[Y]);
-	end[Z] = cy->xyz[Z] + (cy->data.cy_d_h[1] / 2 * cy->normal[Z]);
+	end[X] = cy->xyz[X] + ((cy->data.cy_d_h[1] / 2) * cy->normal[X]);
+	end[Y] = cy->xyz[Y] + ((cy->data.cy_d_h[1] / 2) * cy->normal[Y]);
+	end[Z] = cy->xyz[Z] + ((cy->data.cy_d_h[1] / 2) * cy->normal[Z]);
 	end[X] -= orig[X];
 	end[Y] -= orig[Y];
 	end[Z] -= orig[Z];
+}
+
+int	is_within_height(double t_min, double *end, t_obj_struct *cy, double *ray_vec)
+{
+	double	point_height;
+	double	ray_vec_len[3];
+	double	point_to_base[3];
+
+	ray_vec_len[X] = t_min * ray_vec[X];
+	ray_vec_len[Y] = t_min * ray_vec[Y];
+	ray_vec_len[Z] = t_min * ray_vec[Z];
+	calc_3d_vector(ray_vec_len, end, point_to_base);
+	point_height = dot(cy->normal, point_to_base);
+	if (point_height >= 0 && point_height <= cy->data.cy_d_h[1])
+		return (1);
+	return (0);
 }
 
 int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
@@ -141,6 +157,7 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	end_norm[3];
 	double	end[3];
 
+	*t_min = INFINITY;
 	calc_unit_vec(cy->normal, cy->normal);
 	get_end_point(end, ray_orig_xyz, cy);
 	cross(ray_vec, cy->normal, ray_norm);
@@ -148,7 +165,7 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	  change when adding caps probably*/
 	if (calc_vector_mag(ray_norm) == 0)
 		return (0);
-	discriminant = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0], 2);
+	discriminant = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0] / 2, 2);
 	discriminant -= pow(dot(end, ray_norm), 2);
 	if (discriminant < 0)
 		return (0);
@@ -159,5 +176,10 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	*t_min /= dot(ray_norm, ray_norm);
 	if (smallest < *t_min)
 		*t_min = smallest;
+	if (!is_within_height(*t_min, end, cy, ray_vec))
+	{
+		*t_min = INFINITY;
+		return (0);
+	}
 	return (1);
 }
