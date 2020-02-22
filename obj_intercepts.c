@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 18:54:46 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 20:21:49 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@ int	plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	ray_normal_dot;
 	double	plane_to_cam_vec[3];
 
-	calc_3d_vector(ray_orig_xyz, pl->xyz, plane_to_cam_vec);
 	ray_normal_dot = dot(ray_vec, pl->normal);
 	if (!ray_normal_dot)
 	{
 		*t_min = INFINITY;
 		return (0);
 	}
+	calc_3d_vector(ray_orig_xyz, pl->xyz, plane_to_cam_vec);
 	*t_min = dot(plane_to_cam_vec, pl->normal) / ray_normal_dot;
 	return (1);
 }
@@ -177,4 +177,24 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 		return (1);
 	*t_min = INFINITY;
 	return (0);
+}
+
+int	ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *ci)
+{
+	double	obj_surface_xyz[3];
+	double	centre_to_point[3];
+
+	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, ci))
+		return (0);
+	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
+	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
+	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
+	calc_3d_vector(ci->xyz, obj_surface_xyz, centre_to_point);
+	if (calc_vector_mag(centre_to_point) > ci->data.doubl / 2)
+	{
+		*t_min = INFINITY;
+		return (0);
+	}
+	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 19:06:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 20:10:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -458,6 +458,32 @@ int	cam_func(char *line, t_scene_struct *s)
 	add_cam_elem(s, elem);
 	return (0);
 }
+	
+int	add_end_cap_objs(t_scene_struct *s, t_obj_struct *cy)
+{
+	t_obj_struct	*elem;
+	double			cap_1_xyz[3];
+	double			cap_2_xyz[3];
+
+
+	get_cy_end_point(cap_1_xyz, cy);
+	cap_2_xyz[X] = cap_1_xyz[X] - (cy->data.cy_d_h[1] * cy->normal[X]);
+	cap_2_xyz[Y] = cap_1_xyz[Y] - (cy->data.cy_d_h[1] * cy->normal[Y]);
+	cap_2_xyz[Z] = cap_1_xyz[Z] - (cy->data.cy_d_h[1] * cy->normal[Z]);
+	if(!(elem = create_obj_elem('i', cap_1_xyz, cy->normal, cy->colour)))
+		return (0);
+	elem->data.doubl = cy->data.cy_d_h[0];
+	elem->get_norm = ci_normal;
+	elem->solve = ci_intercept;
+	add_obj_elem(s, elem);
+	if(!(elem = create_obj_elem('i', cap_2_xyz, cy->normal, cy->colour)))
+		return (0);
+	elem->data.doubl = cy->data.cy_d_h[0];
+	elem->get_norm = ci_normal;
+	elem->solve = ci_intercept;
+	add_obj_elem(s, elem);
+	return (1);
+}
 
 int	cy_func(char *line, t_scene_struct *s)
 {
@@ -487,6 +513,8 @@ int	cy_func(char *line, t_scene_struct *s)
 	elem->get_norm = cy_normal;
 	elem->solve = cy_intercept;
 	add_obj_elem(s, elem);
+	if(!add_end_cap_objs(s, elem))
+		return (-2);
 	return (0);
 }
 

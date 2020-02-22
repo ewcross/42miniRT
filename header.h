@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 18:54:23 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 19:46:48 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void	ci_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 
 int		solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
@@ -46,6 +47,8 @@ int		tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *pl);
 int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *pl);
+int		ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+				t_obj_struct *ci);
 
 void	get_cy_end_point(double *end, t_obj_struct *cy);
 double	get_p_height(double t_min, double *end, double *normal, double *ray_vec);
