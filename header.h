@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 11:39:31 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 18:54:23 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,9 @@ int		tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *pl);
 int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *pl);
+
+void	get_cy_end_point(double *end, t_obj_struct *cy);
+double	get_p_height(double t_min, double *end, double *normal, double *ray_vec);
 
 void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2);
 void	get_perp_vec(double *norm, double *perp_vec);

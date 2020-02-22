@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 09:47:39 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/22 19:06:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 /*ERRORS TO HANDLE*/
 
 /*normal of 0,0,0
-  negative dimensions*/
+  negative dimensions
+  all normals should be normalised here and then where this happens
+  elsewhere can be removed*/
 
 void	fill_doubles(double *src, double *dst, int len)
 {
