@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 19:46:48 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/23 14:19:54 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,15 @@
 # define X 0
 # define Y 1
 # define Z 2
+# define ERR_BUFF_SIZE 75
+# define BAD_IDENTIFIER "Invalid object identifier."
+# define WRONG_ARG_NO "Wrong number of arguments in line."
+# define POS_ERROR "One or more invalide coordinate values."
+# define NORMAL_ERROR "One or more invalid coordinate values."
+# define DIMENSION_ERROR "Invalid object dimension value."
+# define COLOUR_ERROR "One or more invalid colour values."
+# define LINKED_LIST_ERROR "Error creating list element."
+# define MULTIPLE_R_A "Only one 'R' and 'A' field allowed in input file"
 
 void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);

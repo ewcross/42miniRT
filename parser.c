@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/12 19:16:07 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/23 14:28:31 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,31 @@ void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *))
 	func_arr[6] = t_func;
 }
 
+void	fill_buff_str(char *src, char *dst, int len)
+{
+	int	i;
+
+	i = 0;
+	while (src[i] && i < len)
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = src[i];
+}
+
+void	init_error_messages(char err_msgs[][ERR_BUFF_SIZE])
+{
+	fill_buff_str(BAD_IDENTIFIER, err_msgs[0], ERR_BUFF_SIZE);
+	fill_buff_str(WRONG_ARG_NO, err_msgs[1] , ERR_BUFF_SIZE);
+	fill_buff_str(POS_ERROR, err_msgs[2], ERR_BUFF_SIZE);
+	fill_buff_str(NORMAL_ERROR, err_msgs[3], ERR_BUFF_SIZE);
+	fill_buff_str(DIMENSION_ERROR, err_msgs[4], ERR_BUFF_SIZE);
+	fill_buff_str(COLOUR_ERROR, err_msgs[5], ERR_BUFF_SIZE);
+	fill_buff_str(LINKED_LIST_ERROR, err_msgs[6], ERR_BUFF_SIZE);
+	fill_buff_str(MULTIPLE_R_A, err_msgs[7], ERR_BUFF_SIZE);
+}
+
 int		parse_line(char *line, t_scene_struct *s)
 {
 	int		i;
@@ -70,51 +95,26 @@ int		parse_line(char *line, t_scene_struct *s)
 int		parser(t_scene_struct *s, char *file)
 {
 	int				fd;
+	int				err_code;
 	char			*line;
+	char			err_msgs[8][ERR_BUFF_SIZE];
 	t_obj_struct	*elem;
 	t_cam_struct	*cam;
 	t_l_struct		*light;
 
 	fd = open(file, O_RDONLY);
+	init_error_messages(err_msgs);
 	while (get_next_line(fd, &line))
 	{
-		if (parse_line(line, s))
-			printf("\n\n***ERROR***\ncheck line: \"%s\"\n", line);
-	}
-	printf("printing struct basics:\n\n");
-	printf("res_x = %d, res_y %d\n\n", s->res_xy[X], s->res_xy[Y]);
-	printf("ambient ratio  = %f\n", s->ambient_ratio);
-	printf("ambient colour: %d,%d,%d\n\n", s->ambient_colour[R], s->ambient_colour[G], s->ambient_colour[B]);
-	printf("printing obj list:\n");
-	if (s->obj_list)
-	{
-		elem = s->obj_list;
-		while (elem)
+		if ((err_code = parse_line(line, s)))
 		{
-			printf("\nelem:\n\n");
-			print_elem(elem);
-			elem = elem->next;
+			ft_putstr_fd("Error\n", 1);
+			ft_putstr_fd(err_msgs[(err_code * -1) - 1], 1);
+			ft_putstr_fd("\nCheck line: ", 1);
+			ft_putstr_fd(line, 1);
+			ft_putstr_fd("\n", 1);
+			return (0);
 		}
 	}
-	/*printf("printing cam list:\n");
-	if (s->cam_list)
-	{
-		cam = s->cam_list;
-		while (cam)
-		{
-			printf("\ncamera\n\n");
-			cam = cam->next;
-		}
-	}
-	printf("printing light list:\n");
-	if (s->l_list)
-	{
-		light = s->l_list;
-		while (light)
-		{
-			printf("\nlight\n\n");
-			light = light->next;
-		}
-	}*/
-	return (0);
+	return (1);
 }

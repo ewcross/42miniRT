@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 20:10:59 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/23 13:38:31 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,14 +245,22 @@ int	get_colour(char *str, int *colour)
 	
 	strs = ft_split(str, ',');
 	if (len_str_arr(strs) != 3)
-		return (-1);
+		return (-6);
 	i = 0;
 	while (i < 3)
 	{
 		if ((colour[i] = simple_atoi(strs[i])) == -1 || colour[i] > 255)
-			return (-1);
+			return (-6);
 		i++;
 	}
+	return (0);
+}
+
+int	get_data(char *str, double *data)
+{
+	/*do not know if zero data is valid or not*/
+	if (ft_atof(str, data) == -1 || *data <= 0)
+		return (-5);
 	return (0);
 }
 
@@ -263,12 +271,12 @@ int	get_xyz(char *str, double *xyz)
 
 	strs = ft_split(str, ',');
 	if (len_str_arr(strs) != 3)
-		return (-1);
+		return (-3);
 	i = 0;
 	while (i < 3)
 	{
 		if (ft_atof(strs[i], xyz + i) == -1)
-			return (-1);
+			return (-3);
 		i++;
 	}
 	return (0);
@@ -546,26 +554,26 @@ int	sp_func(char *line, t_scene_struct *s)
 
 int	sq_func(char *line, t_scene_struct *s)
 {
+	int				err_code;
+	int				colour[3];
 	char			**strs;
 	double			xyz[3];
 	double			normal[3];
 	double			side_size;
-	int				colour[3];
 	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5)
-		return (-1);
-	if (get_xyz(strs[1], xyz) == -1)
-		return (-1);
-	if (get_xyz(strs[2], normal) == -1)
-		return (-1);
-	if (ft_atof(strs[3], &side_size) == -1 || side_size < 0)
-		return (-1);
-	if (get_colour(strs[4], colour) == -1)
-		return (-1);
-	if(!(elem = create_obj_elem('q', xyz, normal, colour)))
 		return (-2);
+	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
+		(err_code = get_xyz(strs[2], normal)) < 0 ||
+		(err_code = get_data(strs[3], &side_size)) < 0 ||
+		(err_code = get_colour(strs[4], colour)) < 0)
+	{
+		return (err_code);
+	}
+	if(!(elem = create_obj_elem('q', xyz, normal, colour)))
+		return (-8);
 	elem->data.doubl = side_size;
 	elem->get_norm = sq_normal;
 	elem->solve = sq_intercept;

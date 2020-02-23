@@ -1,5 +1,23 @@
-to do:
+errors:
 
-			- change 'cam' in all intercept calculator functions to
-			  'ray_start' or something more generic, as these are also
-			  used to calculate shadow rays
+			- each func in func array returns a value, which is in turn
+			  returned to the main parser function by the single line parser
+			- this single line parser returns -1 if the first char is not in CHARSET
+			- error chain:
+
+						obj proc func -> single line parser -> parser -> main
+
+			- errors:
+
+						- non-charset char starting line -1
+						- wrong number of args in line -2
+						- xyz position coordinate error -3
+						- normal error -4
+						- data value error -5
+						- colour error -6
+						- element creation error -7
+						- multiple R or A values found -8
+
+			- all get_* functions are primary - they must return the correct error code
+			- atoi and atof are secondary, they return -1 in error and 0 in success
+

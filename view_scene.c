@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 19:17:18 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/23 13:03:07 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,7 +371,11 @@ int		main(void)
 	s.obj_list = NULL;
 	s.viewport_distance = 1;
 	/*need to initialise scene struct*/
-	parser(&s, file);
+	if(!parser(&s, file))
+	{
+		//error_exit - free list and write error message
+		return (1);
+	}
 
 	/*
 	  set up window and create image for ray tracing
