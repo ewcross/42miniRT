@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 20:21:49 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/23 19:29:39 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	if (smallest < *t_min)
 		*t_min = smallest;
 	if (get_p_height(*t_min, end, cy->normal, ray_vec) >= 0 &&
-		get_p_height(*t_min, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+			get_p_height(*t_min, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
 		return (1);
 	*t_min = INFINITY;
 	return (0);
