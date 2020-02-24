@@ -1,3 +1,9 @@
+to do:
+
+			- add colours to lights
+			- add bmp file handling
+			- add resolution resizing if scene size is greater than display size
+
 errors:
 
 			- each func in func array returns a value, which is in turn

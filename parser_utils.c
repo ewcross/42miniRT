@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 10:05:57 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 15:59:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 /*normal of 0,0,0
   negative dimensions
+  negative resolution
   all normals should be normalised here and then where this happens
   elsewhere can be removed*/
 

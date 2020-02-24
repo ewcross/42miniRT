@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 11:56:27 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 14:16:19 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 14:22:09 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,34 @@ int put_image(void *window_struct)
 	return (1);
 }
 
+void	shift_next_cam(t_win_struct *ws)
+{
+	ws->img_list = ws->img_list->next;
+		if (!ws->img_list)
+			ws->img_list = ws->first_img_addr;
+	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
+}
+
+void	shift_prev_cam(t_win_struct *ws)
+{
+	t_img_struct	*temp;
+	
+	if (ws->img_list == ws->first_img_addr)
+		while (ws->img_list->next)
+			ws->img_list = ws->img_list->next;
+	else
+	{
+		temp = ws->img_list;
+		ws->img_list = ws->first_img_addr;
+		while (ws->img_list->next != temp)
+			ws->img_list = ws->img_list->next;
+	}
+	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
+}
+
 int set_keys(int keycode, void *window_struct)
 {
 	t_win_struct	*ws;
-	t_img_struct	*temp;
 
 	ws = window_struct;
 	if (keycode == 53)
@@ -40,26 +64,9 @@ int set_keys(int keycode, void *window_struct)
 	if (keycode == 8)
 		mlx_clear_window(ws->mlx_ptr, ws->win_ptr);
 	if (keycode == 124)
-	{
-		ws->img_list = ws->img_list->next;
-		if (!ws->img_list)
-			ws->img_list = ws->first_img_addr;
-		mlx_loop_hook(ws->mlx_ptr, put_image, ws);
-	}
+		shift_next_cam(ws);
 	if (keycode == 123)
-	{
-		if (ws->img_list == ws->first_img_addr)
-			while (ws->img_list->next)
-				ws->img_list = ws->img_list->next;
-		else
-		{
-			temp = ws->img_list;
-			ws->img_list = ws->first_img_addr;
-			while (ws->img_list->next != temp)
-				ws->img_list = ws->img_list->next;
-		}
-		mlx_loop_hook(ws->mlx_ptr, put_image, ws);
-	}
+		shift_prev_cam(ws);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 13:13:39 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 16:18:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,6 +185,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	int		x;
 	int		y;
 	int		pixel_colour[3];
+	int		colour_black[3];
 	double	ray_vec[3];
 	double	viewport_width;
 	double	viewport_height;
@@ -200,6 +201,10 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	t_obj_struct	*first_obj;
 	t_obj_struct	*closest_obj;
 
+	colour_black[R] = 0;
+	colour_black[G] = 0;
+	colour_black[B] = 0;
+	
 	int		bpp = 32;
 	
 	/*
@@ -252,7 +257,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 				obj = obj->next;
 			}
 			if (t_min == INFINITY)
-				colour_img_pixel(img_addr, x, y, bpp, line_size, s->ambient_colour);
+				colour_img_pixel(img_addr, x, y, bpp, line_size, colour_black);
 			else
 			{
 				light = first_light;
@@ -264,6 +269,18 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 				pixel_colour[R] = (double)closest_obj->colour[R] * light_adjust;
 				pixel_colour[G] = (double)closest_obj->colour[G] * light_adjust;
 				pixel_colour[B] = (double)closest_obj->colour[B] * light_adjust;
+				pixel_colour[R] += (light_adjust - 0.3) * first_light->colour[R];
+				pixel_colour[G] += (light_adjust - 0.3) * first_light->colour[G];
+				pixel_colour[B] += (light_adjust - 0.3) * first_light->colour[B];
+				pixel_colour[R] += (0.3 * s->ambient_colour[R]);
+				pixel_colour[G] += (0.3 * s->ambient_colour[G]);
+				pixel_colour[B] += (0.3 * s->ambient_colour[B]);
+				if (pixel_colour[R] > 255)
+					pixel_colour[R] = 255;
+				if (pixel_colour[G] > 255)
+					pixel_colour[G] = 255;
+				if (pixel_colour[B] > 255)
+					pixel_colour[B] = 255;
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
