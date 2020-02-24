@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 15:59:36 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 17:54:42 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -471,11 +471,20 @@ int	cam_func(char *line, t_scene_struct *s)
 int	add_end_cap_objs(t_scene_struct *s, t_obj_struct *cy)
 {
 	t_obj_struct	*elem;
+	double			proj_height;
+	double			cam_to_centre[3];
 	double			cap_1_xyz[3];
 	double			cap_2_xyz[3];
 
 
+	proj_height = sin(acos(dot(cy->normal, s->cam_list->normal))) * (cy->data.cy_d_h[1] / 2);
 	get_cy_end_point(cap_1_xyz, cy);
+	//cap_1_xyz[X] = cy->xyz[X] + ((proj_height) * cy->normal[X]) + 1;
+	//cap_1_xyz[Y] = cy->xyz[Y] + ((proj_height) * cy->normal[Y]);
+	//cap_1_xyz[Z] = cy->xyz[Z] + ((proj_height) * cy->normal[Z]);
+	//cap_2_xyz[X] = cy->xyz[X] - ((proj_height) * cy->normal[X]) + 1;
+	//cap_2_xyz[Y] = cy->xyz[Y] - ((proj_height) * cy->normal[Y]);
+	//cap_2_xyz[Z] = cy->xyz[Z] - ((proj_height) * cy->normal[Z]);
 	cap_2_xyz[X] = cap_1_xyz[X] - (cy->data.cy_d_h[1] * cy->normal[X]);
 	cap_2_xyz[Y] = cap_1_xyz[Y] - (cy->data.cy_d_h[1] * cy->normal[Y]);
 	cap_2_xyz[Z] = cap_1_xyz[Z] - (cy->data.cy_d_h[1] * cy->normal[Z]);
@@ -518,6 +527,8 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-1);
 	if(!(elem = create_obj_elem('c', xyz, normal, colour)))
 		return (-2);
+	/*should do this for all normals*/
+	calc_unit_vec(elem->normal, elem->normal);
 	fill_doubles(diameter_height, elem->data.cy_d_h, 2);
 	elem->get_norm = cy_normal;
 	elem->solve = cy_intercept;
