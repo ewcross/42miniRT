@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/23 19:24:00 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 11:29:42 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int put_image(void *window_struct)
 	t_win_struct *ws;
 
 	ws = window_struct;
-	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_ptr, 0, 0);
+	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_list->img_ptr, 0, 0);
 	return (0);
 }
 
@@ -346,7 +346,26 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	return (0);
 }
 
-int		main(void)
+void	add_img_to_list(t_win_struct *ws, void	*img_ptr)
+{
+	t_img_struct	*elem;
+	t_img_struct	*img_list;
+
+	elem = (t_img_struct*)malloc(sizeof(t_img_struct));
+	elem->img_ptr = img_ptr;
+	elem->next = NULL;
+	if (!ws->img_list)
+	{
+		ws->img_list = elem;
+		return ;
+	}
+	img_list = ws->img_list;
+	while (img_list->next)
+		img_list = img_list->next;
+	img_list->next = elem;
+}
+
+int		main(int argc, char **argv)
 {
 	/*
 	  generate scene struct
@@ -355,7 +374,6 @@ int		main(void)
 	  also need to generate a new image for each camera found
 	  ray tracer needs to be passed scene struct, camera struct and image address*/
 	
-	char			*file;
 	void			*img_ptr;
 	char			*img_addr;
 	t_scene_struct	s;
@@ -366,14 +384,18 @@ int		main(void)
 	int		line_size;
 	int		endian;
 
-	file = "file.rt";
-	init_win_struct(&ws);
+	if (argc < 2 || argc > 3)
+	{
+		printf("Incorrect args supplied\n");
+		return (1);
+	}
 	s.obj_list = NULL;
 	s.viewport_distance = 1;
 	/*need to initialise scene struct*/
-	if(!parser(&s, file))
+	if(!parser(&s, argv[1]))
 	{
-		//error_exit - free list and write error message
+		free_scene_struct(&s);
+		printf("just freed scene\n");
 		return (1);
 	}
 
@@ -381,6 +403,7 @@ int		main(void)
 	  set up window and create image for ray tracing
 	*/
 
+	init_win_struct(&ws);
 	ws.res_x = s.res_xy[X];
 	ws.res_y = s.res_xy[Y];
 	initialise_window(&ws);
@@ -390,12 +413,14 @@ int		main(void)
 	{
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
 		img_addr = mlx_get_data_addr(img_ptr, &bpp, &line_size, &endian);
-		trace_rays(&s, cam, img_addr, line_size);
+		//trace_rays(&s, cam, img_addr, line_size);
 		/*add new image to list of images in win_struct*/
 		/*currently only one camera so just point ws.img_ptr to img_ptr*/
-		ws.img_ptr = img_ptr;
+		add_img_to_list(&ws, img_ptr); 
 		cam = cam->next;
 	}
 	mlx_loop(ws.mlx_ptr);
-	/*free stuff*/
+	
+	//free_win_struct(&s);
+	free_scene_struct(&s);
 }

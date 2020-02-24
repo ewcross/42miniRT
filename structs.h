@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 09:44:21 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 11:33:15 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,17 @@
 
 # include "header.h"
 
+typedef struct			s_img_struct
+{
+	void				*img_ptr;
+	struct s_img_struct	*next;
+}						t_img_struct;
+
 typedef struct			s_win_struct
 {
 	void				*mlx_ptr;
 	void				*win_ptr;
-	void				*img_ptr;
+	t_img_struct		*img_list;
 	int					res_x;
 	int					res_y;
 }						t_win_struct;

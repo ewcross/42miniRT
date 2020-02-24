@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/23 14:19:54 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 11:17:00 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,12 +76,15 @@ double	calc_vector_mag(double *vec);
 void	fill_doubles(double *src, double *dst, int len);
 int		set_keys(int keycode, void *t_win_struct);
 
+void	free_scene_struct(t_scene_struct *s);
+void	print_elem(t_obj_struct *elem);
+void	add_img_to_list(t_win_struct *ws, void	*img_ptr);
+
 int		pos_in_set(char ch, char *set);
 void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));
 int		parse_line(char *line, t_scene_struct *s);
 int		len_str_arr(char **str_arr);
 int		simple_atoi(char *str);
-void	print_elem(t_obj_struct *elem);
 void	init_win_struct(t_win_struct *ws);
 int		parser(t_scene_struct *s, char *file);
 
