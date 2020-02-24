@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 11:17:19 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 13:13:56 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	init_win_struct(t_win_struct *ws)
 	ws->mlx_ptr = NULL;
 	ws->win_ptr = NULL;
 	ws->img_list = NULL;
+	ws->first_img_addr = NULL;
 	ws->res_x = 0;
 	ws->res_y = 0;
 }

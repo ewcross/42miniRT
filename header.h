@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 11:17:00 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 12:00:13 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,11 +74,18 @@ void	scale_vector(double *vec, double factor);
 double	calc_vector_mag(double *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
-int		set_keys(int keycode, void *t_win_struct);
+
+int		put_image(void *window_struct);
+int		set_keys(int keycode, void *window_struct);
+int		close_program(void *window_struct);
+int		initialise_window(t_win_struct *ws);
+void	colour_img_pixel(char *img_addr, int x, int y, int bpp,
+							int line_size, int *colour);
 
 void	free_scene_struct(t_scene_struct *s);
 void	print_elem(t_obj_struct *elem);
 void	add_img_to_list(t_win_struct *ws, void	*img_ptr);
+void	free_img_list(t_img_struct *img);
 
 int		pos_in_set(char ch, char *set);
 void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 11:33:15 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 13:22:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct			s_win_struct
 	void				*mlx_ptr;
 	void				*win_ptr;
 	t_img_struct		*img_list;
+	t_img_struct		*first_img_addr;
 	int					res_x;
 	int					res_y;
 }						t_win_struct;

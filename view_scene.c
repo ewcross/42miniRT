@@ -6,78 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 11:29:42 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 13:13:39 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
-
-/********
-   window and image functions
-********/
-
-int put_image(void *window_struct)
-{
-	t_win_struct *ws;
-
-	ws = window_struct;
-	mlx_put_image_to_window(ws->mlx_ptr, ws->win_ptr, ws->img_list->img_ptr, 0, 0);
-	return (0);
-}
-
-int set_keys(int keycode, void *window_struct)
-{
-	t_win_struct *ws;
-
-	ws = window_struct;
-	if (keycode == 53)
-	{
-		mlx_destroy_window(ws->mlx_ptr, ws->win_ptr);
-		exit(0);
-	}
-	if (keycode == 8)
-		mlx_clear_window(ws->mlx_ptr, ws->win_ptr);
-	return (0);
-}
-
-int close_program(void *window_struct)
-{
-	(void)window_struct;
-	exit(0);
-}
-
-int put_pixel(void *window_struct)
-{
-	t_win_struct *ws;
-	
-	ws = window_struct;
-	mlx_pixel_put(ws->mlx_ptr, ws->win_ptr, ws->res_x / 2, ws->res_y / 2, 0xff00ff);
-	return (0);
-}
-
-int initialise_window(t_win_struct *ws)
-{
-	ws->mlx_ptr = mlx_init();
-	ws->win_ptr = mlx_new_window(ws->mlx_ptr, ws->res_x, ws->res_y, "window");
-	if (!ws->win_ptr)
-		return (1);
-	mlx_hook(ws->win_ptr, DESTROYNOTIFY, NOEVENTMASK, close_program, 0);
-	mlx_key_hook(ws->win_ptr, set_keys, ws);
-	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
-	
-	return (0);
-}
-
-void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int *colour)
-{
-	int	pixel_index;
-
-	pixel_index = (x * (bpp / 8)) + ((line_size) * y);
-	*(img_addr + pixel_index) = colour[B];
-	*(img_addr + pixel_index + 1) = colour[G];
-	*(img_addr + pixel_index + 2) = colour[R];
-}
 
 /********
    maths functions
@@ -272,8 +206,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	  set values needed for ray tracing
 	*/
 
-	printf("res_x = %d\n", s->res_xy[X]);
-	printf("res_y = %d\n", s->res_xy[Y]);
 	viewport_width = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
 	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
 	intersect_dist_max = 100000;
@@ -285,14 +217,9 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	*/
 
 	scale_light(s);
-	printf("\nscaled lights:\n\n");
-	printf("a brightness = %f\n", s->ambient_ratio);
 	light = s->l_list;
 	while (light)
-	{
-		printf("\nbrightness = %f\n", light->brightness);
 		light = light->next;
-	}
 
 	/*
 	  ray tracing algorithm
@@ -357,6 +284,7 @@ void	add_img_to_list(t_win_struct *ws, void	*img_ptr)
 	if (!ws->img_list)
 	{
 		ws->img_list = elem;
+		ws->first_img_addr = elem;
 		return ;
 	}
 	img_list = ws->img_list;
@@ -406,21 +334,22 @@ int		main(int argc, char **argv)
 	init_win_struct(&ws);
 	ws.res_x = s.res_xy[X];
 	ws.res_y = s.res_xy[Y];
-	initialise_window(&ws);
+	if (!initialise_window(&ws))
+	{
+		printf("Failed to initialise window\n");
+		return (0);
+	}
 	
 	cam = s.cam_list;
 	while(cam)
 	{
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
 		img_addr = mlx_get_data_addr(img_ptr, &bpp, &line_size, &endian);
-		//trace_rays(&s, cam, img_addr, line_size);
-		/*add new image to list of images in win_struct*/
-		/*currently only one camera so just point ws.img_ptr to img_ptr*/
+		trace_rays(&s, cam, img_addr, line_size);
 		add_img_to_list(&ws, img_ptr); 
 		cam = cam->next;
 	}
 	mlx_loop(ws.mlx_ptr);
-	
-	//free_win_struct(&s);
+	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }

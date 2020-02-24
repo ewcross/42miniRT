@@ -6,13 +6,13 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 10:20:50 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 11:33:14 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/24 12:30:34 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-void	free_img_lists(t_img_struct *img)
+void	free_img_list(t_img_struct *img)
 {
 	t_img_struct	*temp;
 
@@ -20,6 +20,7 @@ void	free_img_lists(t_img_struct *img)
 	{
 		temp = img;
 		img = img->next;
+		//free(temp->img_ptr);
 		free(temp);
 	}
 }
