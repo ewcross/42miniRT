@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 15:48:47 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 16:33:46 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,18 @@ typedef struct			s_obj_struct
 	struct s_obj_struct *next;
 }						t_obj_struct;
 
+typedef struct			s_ray_struct
+{
+	int					colour[3];
+	double				t_min;
+	double				ray_vec[3];
+	t_obj_struct		*closest_obj;
+}						t_ray_struct;
+
 typedef struct			s_scene_struct
 {
 	int					res_xy[2];
-	double				viewport_distance;
+	double				vp_dist;
 	double				ambient_ratio;
 	int					ambient_colour[3];
 	t_obj_struct		*obj_list;

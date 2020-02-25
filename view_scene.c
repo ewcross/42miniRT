@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 15:48:49 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 16:33:43 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,12 +193,12 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec
 }
 
 
-void	adjust_pixel_colour(int *colour, t_scene_struct *s, t_l_struct *light)
+void	adjust_pixel_colour(int *colour, t_scene_struct *s)
 {
 	double	l_brightness;
 	double	a_brightness;
 
-	l_brightness = light->brightness;
+	l_brightness = s->l_curr->brightness;
 	a_brightness = s->ambient_ratio;
 	colour[R] += l_brightness * light->colour[R];
 	colour[G] += l_brightness * light->colour[G];
@@ -221,57 +221,62 @@ void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 	calc_unit_vec(ray_vec, ray_vec);
 }
 
-int trace_rays(t_scene_struct *s, void *img_addr)
+void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
+{
+	static int	black[] = {0, 0, 0};
+	double		light_adjust;
+	t_l_struct	*light;
+
+	if (ray->t_min == INFINITY)
+	{
+		fill_ints(black, ray->colour, 3);
+		return ;
+	}
+	fill_ints(ray->closest_obj->colour, ray->colour, 3);
+	light_adjust = s->ambient_ratio;
+	light = s->l_list;
+	while(light)
+	{
+		s->l_curr = light;
+		light_adjust += calc_light_intensity(s, ray->closest_obj, ray->ray_vec, ray->t_min);
+		//adjust_pixel_colour(ray->colour, s);
+		light = light->next;
+	}
+	scale_ints_vector(ray->colour, light_adjust);
+}
+
+int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
 {
 	int				xy[2];
-	int				pixel_colour[3];
-	int				colour_black[3];
-	double			ray_vec[3];
-	double			viewport_w_h[2];
-	double			t_min;
-	double			light_adjust;
-	t_l_struct		*light;
-	t_obj_struct	*closest_obj;
+	t_ray_struct	*ray;
 
-	colour_black[R] = 0;
-	colour_black[G] = 0;
-	colour_black[B] = 0;
-
-	scale_light(s);
-	viewport_w_h[0] = (2 * tan((s->cam_curr->fov * (M_PI / 180)) / 2) * s->viewport_distance);
-	viewport_w_h[1] = s->res_xy[Y] * (viewport_w_h[0] / s->res_xy[X]);
-	closest_obj = NULL;
-	ray_vec[Z] = s->viewport_distance;
+	ray.closest_obj = NULL;
+	ray.ray_vec[Z] = s->vp_dist;
 	xy[X] = 0;
 	while (xy[X] < s->res_xy[X])
 	{
 		xy[Y] = 0;
 		while (xy[Y] < s->res_xy[Y])
 		{
-			get_ray_vec(ray_vec, viewport_w_h, xy, s);
-			closest_obj = find_closest_obj(&t_min, s, ray_vec);
-			if (t_min == INFINITY)
-				colour_img_pixel(img_addr, xy, s->cam_curr, colour_black);
-			else
-			{
-				//get_pixel_colour();
-				fill_ints(closest_obj->colour, pixel_colour, 3);
-				light_adjust = s->ambient_ratio;
-				light = s->l_list;
-				while(light)
-				{
-					s->l_curr = light;
-					light_adjust += calc_light_intensity(s, closest_obj, ray_vec, t_min);
-					//adjust_pixel_colour(pixel_colour, s, light);
-					light = light->next;
-				}
-				scale_ints_vector(pixel_colour, light_adjust);
-				colour_img_pixel(img_addr, xy, s->cam_curr, pixel_colour);
-			}
+			get_ray_vec(ray.ray_vec, vp_w_h, xy, s);
+			ray.closest_obj = find_closest_obj(&(ray.t_min), s, ray.ray_vec);
+			get_pixel_colour(s, ray);
+			colour_img_pixel(img_addr, xy, s->cam_curr, ray.colour);
 			xy[Y]++;
 		}
 		xy[X]++;
 	}
+	return (0);
+}
+
+int	draw_image(t_scene_struct *s, void *img_addr)
+{
+	double			vp_w_h[2];
+
+	scale_light(s);
+	vp_w_h[0] = (2 * tan((s->cam_curr->fov * (M_PI / 180)) / 2) * s->vp_dist);
+	vp_w_h[1] = s->res_xy[Y] * (vp_w_h[0] / s->res_xy[X]);
+	trace_rays(s, img_addr, vp_w_h);
 	return (0);
 }
 
@@ -322,7 +327,7 @@ int		main(int argc, char **argv)
 		return (1);
 	}
 	s.obj_list = NULL;
-	s.viewport_distance = 1;
+	s.vp_dist = 1;
 	/*need to initialise scene struct*/
 	
 	if(!parser(&s, argv[1]))
@@ -345,7 +350,7 @@ int		main(int argc, char **argv)
 	{
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
 		s.cam_curr = cam;
-		trace_rays(&s, get_img_data(img_ptr, cam));
+		draw_image(&s, get_img_data(img_ptr, cam));
 		add_img_to_list(&ws, img_ptr); 
 		cam = cam->next;
 	}
@@ -353,3 +358,17 @@ int		main(int argc, char **argv)
 	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }
+
+	/*
+		fill_ints(closest_obj->colour, pixel_colour, 3);
+		light_adjust = s->ambient_ratio;
+		light = s->l_list;
+		while(light)
+		{
+			s->l_curr = light;
+			light_adjust += calc_light_intensity(s, closest_obj, ray_vec, t_min);
+			//adjust_pixel_colour(pixel_colour, s);
+			light = light->next;
+		}
+		scale_ints_vector(pixel_colour, light_adjust);
+		*/
