@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 14:49:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 15:48:49 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,13 @@ void	calc_unit_vec(double *vec, double *unit_vec)
 	unit_vec[2] = vec[2] / mag;
 }
 
+void	get_point(double *point, double *orig, double *vec, double dist)
+{
+	point[X] = orig[X] + (dist * vec[X]);
+	point[Y] = orig[Y] + (dist * vec[Y]);
+	point[Z] = orig[Z] + (dist * vec[Z]);
+}
+
 void	scale_light(t_scene_struct *s)
 {
 	double		light_total;
@@ -125,52 +132,28 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 	mag1 = calc_vector_mag(cam_to_plane_vec);
 	mag2 = calc_vector_mag(obj_norm);
 	if ((dot_prod / mag1 * mag2) > cos(M_PI / 2))
-	{
-		obj_norm[X] *= -1;
-		obj_norm[Y] *= -1;
-		obj_norm[Z] *= -1;
-	}
+		scale_vector(obj_norm, -1);
 }
 
-double	calc_light_intensity(t_cam_struct *cam, t_l_struct *light, t_obj_struct *obj,
-								t_obj_struct *obj_list, double *ray_vec, double t_min)
+double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_vec, double t_min)
 {
 	double	dot_prod;
-	double	fraction;
 	double	ray_unit_vec[3];
 	double	obj_surface_xyz[3];
 	double	surface_to_light_vec[3];
 	double	obj_norm_vec[3];
 
-	/*find point on surface*/
-	/*here assuming unit vec not used in ray tracing part*/
-	//calc_unit_vec(ray_vec, ray_unit_vec);
-	//obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_unit_vec[X]);
-	//obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_unit_vec[Y]);
-	//obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_unit_vec[Z]);
-
-	/*here assuming ray vec is already a unit vector*/
-	obj_surface_xyz[X] = cam->xyz[X] + (t_min * ray_vec[X]);
-	obj_surface_xyz[Y] = cam->xyz[Y] + (t_min * ray_vec[Y]);
-	obj_surface_xyz[Z] = cam->xyz[Z] + (t_min * ray_vec[Z]);
-	
-	/*find point to light vector*/
-	calc_3d_vector(obj_surface_xyz, light->xyz, surface_to_light_vec);
-	/*here need to check if it is a shadow ray*/
-	/*if so, point gets no light from this light, so return 0*/
-	if (shadow_ray(obj_surface_xyz, surface_to_light_vec, obj, obj_list))
+	get_point(obj_surface_xyz, s->cam_curr->xyz, ray_vec, t_min);
+	calc_3d_vector(obj_surface_xyz, s->l_curr->xyz, surface_to_light_vec);
+	if (shadow_ray(obj_surface_xyz, surface_to_light_vec, obj, s->obj_list))
 		return (0);
-	/*get normal to surface at that point*/
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	if (obj->id != 's')
-		choose_correct_normal(cam->xyz, obj->xyz, obj_norm_vec);
-	/*get dot product of surface->light and normal*/
-	/*if this is less than 0, angle is greater than 90, so it will be in shadow*/
+		choose_correct_normal(s->cam_curr->xyz, obj->xyz, obj_norm_vec);
 	if ((dot_prod = dot(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
-	/*finally calculate fraction of light intensity that the point recieves*/
-	fraction = dot_prod / (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
-	return (light->brightness * fraction);
+	dot_prod /= (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
+	return (s->l_curr->brightness * dot_prod);
 }
 
 t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
@@ -187,8 +170,7 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 	return (start);
 }
 
-t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s,
-							double *ray_vec, t_cam_struct *cam)
+t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec)
 {
 	double			temp_t_min;
 	t_obj_struct	*obj;
@@ -199,7 +181,7 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s,
 	obj = s->obj_list;
 	while (obj)
 	{
-		obj->solve(&temp_t_min, ray_vec, cam->xyz, obj);
+		obj->solve(&temp_t_min, ray_vec, s->cam_curr->xyz, obj);
 		if (temp_t_min < *t_min && temp_t_min > s->viewport_distance)
 		{
 			*t_min = temp_t_min;
@@ -239,7 +221,7 @@ void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 	calc_unit_vec(ray_vec, ray_vec);
 }
 
-int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
+int trace_rays(t_scene_struct *s, void *img_addr)
 {
 	int				xy[2];
 	int				pixel_colour[3];
@@ -256,7 +238,7 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 	colour_black[B] = 0;
 
 	scale_light(s);
-	viewport_w_h[0] = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
+	viewport_w_h[0] = (2 * tan((s->cam_curr->fov * (M_PI / 180)) / 2) * s->viewport_distance);
 	viewport_w_h[1] = s->res_xy[Y] * (viewport_w_h[0] / s->res_xy[X]);
 	closest_obj = NULL;
 	ray_vec[Z] = s->viewport_distance;
@@ -267,23 +249,24 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
 		while (xy[Y] < s->res_xy[Y])
 		{
 			get_ray_vec(ray_vec, viewport_w_h, xy, s);
-			closest_obj = find_closest_obj(&t_min, s, ray_vec, cam);
+			closest_obj = find_closest_obj(&t_min, s, ray_vec);
 			if (t_min == INFINITY)
-				colour_img_pixel(img_addr, xy, cam, colour_black);
+				colour_img_pixel(img_addr, xy, s->cam_curr, colour_black);
 			else
 			{
-				get_pixel_colour(pixel_colour, s, closest_obj
+				//get_pixel_colour();
 				fill_ints(closest_obj->colour, pixel_colour, 3);
 				light_adjust = s->ambient_ratio;
 				light = s->l_list;
 				while(light)
 				{
-					light_adjust += calc_light_intensity(cam, light, closest_obj, s->obj_list, ray_vec, t_min);
-					adjust_pixel_colour(pixel_colour, s, light);
+					s->l_curr = light;
+					light_adjust += calc_light_intensity(s, closest_obj, ray_vec, t_min);
+					//adjust_pixel_colour(pixel_colour, s, light);
 					light = light->next;
 				}
 				scale_ints_vector(pixel_colour, light_adjust);
-				colour_img_pixel(img_addr, xy, cam, pixel_colour);
+				colour_img_pixel(img_addr, xy, s->cam_curr, pixel_colour);
 			}
 			xy[Y]++;
 		}
@@ -361,7 +344,8 @@ int		main(int argc, char **argv)
 	while(cam)
 	{
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		trace_rays(&s, cam, get_img_data(img_ptr, cam));
+		s.cam_curr = cam;
+		trace_rays(&s, get_img_data(img_ptr, cam));
 		add_img_to_list(&ws, img_ptr); 
 		cam = cam->next;
 	}

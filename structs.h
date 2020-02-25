@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 14:49:40 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 15:48:47 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,8 @@ typedef struct			s_scene_struct
 	t_obj_struct		*obj_list;
 	t_cam_struct		*cam_list;
 	t_l_struct			*l_list;
+	t_cam_struct		*cam_curr;
+	t_l_struct			*l_curr;
 }						t_scene_struct;
 
 #endif
