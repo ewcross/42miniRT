@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 11:10:13 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 11:26:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,30 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 	return (start);
 }
 
+t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s,
+							double *ray_vec, t_cam_struct *cam)
+{
+	double			temp_t_min;
+	t_obj_struct	*obj;
+	t_obj_struct	*closest_obj;
+
+	closest_obj = NULL;
+	*t_min = INFINITY;
+	obj = s->obj_list;
+	while (obj)
+	{
+		obj->solve(&temp_t_min, ray_vec, cam->xyz, obj);
+		if (temp_t_min < *t_min && temp_t_min > s->viewport_distance)
+		{
+			*t_min = temp_t_min;
+			closest_obj = obj;
+		}
+		obj = obj->next;
+	}
+	return (closest_obj);
+}
+
+
 void	adjust_pixel_colour(int *colour, t_scene_struct *s, t_l_struct *light)
 {
 	double	l_brightness;
@@ -217,8 +241,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	double	ray_vec[3];
 	double	viewport_width;
 	double	viewport_height;
-	double	intersect_dist_max;
-	double	intersect_dist_min;
 	double	t_min;
 	double	temp_t_min;
 	double	light_adjust;
@@ -235,29 +257,10 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	
 	int		bpp = 32;
 	
-	/*
-	  set values needed for ray tracing
-	*/
-
+	scale_light(s);
 	viewport_width = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
 	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
-	intersect_dist_max = 100000;
-	intersect_dist_min = s->viewport_distance;
-
-	/*
-	  function to scale the light intensity of each light source
-	  so that total light intensity is always 1.0
-	*/
-
-	scale_light(s);
-
-	/*
-	  ray tracing algorithm
-	*/
-
-	first_obj = s->obj_list;
 	closest_obj = NULL;
-	first_light = s->l_list;
 	ray_vec[Z] = s->viewport_distance;
 	x = 0;
 	while (x < s->res_xy[X])
@@ -265,32 +268,17 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 		y = 0;
 		while (y < s->res_xy[Y])
 		{
-			light_adjust = s->ambient_ratio;
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			calc_unit_vec(ray_vec, ray_vec);
-
-			/*function to set t_min and return pointer to closest_obj*/
-			/*args - &t_min, s, cam*/
-			t_min = INFINITY;
-			obj = first_obj;
-			while (obj)
-			{
-				obj->solve(&temp_t_min, ray_vec, cam->xyz, obj);
-				if (temp_t_min < t_min && temp_t_min > s->viewport_distance)
-				{
-					t_min = temp_t_min;
-					closest_obj = obj;
-				}
-				obj = obj->next;
-			}
-
+			closest_obj = find_closest_obj(&t_min, s, ray_vec, cam);
 			if (t_min == INFINITY)
 				colour_img_pixel(img_addr, x, y, bpp, line_size, colour_black);
 			else
 			{
+				light_adjust = s->ambient_ratio;
 				fill_ints(closest_obj->colour, pixel_colour, 3);
-				light = first_light;
+				light = s->l_list;
 				while(light)
 				{
 					light_adjust += calc_light_intensity(cam, light, closest_obj, s->obj_list, ray_vec, t_min);
