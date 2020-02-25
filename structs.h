@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 11:26:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 14:49:40 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ typedef struct			s_win_struct
 
 typedef struct			s_cam_struct
 {
+	int					bpp;
+	int					line_size;
 	double				xyz[3];
 	double				normal[3];
 	double				fov;

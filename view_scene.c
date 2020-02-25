@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 11:26:36 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 14:49:38 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,52 +232,49 @@ void	adjust_pixel_colour(int *colour, t_scene_struct *s, t_l_struct *light)
 		colour[B] = 255;
 }
 
-int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_size)
+void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 {
-	int		x;
-	int		y;
-	int		pixel_colour[3];
-	int		colour_black[3];
-	double	ray_vec[3];
-	double	viewport_width;
-	double	viewport_height;
-	double	t_min;
-	double	temp_t_min;
-	double	light_adjust;
-	
+	ray_vec[X] = (v_w_h[0] * ((double)xy[X] / s->res_xy[X])) - (v_w_h[0] / 2);
+	ray_vec[Y] = (-1 * v_w_h[1] * ((double)xy[Y] / s->res_xy[Y])) + (v_w_h[1] / 2);
+	calc_unit_vec(ray_vec, ray_vec);
+}
+
+int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr)
+{
+	int				xy[2];
+	int				pixel_colour[3];
+	int				colour_black[3];
+	double			ray_vec[3];
+	double			viewport_w_h[2];
+	double			t_min;
+	double			light_adjust;
 	t_l_struct		*light;
-	t_l_struct		*first_light;
-	t_obj_struct	*obj;
-	t_obj_struct	*first_obj;
 	t_obj_struct	*closest_obj;
 
 	colour_black[R] = 0;
 	colour_black[G] = 0;
 	colour_black[B] = 0;
-	
-	int		bpp = 32;
-	
+
 	scale_light(s);
-	viewport_width = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
-	viewport_height = s->res_xy[Y] * (viewport_width / s->res_xy[X]);
+	viewport_w_h[0] = (2 * tan((cam->fov * (M_PI / 180)) / 2) * s->viewport_distance);
+	viewport_w_h[1] = s->res_xy[Y] * (viewport_w_h[0] / s->res_xy[X]);
 	closest_obj = NULL;
 	ray_vec[Z] = s->viewport_distance;
-	x = 0;
-	while (x < s->res_xy[X])
+	xy[X] = 0;
+	while (xy[X] < s->res_xy[X])
 	{
-		y = 0;
-		while (y < s->res_xy[Y])
+		xy[Y] = 0;
+		while (xy[Y] < s->res_xy[Y])
 		{
-			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
-			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
-			calc_unit_vec(ray_vec, ray_vec);
+			get_ray_vec(ray_vec, viewport_w_h, xy, s);
 			closest_obj = find_closest_obj(&t_min, s, ray_vec, cam);
 			if (t_min == INFINITY)
-				colour_img_pixel(img_addr, x, y, bpp, line_size, colour_black);
+				colour_img_pixel(img_addr, xy, cam, colour_black);
 			else
 			{
-				light_adjust = s->ambient_ratio;
+				get_pixel_colour(pixel_colour, s, closest_obj
 				fill_ints(closest_obj->colour, pixel_colour, 3);
+				light_adjust = s->ambient_ratio;
 				light = s->l_list;
 				while(light)
 				{
@@ -286,11 +283,11 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 					light = light->next;
 				}
 				scale_ints_vector(pixel_colour, light_adjust);
-				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
+				colour_img_pixel(img_addr, xy, cam, pixel_colour);
 			}
-			y++;
+			xy[Y]++;
 		}
-		x++;
+		xy[X]++;
 	}
 	return (0);
 }
@@ -315,24 +312,26 @@ void	add_img_to_list(t_win_struct *ws, void	*img_ptr)
 	img_list->next = elem;
 }
 
+void	*get_img_data(void *img_ptr, t_cam_struct *cam)
+{
+	int		bpp;
+	int		ln;
+	int		endian;
+	void	*img_addr;
+
+	img_addr = mlx_get_data_addr(img_ptr, &bpp, &ln, &endian);
+	cam->bpp = bpp;
+	cam->line_size = ln;
+	return (img_addr);
+}
+
 int		main(int argc, char **argv)
 {
-	/*
-	  generate scene struct
-	  use parser to fill with scene information
-	  loop through obj structs and for each camera found, call ray tracer
-	  also need to generate a new image for each camera found
-	  ray tracer needs to be passed scene struct, camera struct and image address*/
-	
+	//int				hello[] = {1, 2, 3};
 	void			*img_ptr;
-	char			*img_addr;
 	t_scene_struct	s;
 	t_win_struct	ws;
 	t_cam_struct	*cam;
-	
-	int		bpp;
-	int		line_size;
-	int		endian;
 
 	if (argc < 2 || argc > 3)
 	{
@@ -342,32 +341,27 @@ int		main(int argc, char **argv)
 	s.obj_list = NULL;
 	s.viewport_distance = 1;
 	/*need to initialise scene struct*/
+	
 	if(!parser(&s, argv[1]))
 	{
 		free_scene_struct(&s);
-		printf("just freed scene\n");
 		return (1);
 	}
-
-	/*
-	  set up window and create image for ray tracing
-	*/
 
 	init_win_struct(&ws);
 	ws.res_x = s.res_xy[X];
 	ws.res_y = s.res_xy[Y];
 	if (!initialise_window(&ws))
 	{
-		printf("Failed to initialise window\n");
+		ft_putstr_fd("Failed to initialise window\n", 1);
 		return (0);
 	}
-	
+
 	cam = s.cam_list;
 	while(cam)
 	{
 		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		img_addr = mlx_get_data_addr(img_ptr, &bpp, &line_size, &endian);
-		trace_rays(&s, cam, img_addr, line_size);
+		trace_rays(&s, cam, get_img_data(img_ptr, cam));
 		add_img_to_list(&ws, img_ptr); 
 		cam = cam->next;
 	}

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 11:00:45 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 14:24:03 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,8 @@ void	add_cam_elem(t_scene_struct *s, t_cam_struct *elem)
 {
 	t_cam_struct *temp;
 
-	if (!s->cam_list)
+	temp = s->cam_list;
+	if (!temp)
 	{
 		s->cam_list = elem;
 		return ;

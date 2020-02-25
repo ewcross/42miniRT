@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 11:56:27 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 14:22:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 14:41:46 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,11 +88,11 @@ int initialise_window(t_win_struct *ws)
 	return (1);
 }
 
-void	colour_img_pixel(char *img_addr, int x, int y, int bpp, int line_size, int *colour)
+void	colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour)
 {
 	int	pixel_index;
 
-	pixel_index = (x * (bpp / 8)) + ((line_size) * y);
+	pixel_index = (xy[X] * (cam->bpp / 8)) + (cam->line_size * xy[Y]);
 	*(img_addr + pixel_index) = colour[B];
 	*(img_addr + pixel_index + 1) = colour[G];
 	*(img_addr + pixel_index + 2) = colour[R];

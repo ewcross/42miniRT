@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 11:00:56 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 14:42:29 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,7 @@ int		put_image(void *window_struct);
 int		set_keys(int keycode, void *window_struct);
 int		close_program(void *window_struct);
 int		initialise_window(t_win_struct *ws);
-void	colour_img_pixel(char *img_addr, int x, int y, int bpp,
-							int line_size, int *colour);
+void	colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
 
 void	free_scene_struct(t_scene_struct *s);
 void	print_elem(t_obj_struct *elem);
