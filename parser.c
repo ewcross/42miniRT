@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 13:13:56 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 11:07:02 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,11 @@ int		parser(t_scene_struct *s, char *file)
 	t_cam_struct	*cam;
 	t_l_struct		*light;
 
-	fd = open(file, O_RDONLY);
+	if ((fd = open(file, O_RDONLY)) < 0)
+	{
+		ft_putstr_fd("Error opening file.\n", 1);
+		return (0);
+	}
 	init_error_messages(err_msgs);
 	while (get_next_line(fd, &line))
 	{

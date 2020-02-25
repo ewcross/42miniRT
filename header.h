@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 12:00:13 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 11:00:56 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void	scale_vector(double *vec, double factor);
 double	calc_vector_mag(double *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
+void	fill_ints(int *src, int *dst, int len);
 
 int		put_image(void *window_struct);
 int		set_keys(int keycode, void *window_struct);

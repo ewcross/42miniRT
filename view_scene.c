@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 16:18:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 11:10:13 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,13 @@ void	cross(double *vec1, double *vec2, double *res)
 	res[X] = (vec1[Y] * vec2[Z]) - (vec1[Z] * vec2[Y]);
 	res[Y] = (vec1[Z] * vec2[X]) - (vec1[X] * vec2[Z]);
 	res[Z] = (vec1[X] * vec2[Y]) - (vec1[Y] * vec2[X]);
+}
+
+void	scale_ints_vector(int *vec, double factor)
+{
+	vec[X] *= factor;
+	vec[Y] *= factor;
+	vec[Z] *= factor;
 }
 
 void	scale_vector(double *vec, double factor)
@@ -180,6 +187,27 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 	return (start);
 }
 
+void	adjust_pixel_colour(int *colour, t_scene_struct *s, t_l_struct *light)
+{
+	double	l_brightness;
+	double	a_brightness;
+
+	l_brightness = light->brightness;
+	a_brightness = s->ambient_ratio;
+	colour[R] += l_brightness * light->colour[R];
+	colour[G] += l_brightness * light->colour[G];
+	colour[B] += l_brightness * light->colour[B];
+	colour[R] += a_brightness * s->ambient_colour[R];
+	colour[G] += a_brightness * s->ambient_colour[G];
+	colour[B] += a_brightness * s->ambient_colour[B];
+	if (colour[R] > 255)
+		colour[R] = 255;
+	if (colour[G] > 255)
+		colour[G] = 255;
+	if (colour[B] > 255)
+		colour[B] = 255;
+}
+
 int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_size)
 {
 	int		x;
@@ -222,9 +250,6 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 	*/
 
 	scale_light(s);
-	light = s->l_list;
-	while (light)
-		light = light->next;
 
 	/*
 	  ray tracing algorithm
@@ -244,6 +269,9 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 			ray_vec[X] = (viewport_width * ((double)x / s->res_xy[X])) - (viewport_width / 2);
 			ray_vec[Y] = (-1 * viewport_height * ((double)y / s->res_xy[Y])) + (viewport_height / 2);
 			calc_unit_vec(ray_vec, ray_vec);
+
+			/*function to set t_min and return pointer to closest_obj*/
+			/*args - &t_min, s, cam*/
 			t_min = INFINITY;
 			obj = first_obj;
 			while (obj)
@@ -256,31 +284,20 @@ int trace_rays(t_scene_struct *s, t_cam_struct *cam, void *img_addr, int line_si
 				}
 				obj = obj->next;
 			}
+
 			if (t_min == INFINITY)
 				colour_img_pixel(img_addr, x, y, bpp, line_size, colour_black);
 			else
 			{
+				fill_ints(closest_obj->colour, pixel_colour, 3);
 				light = first_light;
 				while(light)
 				{
 					light_adjust += calc_light_intensity(cam, light, closest_obj, s->obj_list, ray_vec, t_min);
+					adjust_pixel_colour(pixel_colour, s, light);
 					light = light->next;
 				}
-				pixel_colour[R] = (double)closest_obj->colour[R] * light_adjust;
-				pixel_colour[G] = (double)closest_obj->colour[G] * light_adjust;
-				pixel_colour[B] = (double)closest_obj->colour[B] * light_adjust;
-				pixel_colour[R] += (light_adjust - 0.3) * first_light->colour[R];
-				pixel_colour[G] += (light_adjust - 0.3) * first_light->colour[G];
-				pixel_colour[B] += (light_adjust - 0.3) * first_light->colour[B];
-				pixel_colour[R] += (0.3 * s->ambient_colour[R]);
-				pixel_colour[G] += (0.3 * s->ambient_colour[G]);
-				pixel_colour[B] += (0.3 * s->ambient_colour[B]);
-				if (pixel_colour[R] > 255)
-					pixel_colour[R] = 255;
-				if (pixel_colour[G] > 255)
-					pixel_colour[G] = 255;
-				if (pixel_colour[B] > 255)
-					pixel_colour[B] = 255;
+				scale_ints_vector(pixel_colour, light_adjust);
 				colour_img_pixel(img_addr, x, y, bpp, line_size, pixel_colour);
 			}
 			y++;
