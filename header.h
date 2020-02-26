@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 14:42:29 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 19:05:35 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,21 @@
 # include "libgnl.h"
 # include "x11.h"
 
+/*
+**Error codes:
+** (-1) Invalid object identifier.
+** (-2) Wrong number of arguments in line.
+** (-3) One or more invalid coordinate values.
+** (-4) One or more invalid coordinate values.
+** (-5) Invalid object dimension value.
+** (-6) One or more invalid colour values.
+** (-7) Error creating list element.
+** (-8) Only one 'R' and 'A' field allowed in input file.
+*/
+
 # define CHARSET "RAclspt"
+# define RES_X 2560
+# define RES_Y 1440
 # define R 0
 # define G 1
 # define B 2
@@ -32,12 +46,12 @@
 # define ERR_BUFF_SIZE 75
 # define BAD_IDENTIFIER "Invalid object identifier."
 # define WRONG_ARG_NO "Wrong number of arguments in line."
-# define POS_ERROR "One or more invalide coordinate values."
+# define POS_ERROR "One or more invalid coordinate values."
 # define NORMAL_ERROR "One or more invalid coordinate values."
 # define DIMENSION_ERROR "Invalid object dimension value."
 # define COLOUR_ERROR "One or more invalid colour values."
 # define LINKED_LIST_ERROR "Error creating list element."
-# define MULTIPLE_R_A "Only one 'R' and 'A' field allowed in input file"
+# define MULTIPLE_R_A "Only one 'R' and 'A' field allowed in input file."
 
 void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
@@ -92,7 +106,8 @@ void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));
 int		parse_line(char *line, t_scene_struct *s);
 int		len_str_arr(char **str_arr);
 int		simple_atoi(char *str);
-void	init_win_struct(t_win_struct *ws);
+void	init_win_struct(t_win_struct *ws, int res_x, int res_y);
+void	init_scene_struct(t_scene_struct *s, double vp_dist);
 int		parser(t_scene_struct *s, char *file);
 
 int		r_func(char *line, t_scene_struct *s);

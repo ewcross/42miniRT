@@ -6,21 +6,31 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 13:53:14 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 18:47:25 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
 
-void	init_win_struct(t_win_struct *ws)
+void	init_win_struct(t_win_struct *ws, int res_x, int res_y)
 {
 	ws->mlx_ptr = NULL;
 	ws->win_ptr = NULL;
 	ws->img_list = NULL;
 	ws->first_img_addr = NULL;
-	ws->res_x = 0;
-	ws->res_y = 0;
+	ws->res_x = res_x;
+	ws->res_y = res_y;
+}
+
+void	init_scene_struct(t_scene_struct *s, double vp_dist)
+{
+	s->vp_dist = vp_dist;
+	s->obj_list = NULL;
+	s->cam_list = NULL;
+	s->l_list = NULL;
+	s->cam_curr = NULL;
+	s->l_curr = NULL;
 }
 
 int		pos_in_set(char ch, char *set)
@@ -99,16 +109,12 @@ int		parser(t_scene_struct *s, char *file)
 	int				err_code;
 	char			*line;
 	char			err_msgs[8][ERR_BUFF_SIZE];
-	t_obj_struct	*elem;
-	t_cam_struct	*cam;
-	t_l_struct		*light;
 
 	if ((fd = open(file, O_RDONLY)) < 0)
 	{
 		ft_putstr_fd("Error opening file.\n", 1);
 		return (0);
 	}
-	
 	init_error_messages(err_msgs);
 	while (get_next_line(fd, &line))
 	{

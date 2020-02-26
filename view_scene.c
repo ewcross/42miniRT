@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 16:33:43 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/25 18:39:53 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec
 	while (obj)
 	{
 		obj->solve(&temp_t_min, ray_vec, s->cam_curr->xyz, obj);
-		if (temp_t_min < *t_min && temp_t_min > s->viewport_distance)
+		if (temp_t_min < *t_min && temp_t_min > s->vp_dist)
 		{
 			*t_min = temp_t_min;
 			closest_obj = obj;
@@ -200,9 +200,9 @@ void	adjust_pixel_colour(int *colour, t_scene_struct *s)
 
 	l_brightness = s->l_curr->brightness;
 	a_brightness = s->ambient_ratio;
-	colour[R] += l_brightness * light->colour[R];
-	colour[G] += l_brightness * light->colour[G];
-	colour[B] += l_brightness * light->colour[B];
+	colour[R] += l_brightness * s->l_curr->colour[R];
+	colour[G] += l_brightness * s->l_curr->colour[G];
+	colour[B] += l_brightness * s->l_curr->colour[B];
 	colour[R] += a_brightness * s->ambient_colour[R];
 	colour[G] += a_brightness * s->ambient_colour[G];
 	colour[B] += a_brightness * s->ambient_colour[B];
@@ -248,7 +248,7 @@ void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
 {
 	int				xy[2];
-	t_ray_struct	*ray;
+	t_ray_struct	ray;
 
 	ray.closest_obj = NULL;
 	ray.ray_vec[Z] = s->vp_dist;
@@ -260,7 +260,7 @@ int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
 		{
 			get_ray_vec(ray.ray_vec, vp_w_h, xy, s);
 			ray.closest_obj = find_closest_obj(&(ray.t_min), s, ray.ray_vec);
-			get_pixel_colour(s, ray);
+			get_pixel_colour(s, &ray);
 			colour_img_pixel(img_addr, xy, s->cam_curr, ray.colour);
 			xy[Y]++;
 		}
@@ -313,62 +313,79 @@ void	*get_img_data(void *img_ptr, t_cam_struct *cam)
 	return (img_addr);
 }
 
-int		main(int argc, char **argv)
+int		str_match(char *str, char *real)
 {
-	//int				hello[] = {1, 2, 3};
+	int	i;
+
+	i = 0;
+	while(str[i])
+	{
+		if (str[i] != real[i])
+			return (0);
+		i++;
+	}
+	if (str[i] != real[i])
+		return (0);
+	return (1);
+}
+
+int		check_args(int argc, char **argv)
+{
+	if (argc < 2 || argc > 4)
+	{
+		ft_putstr_fd("Incorrect args supplied\n", 1);
+		return (0);
+	}
+	if (argc == 3 && !str_match(argv[2], "--save"))
+	{
+		ft_putstr_fd("Invalid second argument.", 1);
+		ft_putstr_fd(" Use '--save' to save image as bmp.\n", 1);
+		return (0);
+	}
+	return (1);
+}
+
+void	create_image_list(t_win_struct *ws, t_scene_struct *s)
+{
 	void			*img_ptr;
-	t_scene_struct	s;
-	t_win_struct	ws;
 	t_cam_struct	*cam;
 
-	if (argc < 2 || argc > 3)
+	cam = s->cam_list;
+	while(cam)
 	{
-		printf("Incorrect args supplied\n");
-		return (1);
+		img_ptr = mlx_new_image(ws->mlx_ptr, ws->res_x, ws->res_y);
+		s->cam_curr = cam;
+		draw_image(s, get_img_data(img_ptr, cam));
+		add_img_to_list(ws, img_ptr); 
+		cam = cam->next;
 	}
-	s.obj_list = NULL;
-	s.vp_dist = 1;
-	/*need to initialise scene struct*/
-	
+}
+
+int		main(int argc, char **argv)
+{
+	//int			hello[] = {1, 2, 3};
+	t_scene_struct	s;
+	t_win_struct	ws;
+
+	if(!check_args(argc, argv))
+		return (1);
+	init_scene_struct(&s, 1);
 	if(!parser(&s, argv[1]))
 	{
 		free_scene_struct(&s);
 		return (1);
 	}
-
-	init_win_struct(&ws);
-	ws.res_x = s.res_xy[X];
-	ws.res_y = s.res_xy[Y];
+	init_win_struct(&ws, s.res_xy[X], s.res_xy[Y]);
 	if (!initialise_window(&ws))
 	{
-		ft_putstr_fd("Failed to initialise window\n", 1);
-		return (0);
+		ft_putstr_fd("Failed to initialise window.\n", 1);
+		return (1);
 	}
-
-	cam = s.cam_list;
-	while(cam)
-	{
-		img_ptr = mlx_new_image(ws.mlx_ptr, ws.res_x, ws.res_y);
-		s.cam_curr = cam;
-		draw_image(&s, get_img_data(img_ptr, cam));
-		add_img_to_list(&ws, img_ptr); 
-		cam = cam->next;
-	}
-	mlx_loop(ws.mlx_ptr);
+	create_image_list(&ws, &s);
+	if (argc == 2)
+		mlx_loop(ws.mlx_ptr);
+	//else if (argc == 3)
+		//create_bmp(ws.img_list);
 	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }
-
-	/*
-		fill_ints(closest_obj->colour, pixel_colour, 3);
-		light_adjust = s->ambient_ratio;
-		light = s->l_list;
-		while(light)
-		{
-			s->l_curr = light;
-			light_adjust += calc_light_intensity(s, closest_obj, ray_vec, t_min);
-			//adjust_pixel_colour(pixel_colour, s);
-			light = light->next;
-		}
-		scale_ints_vector(pixel_colour, light_adjust);
-		*/
