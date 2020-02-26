@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 19:05:35 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/26 09:58:15 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,10 +82,13 @@ void	get_corners(t_obj_struct *sq, double corners[][3]);
 
 void	calc_3d_vector(double *start, double *end, double *res);
 void	calc_unit_vec(double *vec, double *unit_vec);
+void	calc_unit_ints_vec(int *vec, int *unit_vec);
 double	dot(double *vec1, double *vec2);
 void	cross(double *vec1, double *vec2, double *res);
-void	scale_vector(double *vec, double factor);
+void	scale_ints_vector(int *vec, double factor, int *res);
+void	scale_vector(double *vec, double factor, double *res);
 double	calc_vector_mag(double *vec);
+double	calc_ints_vector_mag(int *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
 void	fill_ints(int *src, int *dst, int len);

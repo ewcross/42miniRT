@@ -1,8 +1,9 @@
 to do:
 
 			- add colours to lights
+			- add camera re-orienting
 			- add bmp file handling
-			- add resolution resizing if scene size is greater than display size
+			- check resolution resizing if scene size is greater than display size
 
 errors:
 

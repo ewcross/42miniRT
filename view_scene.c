@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 18:39:53 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/26 10:30:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,18 +29,18 @@ void	cross(double *vec1, double *vec2, double *res)
 	res[Z] = (vec1[X] * vec2[Y]) - (vec1[Y] * vec2[X]);
 }
 
-void	scale_ints_vector(int *vec, double factor)
+void	scale_ints_vector(int *vec, double factor, int *res)
 {
-	vec[X] *= factor;
-	vec[Y] *= factor;
-	vec[Z] *= factor;
+	res[X] = vec[X] * factor;
+	res[Y] = vec[Y] * factor;
+	res[Z] = vec[Z] * factor;
 }
 
-void	scale_vector(double *vec, double factor)
+void	scale_vector(double *vec, double factor, double *res)
 {
-	vec[X] *= factor;
-	vec[Y] *= factor;
-	vec[Z] *= factor;
+	res[X] = vec[X] * factor;
+	res[Y] = vec[Y] * factor;
+	res[Z] = vec[Z] * factor;
 }
 
 void	calc_3d_vector(double *start, double *end, double *res)
@@ -53,6 +53,25 @@ void	calc_3d_vector(double *start, double *end, double *res)
 double	calc_vector_mag(double *vec)
 {
 	return(sqrt((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2])));
+}
+
+double	calc_ints_vector_mag(int *vec)
+{
+	return(sqrt((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2])));
+}
+
+void	calc_unit_ints_vec(int *vec, int *unit_vec)
+{
+	double mag;
+
+	mag = calc_ints_vector_mag(vec);
+	printf("mag %f\n", mag);
+	if (mag == 0)
+		mag = 1;
+	//printf("after unit %d, %d, %d\n", res_colour[R], res_colour[G], res_colour[B]);
+	unit_vec[0] = vec[0] / mag;
+	unit_vec[1] = vec[1] / mag;
+	unit_vec[2] = vec[2] / mag;
 }
 
 void	calc_unit_vec(double *vec, double *unit_vec)
@@ -132,7 +151,7 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 	mag1 = calc_vector_mag(cam_to_plane_vec);
 	mag2 = calc_vector_mag(obj_norm);
 	if ((dot_prod / mag1 * mag2) > cos(M_PI / 2))
-		scale_vector(obj_norm, -1);
+		scale_vector(obj_norm, -1, obj_norm);
 }
 
 double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_vec, double t_min)
@@ -153,7 +172,7 @@ double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_ve
 	if ((dot_prod = dot(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
 	dot_prod /= (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
-	return (s->l_curr->brightness * dot_prod);
+	return (dot_prod);
 }
 
 t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
@@ -193,25 +212,18 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec
 }
 
 
-void	adjust_pixel_colour(int *colour, t_scene_struct *s)
+void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *l_colour, double intensity)
 {
-	double	l_brightness;
-	double	a_brightness;
+	int		i;
+	int		biggest;
+	int		*obj_colour;
+	int		light_colour[3];
 
-	l_brightness = s->l_curr->brightness;
-	a_brightness = s->ambient_ratio;
-	colour[R] += l_brightness * s->l_curr->colour[R];
-	colour[G] += l_brightness * s->l_curr->colour[G];
-	colour[B] += l_brightness * s->l_curr->colour[B];
-	colour[R] += a_brightness * s->ambient_colour[R];
-	colour[G] += a_brightness * s->ambient_colour[G];
-	colour[B] += a_brightness * s->ambient_colour[B];
-	if (colour[R] > 255)
-		colour[R] = 255;
-	if (colour[G] > 255)
-		colour[G] = 255;
-	if (colour[B] > 255)
-		colour[B] = 255;
+	obj_colour = obj->colour;
+	scale_ints_vector(l_colour, intensity, light_colour);
+	res_colour[R] = obj_colour[R] + light_colour[R];
+	res_colour[G] = obj_colour[G] + light_colour[G];
+	res_colour[B] = obj_colour[B] + light_colour[B];
 }
 
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
@@ -224,6 +236,7 @@ void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 {
 	static int	black[] = {0, 0, 0};
+	double		intensity;
 	double		light_adjust;
 	t_l_struct	*light;
 
@@ -238,11 +251,13 @@ void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 	while(light)
 	{
 		s->l_curr = light;
-		light_adjust += calc_light_intensity(s, ray->closest_obj, ray->ray_vec, ray->t_min);
-		//adjust_pixel_colour(ray->colour, s);
+		/*original method*/
+		intensity = calc_light_intensity(s, ray->closest_obj, ray->ray_vec, ray->t_min);
+		light_adjust += light->brightness * intensity;
+		adjust_pix_colour(ray->colour, ray->closest_obj, light->colour, intensity);
 		light = light->next;
 	}
-	scale_ints_vector(ray->colour, light_adjust);
+	scale_ints_vector(ray->colour, light_adjust, ray->colour);
 }
 
 int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
