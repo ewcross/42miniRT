@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/27 10:35:47 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/27 12:22:23 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,19 +231,27 @@ void	rotate_about_x(double *ray, double *axis, int rev)
 	d = sqrt((axis[Y] * axis[Y]) + (axis[Z] * axis[Z]));
 	if (!d)
 		return ;
-	ray[Y] = ((axis[Z] / d) * ray[Y]) + ((rev * -1 * (axis[Y] / d)) *ray[Z]);
+	ray[Y] = ((axis[Z] / d) * ray[Y]) + ((rev * -1 * (axis[Y] / d)) * ray[Z]);
 	ray[Z] = ((rev * (axis[Y] / d)) * ray[Y]) + ((axis[Z] / d) * ray[Z]);
+}
+
+void	rotate_about_x(double *ray, double *axis, int rev)
+{
+	double	d;
+
+	d = sqrt((axis[Y] * axis[Y]) + (axis[Z] * axis[Z]));
+	ray[X] = (d * ray[X]) + (rev * -1 * axis[X] * ray[Z]);
+	ray[Z] = (rev * axis[X] * ray[X]) + (d * ray[Z]);
 }
 
 void	rotate_ray(double *ray, double *axis, double angle)
 {
-	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	//printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_x(ray, axis, 1);
-	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
-	//rotate_about_y();
+	rotate_about_y(ray, axis, 1);
 	//rotate_about_z();
 	rotate_about_x(ray, axis, -1);
-	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	rotate_about_y(ray, axis, -1);
 	//rotate_about_y();
 }
 
