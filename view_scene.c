@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/26 10:30:36 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/27 10:35:47 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,18 +212,39 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec
 }
 
 
-void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *l_colour, double intensity)
+void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *light_colour, double intensity)
 {
-	int		i;
-	int		biggest;
+	double	x;
 	int		*obj_colour;
-	int		light_colour[3];
 
 	obj_colour = obj->colour;
-	scale_ints_vector(l_colour, intensity, light_colour);
-	res_colour[R] = obj_colour[R] + light_colour[R];
-	res_colour[G] = obj_colour[G] + light_colour[G];
-	res_colour[B] = obj_colour[B] + light_colour[B];
+	x = 1 / (1 + intensity);
+	res_colour[R] = (obj_colour[R] * x) + (light_colour[R] * x * intensity);
+	res_colour[G] = (obj_colour[G] * x) + (light_colour[G] * x * intensity);
+	res_colour[B] = (obj_colour[B] * x) + (light_colour[B] * x * intensity);
+}
+
+void	rotate_about_x(double *ray, double *axis, int rev)
+{
+	double	d;
+
+	d = sqrt((axis[Y] * axis[Y]) + (axis[Z] * axis[Z]));
+	if (!d)
+		return ;
+	ray[Y] = ((axis[Z] / d) * ray[Y]) + ((rev * -1 * (axis[Y] / d)) *ray[Z]);
+	ray[Z] = ((rev * (axis[Y] / d)) * ray[Y]) + ((axis[Z] / d) * ray[Z]);
+}
+
+void	rotate_ray(double *ray, double *axis, double angle)
+{
+	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	rotate_about_x(ray, axis, 1);
+	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	//rotate_about_y();
+	//rotate_about_z();
+	rotate_about_x(ray, axis, -1);
+	printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	//rotate_about_y();
 }
 
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
@@ -231,6 +252,7 @@ void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 	ray_vec[X] = (v_w_h[0] * ((double)xy[X] / s->res_xy[X])) - (v_w_h[0] / 2);
 	ray_vec[Y] = (-1 * v_w_h[1] * ((double)xy[Y] / s->res_xy[Y])) + (v_w_h[1] / 2);
 	calc_unit_vec(ray_vec, ray_vec);
+	rotate_ray(ray_vec, s->cam_curr->rot_axis, s->cam_curr->rot_angle);
 }
 
 void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
@@ -247,13 +269,14 @@ void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 	}
 	fill_ints(ray->closest_obj->colour, ray->colour, 3);
 	light_adjust = s->ambient_ratio;
+	adjust_pix_colour(ray->colour, ray->closest_obj, s->ambient_colour, s->ambient_ratio);
 	light = s->l_list;
 	while(light)
 	{
 		s->l_curr = light;
-		/*original method*/
 		intensity = calc_light_intensity(s, ray->closest_obj, ray->ray_vec, ray->t_min);
 		light_adjust += light->brightness * intensity;
+		/*need to collect colour of all lights and then mix them all together in one*/
 		adjust_pix_colour(ray->colour, ray->closest_obj, light->colour, intensity);
 		light = light->next;
 	}

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/26 08:33:43 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/27 10:07:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -445,6 +445,26 @@ int	t_func(char *line, t_scene_struct *s)
 	return (0);
 }
 
+void	get_rotation_data(t_cam_struct *cam)
+{
+	double			dot_prod;
+	double			z_axis[] = {0, 0, 1};
+
+	/*assuming normal direction is unit vec*/
+	dot_prod = dot(cam->normal, z_axis);
+	cam->rot_angle = acos(dot_prod);
+	if (dot_prod == 1)
+		return ;
+	if (dot_prod == -1)
+	{
+		cam->rot_axis[X] = 0;
+		cam->rot_axis[Y] = 1;
+		cam->rot_axis[Z] = 0;
+		return ;
+	}
+	cross(cam->normal, z_axis, cam->rot_axis);
+}
+
 int	cam_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
@@ -463,6 +483,8 @@ int	cam_func(char *line, t_scene_struct *s)
 		return (err_code);
 	if(!(elem = create_cam_elem(xyz, normal, fov)))
 		return (-7);
+	calc_unit_vec(elem->normal, elem->normal);
+	get_rotation_data(elem);
 	add_cam_elem(s, elem);
 	return (0);
 }

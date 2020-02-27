@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/25 18:21:16 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/27 09:35:07 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,11 @@ typedef struct			s_cam_struct
 {
 	int					bpp;
 	int					line_size;
+	double				fov;
+	double				rot_angle;
 	double				xyz[3];
 	double				normal[3];
-	double				fov;
+	double				rot_axis[3];
 	struct s_cam_struct	*next;
 }						t_cam_struct;
 
