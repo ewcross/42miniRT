@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/27 12:22:23 by ecross           ###   ########.fr       */
+/*   Updated: 2020/02/27 13:28:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,7 +235,7 @@ void	rotate_about_x(double *ray, double *axis, int rev)
 	ray[Z] = ((rev * (axis[Y] / d)) * ray[Y]) + ((axis[Z] / d) * ray[Z]);
 }
 
-void	rotate_about_x(double *ray, double *axis, int rev)
+void	rotate_about_y(double *ray, double *axis, int rev)
 {
 	double	d;
 
@@ -244,15 +244,35 @@ void	rotate_about_x(double *ray, double *axis, int rev)
 	ray[Z] = (rev * axis[X] * ray[X]) + (d * ray[Z]);
 }
 
-void	rotate_ray(double *ray, double *axis, double angle)
+void	rotate_about_z(double *ray, double angle)
 {
-	//printf("ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+	ray[X] = (cos(angle) * ray[X]) - (sin(angle) * ray[Y]);
+	ray[Y] = (sin(angle) * ray[X]) + (cos(angle) * ray[Y]);
+}
+
+void	rotate_ray(double *ray, t_cam_struct *cam)
+{
+	int		on;
+	double	angle;
+	double	*axis;
+
+	on = 0;
+	if (ray[X] == 0 && ray[Y] == 0)
+	{
+		printf("old ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+		on = 1;
+	}
+	axis = cam->rot_axis;
+	angle = cam->rot_angle;
+	if (angle == 0)
+		return ;
 	rotate_about_x(ray, axis, 1);
 	rotate_about_y(ray, axis, 1);
-	//rotate_about_z();
-	rotate_about_x(ray, axis, -1);
+	rotate_about_z(ray, angle);
 	rotate_about_y(ray, axis, -1);
-	//rotate_about_y();
+	rotate_about_x(ray, axis, -1);
+	if (on)
+		printf("new ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
 }
 
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
@@ -260,7 +280,7 @@ void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 	ray_vec[X] = (v_w_h[0] * ((double)xy[X] / s->res_xy[X])) - (v_w_h[0] / 2);
 	ray_vec[Y] = (-1 * v_w_h[1] * ((double)xy[Y] / s->res_xy[Y])) + (v_w_h[1] / 2);
 	calc_unit_vec(ray_vec, ray_vec);
-	rotate_ray(ray_vec, s->cam_curr->rot_axis, s->cam_curr->rot_angle);
+	rotate_ray(ray_vec, s->cam_curr);
 }
 
 void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
