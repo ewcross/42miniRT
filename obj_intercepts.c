@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 10:05:46 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/02 17:16:58 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,14 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 		return (0);
 	}
 	smallest_root = ((-1 * b) + sqrt(discriminant)) / (2 * a);
-	if (((-1 * b) - sqrt(discriminant)) / (2 * a) < smallest_root)
-		smallest_root = ((-1 * b) - sqrt(discriminant)) / (2 * a);
-	*t_min = smallest_root;
+	*t_min = ((-1 * b) - sqrt(discriminant)) / (2 * a);
+	/*also need to swith normal when inside sphere for lighting*/
+	if (smallest_root > 0 && *t_min < 0)
+		*t_min = smallest_root;
+	else if (*t_min > 0 && smallest_root < 0)
+		return (1);
+	else if (smallest_root < *t_min)
+		*t_min = smallest_root;
 	return (1);
 }
 
@@ -157,8 +162,6 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	end[Y] -= ray_orig_xyz[Y];
 	end[Z] -= ray_orig_xyz[Z];
 	cross(ray_vec, cy->normal, ray_norm);
-	/*this means ray is parallel to cylinder - will need to
-	  change when adding caps probably*/
 	if (calc_vector_mag(ray_norm) == 0)
 		return (0);
 	discriminant = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0] / 2, 2);
@@ -170,6 +173,8 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	smallest /= dot(ray_norm, ray_norm);
 	*t_min = dot(ray_norm, end_norm) - sqrt(discriminant);
 	*t_min /= dot(ray_norm, ray_norm);
+	/*need to handle case of being inside cylinder - same as sphere*/
+	/*also handle inside of cylinder seen from outside*/
 	if (smallest < *t_min)
 		*t_min = smallest;
 	if (get_p_height(*t_min, end, cy->normal, ray_vec) >= 0 &&

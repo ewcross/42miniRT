@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 16:15:13 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/02 16:22:52 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -547,8 +547,8 @@ int	cy_func(char *line, t_scene_struct *s)
 	elem->get_norm = cy_normal;
 	elem->solve = cy_intercept;
 	add_obj_elem(s, elem);
-	if(!add_end_cap_objs(s, elem))
-		return (-7);
+	/*if(!add_end_cap_objs(s, elem))
+		return (-7);*/
 	return (0);
 }
 

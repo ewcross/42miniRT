@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 16:21:15 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/02 16:50:24 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,34 +268,15 @@ void	rotate_ray(double *ray, t_cam_struct *cam)
 	double	angle;
 	double	*axis;
 
-	on = 0;
-	if (ray[X] == 0 && ray[Y] == 0)
-	{
-		printf("old ray %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
-		on = 1;
-	}
 	axis = cam->rot_axis;
 	angle = cam->rot_angle;
-	if (on)
-	{
-		printf("axis %f, %f, %f\n", axis[X], axis[Y], axis[Z]);
-		printf("angle %f\n", angle);
-	}
 	if (angle == 0)
 		return ;
 	rotate_about_x(ray, axis, 1);
-	if (on)
-		printf("after x %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_y(ray, axis, 1);
-	if (on)
-		printf("after y %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_z(ray, angle);
-	if (on)
-		printf("after z %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_y(ray, axis, -1);
 	rotate_about_x(ray, axis, -1);
-	if (on)
-		printf("new ray %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 }
 
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
