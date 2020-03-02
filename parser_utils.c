@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 15:34:20 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/02 16:15:13 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -464,6 +464,7 @@ void	get_rotation_data(t_cam_struct *cam)
 	}
 	cross(cam->normal, z_axis, cam->rot_axis);
 	calc_unit_vec(cam->rot_axis, cam->rot_axis);
+	scale_vector(cam->rot_axis, -1, cam->rot_axis);
 }
 
 int	cam_func(char *line, t_scene_struct *s)
