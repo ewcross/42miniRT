@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/27 13:28:36 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/02 15:58:56 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ void	calc_unit_ints_vec(int *vec, int *unit_vec)
 	printf("mag %f\n", mag);
 	if (mag == 0)
 		mag = 1;
-	//printf("after unit %d, %d, %d\n", res_colour[R], res_colour[G], res_colour[B]);
 	unit_vec[0] = vec[0] / mag;
 	unit_vec[1] = vec[1] / mag;
 	unit_vec[2] = vec[2] / mag;
@@ -227,27 +226,40 @@ void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *light_colour, do
 void	rotate_about_x(double *ray, double *axis, int rev)
 {
 	double	d;
+	double	y;
+	double	z;
 
+	y = ray[Y];
+	z = ray[Z];
 	d = sqrt((axis[Y] * axis[Y]) + (axis[Z] * axis[Z]));
 	if (!d)
 		return ;
-	ray[Y] = ((axis[Z] / d) * ray[Y]) + ((rev * -1 * (axis[Y] / d)) * ray[Z]);
-	ray[Z] = ((rev * (axis[Y] / d)) * ray[Y]) + ((axis[Z] / d) * ray[Z]);
+	ray[Y] = ((axis[Z] / d) * y) + ((rev * -1 * (axis[Y] / d)) * z);
+	ray[Z] = ((rev * (axis[Y] / d)) * y) + ((axis[Z] / d) * z);
 }
 
 void	rotate_about_y(double *ray, double *axis, int rev)
 {
 	double	d;
+	double	x;
+	double	z;
 
+	x = ray[X];
+	z = ray[Z];
 	d = sqrt((axis[Y] * axis[Y]) + (axis[Z] * axis[Z]));
-	ray[X] = (d * ray[X]) + (rev * -1 * axis[X] * ray[Z]);
-	ray[Z] = (rev * axis[X] * ray[X]) + (d * ray[Z]);
+	ray[X] = (d * x) + (rev * -1 * axis[X] * z);
+	ray[Z] = (rev * axis[X] * x) + (d * z);
 }
 
 void	rotate_about_z(double *ray, double angle)
 {
-	ray[X] = (cos(angle) * ray[X]) - (sin(angle) * ray[Y]);
-	ray[Y] = (sin(angle) * ray[X]) + (cos(angle) * ray[Y]);
+	double x;
+	double y;
+
+	x = ray[X];
+	y = ray[Y];
+	ray[X] = (cos(angle) * x) - (sin(angle) * y);
+	ray[Y] = (sin(angle) * x) + (cos(angle) * y);
 }
 
 void	rotate_ray(double *ray, t_cam_struct *cam)
@@ -259,20 +271,31 @@ void	rotate_ray(double *ray, t_cam_struct *cam)
 	on = 0;
 	if (ray[X] == 0 && ray[Y] == 0)
 	{
-		printf("old ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+		printf("old ray %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 		on = 1;
 	}
 	axis = cam->rot_axis;
 	angle = cam->rot_angle;
+	if (on)
+	{
+		printf("axis %f, %f, %f\n", axis[X], axis[Y], axis[Z]);
+		printf("angle %f\n", angle);
+	}
 	if (angle == 0)
 		return ;
 	rotate_about_x(ray, axis, 1);
+	if (on)
+		printf("after x %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_y(ray, axis, 1);
+	if (on)
+		printf("after y %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_z(ray, angle);
+	if (on)
+		printf("after z %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 	rotate_about_y(ray, axis, -1);
 	rotate_about_x(ray, axis, -1);
 	if (on)
-		printf("new ray %.2f, %.2f, %.2f\n", ray[X], ray[Y], ray[Z]);
+		printf("new ray %f, %f, %f\n", ray[X], ray[Y], ray[Z]);
 }
 
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
@@ -317,13 +340,13 @@ int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
 	t_ray_struct	ray;
 
 	ray.closest_obj = NULL;
-	ray.ray_vec[Z] = s->vp_dist;
 	xy[X] = 0;
 	while (xy[X] < s->res_xy[X])
 	{
 		xy[Y] = 0;
 		while (xy[Y] < s->res_xy[Y])
 		{
+			ray.ray_vec[Z] = 1;
 			get_ray_vec(ray.ray_vec, vp_w_h, xy, s);
 			ray.closest_obj = find_closest_obj(&(ray.t_min), s, ray.ray_vec);
 			get_pixel_colour(s, &ray);
@@ -435,6 +458,7 @@ int		main(int argc, char **argv)
 
 	if(!check_args(argc, argv))
 		return (1);
+	/*here still using 1 as vp_distance*/
 	init_scene_struct(&s, 1);
 	if(!parser(&s, argv[1]))
 	{
