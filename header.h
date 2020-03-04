@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 15:51:43 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/04 12:08:33 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ double	calc_ints_vector_mag(int *vec);
 
 void	fill_doubles(double *src, double *dst, int len);
 void	fill_ints(int *src, int *dst, int len);
+
+void	bmp(t_img_struct *img);
 
 int		put_image(void *window_struct);
 int		set_keys(int keycode, void *window_struct);

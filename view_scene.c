@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 16:50:24 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/04 12:08:08 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -456,7 +456,7 @@ int		main(int argc, char **argv)
 	if (argc == 2)
 		mlx_loop(ws.mlx_ptr);
 	//else if (argc == 3)
-		//create_bmp(ws.img_list);
+		//bmp(ws.img_list);
 	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }
