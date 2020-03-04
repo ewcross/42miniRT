@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/04 12:08:33 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/04 18:26:17 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,9 @@
 # define X 0
 # define Y 1
 # define Z 2
+# define BMP_HEADER_SIZE 14
+# define BMP_INFO_SIZE 40
+
 # define ERR_BUFF_SIZE 75
 # define BAD_IDENTIFIER "Invalid object identifier."
 # define WRONG_ARG_NO "Wrong number of arguments in line."
@@ -93,7 +96,8 @@ double	calc_ints_vector_mag(int *vec);
 void	fill_doubles(double *src, double *dst, int len);
 void	fill_ints(int *src, int *dst, int len);
 
-void	bmp(t_img_struct *img);
+void	int_to_binary(char buff[4][8], int num);
+void	bmp(t_win_struct *ws, t_img_struct *img);
 
 int		put_image(void *window_struct);
 int		set_keys(int keycode, void *window_struct);
