@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/04 18:26:17 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/05 17:44:45 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
 
 void	free_scene_struct(t_scene_struct *s);
 void	print_elem(t_obj_struct *elem);
-void	add_img_to_list(t_win_struct *ws, void	*img_ptr);
+void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam);
 void	free_img_list(t_img_struct *img);
 
 int		pos_in_set(char ch, char *set);

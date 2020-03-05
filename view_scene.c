@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/04 17:23:03 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/05 17:44:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -350,14 +350,17 @@ int	draw_image(t_scene_struct *s, void *img_addr)
 	return (0);
 }
 
-void	add_img_to_list(t_win_struct *ws, void	*img_ptr)
+void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam)
 {
 	t_img_struct	*elem;
 	t_img_struct	*img_list;
 
 	elem = (t_img_struct*)malloc(sizeof(t_img_struct));
 	elem->img_ptr = img_ptr;
+	elem->img_addr = img_addr;
 	elem->next = NULL;
+	elem->bpp = cam->bpp;
+	elem->line_size = cam->line_size;
 	if (!ws->img_list)
 	{
 		ws->img_list = elem;
@@ -418,6 +421,7 @@ int		check_args(int argc, char **argv)
 void	create_image_list(t_win_struct *ws, t_scene_struct *s)
 {
 	void			*img_ptr;
+	char			*img_addr;
 	t_cam_struct	*cam;
 
 	cam = s->cam_list;
@@ -425,8 +429,9 @@ void	create_image_list(t_win_struct *ws, t_scene_struct *s)
 	{
 		img_ptr = mlx_new_image(ws->mlx_ptr, ws->res_x, ws->res_y);
 		s->cam_curr = cam;
-		draw_image(s, get_img_data(img_ptr, cam));
-		add_img_to_list(ws, img_ptr); 
+		img_addr = get_img_data(img_ptr, cam);
+		draw_image(s, img_addr);
+		add_img_to_list(ws, img_ptr, img_addr, cam); 
 		cam = cam->next;
 	}
 }
@@ -455,8 +460,8 @@ int		main(int argc, char **argv)
 	create_image_list(&ws, &s);
 	if (argc == 2)
 		mlx_loop(ws.mlx_ptr);
-	//else if (argc == 3)
-		//bmp(&ws, ws.img_list);
+	else if (argc == 3)
+		bmp(&ws, ws.img_list);
 	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }

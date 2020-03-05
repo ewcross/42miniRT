@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/04 12:01:11 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/05 13:04:42 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/05 19:01:14 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,11 @@ int		fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp)
 	return (i);
 }
 
-int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int bpp)
+int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs)
 {
 	int		i;
 	int		n;
-	int		fs;
 
-	fs = BMP_HEADER_SIZE + BMP_INFO_SIZE + (ws->res_x * ws->res_y * (bpp / 8));
-	printf("file size = %d\n", fs);
 	i = 0;
 	bmp[i++] = 'B';
 	bmp[i++] = 'M';
@@ -103,18 +100,53 @@ int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int bpp)
 	return (i);
 }
 
+void	fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs)
+{
+	int		n;
+
+	n = 0;
+	printf("fs = %d\n", fs);
+	while (n < fs - i)
+	{
+		bmp[n + i] = img_addr[n];
+		n++;
+	}
+}
+
+int		create_bmp_file(unsigned char *bmp, int id, int fs)
+{
+	int		fd;
+	char	*file_name;
+	char	*p1;
+
+	if (!id)
+		file_name = "image.bmp";
+	else
+	{
+		p1 = ft_strjoin("image_", ft_itoa(id));
+		file_name = ft_strjoin(p1, ".bmp");
+		free(p1);
+	}
+	fd = open(file_name, O_WRONLY | O_CREAT, 0777);
+	if (fd < 0)
+	{
+		ft_putstr_fd("Error creating one or more image bmp files.\n", 1);
+		return (0);
+	}
+	write(fd, bmp, fs);
+	if (id)
+		free(file_name);
+	return (1);
+}
+
 int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 {
-	int				bpp;
-	int				line_size;
-	int				endian;
+	int				i;
+	int				fs;
 	unsigned char	*bmp;
-	void			*img_addr;
 
-	/*img_addr = mlx_get_data_addr(img->img_ptr, &bpp, &line_size, &endian);*/
-	/*bmp = (char*)malloc(BMP_HEADER_SIZE + BMP_INFO_SIZE + (ws->res_x * ws->res_y * (bpp / 8)));*/
-	bpp = 32;
-	bmp = (unsigned char*)malloc(54);
+	fs = BMP_HEADER_SIZE + BMP_INFO_SIZE + (ws->res_x * ws->res_y * (img->bpp / 8));
+	bmp = (unsigned char*)malloc(fs);
 	if (!bmp)
 	{
 		ft_putstr_fd("Could not generate bmp file for image ", 1);
@@ -122,8 +154,12 @@ int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 		ft_putstr_fd(".\n", 1);
 		return (0);
 	}
-	fill_info_header(ws, bmp, fill_file_header(ws, bmp, bpp), bpp);
-	int i = 0;
+	fill_info_header(ws, bmp, fill_file_header(ws, bmp, fs), img->bpp);
+	fill_pixel_data(img->img_addr, bmp, i, fs);
+	printf("hello\n");
+	create_bmp_file(bmp, id, fs);
+	printf("hello\n");
+	/*i = 0;
 	while (i < 14)
 	{
 		printf("%d, ", *(bmp + i));
@@ -136,8 +172,7 @@ int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 		printf("%d, ", *(bmp + i));
 		i++;
 	}
-	printf("\n");
-	/*fill_pixel_data(bmp, img);*/
+	printf("\n");*/
 	free(bmp);
 	return (1);
 }
@@ -147,15 +182,21 @@ void	bmp(t_win_struct *ws, t_img_struct *img)
 	int		id;
 
 	id = 0;
-	create_bmp(ws, img, id);
+	/*create_bmp(ws, img, id);*/
 	while (img)
 	{
-		/*create_bmp(ws, img, id);*/
+		create_bmp(ws, img, id);
 		id++;
 		img = img->next;
 	}
 	return ;
 }
+	
+/*if (fd < 0)
+	{
+		ft_putstr_fd("Error creating one or more bmp files.\n", 1);
+		return (0);
+	}*/
 /*
 int	main(void)
 {

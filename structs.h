@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/27 09:35:07 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/05 17:45:17 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 
 typedef struct			s_img_struct
 {
+	int					bpp;
+	int					line_size;
+	char				*img_addr;
 	void				*img_ptr;
 	struct s_img_struct	*next;
 }						t_img_struct;
