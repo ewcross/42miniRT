@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/04 15:21:42 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/06 12:32:50 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,15 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	*t_min = ((-1 * b) - sqrt(discriminant)) / (2 * a);
 	/*also need to switch normal when inside sphere for lighting*/
 	if (smallest_root > 0 && *t_min < 0)
+	{
+		//set inside object flag
 		*t_min = smallest_root;
+	}
 	else if (*t_min > 0 && smallest_root < 0)
+	{
+		//set inside object flag
 		return (1);
+	}
 	else if (smallest_root < *t_min)
 		*t_min = smallest_root;
 	return (1);
