@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/04 12:01:11 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/05 19:01:14 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/06 12:21:18 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,6 @@ void	fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs)
 	int		n;
 
 	n = 0;
-	printf("fs = %d\n", fs);
 	while (n < fs - i)
 	{
 		bmp[n + i] = img_addr[n];
@@ -154,25 +153,9 @@ int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 		ft_putstr_fd(".\n", 1);
 		return (0);
 	}
-	fill_info_header(ws, bmp, fill_file_header(ws, bmp, fs), img->bpp);
+	i = fill_info_header(ws, bmp, fill_file_header(ws, bmp, fs), img->bpp);
 	fill_pixel_data(img->img_addr, bmp, i, fs);
-	printf("hello\n");
 	create_bmp_file(bmp, id, fs);
-	printf("hello\n");
-	/*i = 0;
-	while (i < 14)
-	{
-		printf("%d, ", *(bmp + i));
-		i++;
-	}
-	while (i < 54)
-	{
-		if (!((i - 2) % 4))
-			printf("\n");
-		printf("%d, ", *(bmp + i));
-		i++;
-	}
-	printf("\n");*/
 	free(bmp);
 	return (1);
 }
@@ -182,7 +165,6 @@ void	bmp(t_win_struct *ws, t_img_struct *img)
 	int		id;
 
 	id = 0;
-	/*create_bmp(ws, img, id);*/
 	while (img)
 	{
 		create_bmp(ws, img, id);
@@ -191,19 +173,3 @@ void	bmp(t_win_struct *ws, t_img_struct *img)
 	}
 	return ;
 }
-	
-/*if (fd < 0)
-	{
-		ft_putstr_fd("Error creating one or more bmp files.\n", 1);
-		return (0);
-	}*/
-/*
-int	main(void)
-{
-	t_win_struct	ws;
-
-	ws.res_x = 1000;
-	ws.res_y = 650;
-	bmp(&ws, NULL);
-	return (0);
-}*/
