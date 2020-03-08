@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 16:22:52 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/08 19:03:08 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ t_obj_struct	*create_obj_elem(char id, double *xyz, double *normal, int *colour)
 	if(!(elem = (t_obj_struct*)malloc(sizeof(t_obj_struct))))
 		return (NULL);
 	elem->id = id;
+	elem->inside = 0;
 	fill_doubles(xyz, elem->xyz, 3);
 	fill_doubles(normal, elem->normal, 3);
 	fill_ints(colour, elem->colour, 3);

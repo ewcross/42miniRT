@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/06 12:32:50 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/08 19:50:01 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,15 +55,14 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	}
 	smallest_root = ((-1 * b) + sqrt(discriminant)) / (2 * a);
 	*t_min = ((-1 * b) - sqrt(discriminant)) / (2 * a);
-	/*also need to switch normal when inside sphere for lighting*/
 	if (smallest_root > 0 && *t_min < 0)
 	{
-		//set inside object flag
+		sp->inside = 1;
 		*t_min = smallest_root;
 	}
 	else if (*t_min > 0 && smallest_root < 0)
 	{
-		//set inside object flag
+		sp->inside = 1;
 		return (1);
 	}
 	else if (smallest_root < *t_min)
@@ -152,6 +151,41 @@ double	get_p_height(double t_min, double *end, double *normal, double *ray_vec)
 	return (dot(normal, point_to_base));
 }
 
+int	check_ends(t_obj_struct *cy, double *t_min, double t_other, double *end, double *ray_vec)
+{
+	/*store big and small solution
+	  check if smallest falls within height - if so - this is sol - set and return 1
+	  if not, check if big falls within height, if so - this is sol - set and return 1
+	  if neither fall within height - sol is INFINITY - return 0*/
+	double	small;
+	double	big;
+
+	if (t_other < *t_min)
+	{
+		big = *t_min;
+		small = t_other;
+	}
+	else
+	{
+		big = t_other;
+		small = *t_min;
+	}
+	if (get_p_height(small, end, cy->normal, ray_vec) >= 0 &&
+			get_p_height(small, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+	{
+		*t_min = small;
+		return (1);
+	}
+	if (get_p_height(big, end, cy->normal, ray_vec) >= 0 &&
+			get_p_height(big, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+	{
+		cy->inside = 1;
+		*t_min = big;
+		return (1);
+	}
+	return (0);
+}
+
 int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *cy)
 {
@@ -181,10 +215,18 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	*t_min /= dot(ray_norm, ray_norm);
 	/*need to handle case of being inside cylinder - same as sphere*/
 	/*also handle inside of cylinder seen from outside*/
-	if (smallest < *t_min)
+	cy->inside = 0;
+	if (smallest > 0 && *t_min < 0)
+	{
+		cy->inside = 1;
 		*t_min = smallest;
-	if (get_p_height(*t_min, end, cy->normal, ray_vec) >= 0 &&
-			get_p_height(*t_min, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+	}
+	else if (*t_min > 0 && smallest < 0)
+	{
+		cy->inside = 1;
+		return (1);
+	}
+	if (check_ends(cy, t_min, smallest, end, ray_vec))
 		return (1);
 	*t_min = INFINITY;
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 19:14:28 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/06 12:29:18 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/08 18:34:31 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef union			u_obj_data_union
 
 typedef struct			s_obj_struct
 {
+	int					inside;
 	char				id;
 	double				xyz[3];
 	double				normal[3];

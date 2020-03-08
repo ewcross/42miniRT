@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/06 12:36:02 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/08 18:34:13 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,8 @@ double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_ve
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	if (obj->id != 's' && obj->id != 'c')
 		choose_correct_normal(s->cam_curr->xyz, obj->xyz, obj_norm_vec);
+	else if (obj->inside)
+		scale_vector(obj_norm_vec, -1, obj_norm_vec);
 	if ((dot_prod = dot(surface_to_light_vec, obj_norm_vec)) < 0)
 		return (0);
 	dot_prod /= (calc_vector_mag(surface_to_light_vec) * calc_vector_mag(obj_norm_vec));
