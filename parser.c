@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 14:35:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 14:53:32 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,7 @@ int		parser(t_scene_struct *s, char *file)
 			ft_putstr_fd("\n", 1);
 			return (0);
 		}
+		free(line);
 	}
 	return (1);
 }

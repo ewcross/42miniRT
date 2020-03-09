@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/08 19:50:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 17:17:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,13 +213,12 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	smallest /= dot(ray_norm, ray_norm);
 	*t_min = dot(ray_norm, end_norm) - sqrt(discriminant);
 	*t_min /= dot(ray_norm, ray_norm);
-	/*need to handle case of being inside cylinder - same as sphere*/
-	/*also handle inside of cylinder seen from outside*/
 	cy->inside = 0;
 	if (smallest > 0 && *t_min < 0)
 	{
 		cy->inside = 1;
 		*t_min = smallest;
+		return (1);
 	}
 	else if (*t_min > 0 && smallest < 0)
 	{

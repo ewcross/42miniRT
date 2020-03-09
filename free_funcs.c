@@ -6,11 +6,24 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 10:20:50 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/24 12:30:34 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 15:04:10 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
+
+void	free_strs(char **strs)
+{
+	int	i;
+
+	i = 0;
+	while (strs[i])
+	{
+		free(strs[i]);
+		i++;
+	}
+	free(strs);
+}
 
 void	free_img_list(t_img_struct *img)
 {
@@ -21,6 +34,7 @@ void	free_img_list(t_img_struct *img)
 		temp = img;
 		img = img->next;
 		//free(temp->img_ptr);
+		free(temp->img_addr);
 		free(temp);
 	}
 }
@@ -63,10 +77,7 @@ void	free_obj_list(t_obj_struct *obj)
 
 void	free_scene_struct(t_scene_struct *s)
 {
-	/*go through obj_list, cam_list and l_list, freeing each element
-	  and all its data*/
 	free_obj_list(s->obj_list);
 	free_cam_list(s->cam_list);
 	free_light_list(s->l_list);
 }
-

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/08 18:34:13 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 17:45:04 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ void	scale_light(t_scene_struct *s)
 
 int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
 {
+	int		i;
 	double	t_min;
 	double	light_unit_vec[3];
 
@@ -124,14 +125,23 @@ int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj
 	t_min = INFINITY;
 	while (obj_list)
 	{
+		/*if object is a sphere or cylinder and point is inside it, do not skip*/
 		if (obj_list == obj)
 		{
-			obj_list = obj_list->next;
-			continue;
+			if ((obj->id == 's' || obj->id == 'c') && obj->inside)
+			{
+				i = 0;
+			}
+			else
+			{
+				obj_list = obj_list->next;
+				continue;
+			}
 		}
 		/*need more conditions here for other cases*/
 		/*might need to normalise vector first to test mag*/
-		if (obj_list->solve(&t_min, light_unit_vec, surface_xyz, obj_list) && t_min > 0 && t_min < calc_vector_mag(light_vec))
+		if (obj_list->solve(&t_min, light_unit_vec, surface_xyz, obj_list) &&
+				t_min > 0 && t_min < calc_vector_mag(light_vec))
 			return (1);
 		obj_list = obj_list->next;
 	}
@@ -440,13 +450,11 @@ void	create_image_list(t_win_struct *ws, t_scene_struct *s)
 
 int		main(int argc, char **argv)
 {
-	//int			hello[] = {1, 2, 3};
 	t_scene_struct	s;
 	t_win_struct	ws;
 
 	if(!check_args(argc, argv))
 		return (1);
-	/*here still using 1 as vp_distance*/
 	init_scene_struct(&s, 1);
 	if(!parser(&s, argv[1]))
 	{

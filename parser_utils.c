@@ -6,16 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 14:34:50 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 16:45:38 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
-
-/*ERRORS TO HANDLE*/
-
-/*multiple R and A values in file.rt*/
 
 void	fill_doubles(double *src, double *dst, int len)
 {
@@ -59,14 +55,12 @@ void	fill_ints(int *src, int *dst, int len)
 	}
 }
 
-t_obj_struct	*create_obj_elem(char id, double *xyz, double *normal,
-									int *colour)
+t_obj_struct	*create_obj_elem(double *xyz, double *normal, int *colour)
 {
 	t_obj_struct *elem;
 
 	if(!(elem = (t_obj_struct*)malloc(sizeof(t_obj_struct))))
 		return (NULL);
-	elem->id = id;
 	elem->inside = 0;
 	fill_doubles(xyz, elem->xyz, 3);
 	fill_doubles(normal, elem->normal, 3);
@@ -233,6 +227,7 @@ int	get_colour(char *str, int *colour)
 			return (-6);
 		i++;
 	}
+	free_strs(strs);
 	return (0);
 }
 
@@ -258,6 +253,7 @@ int	get_xyz(char *str, double *xyz)
 			return (-3);
 		i++;
 	}
+	free_strs(strs);
 	return (0);
 }
 
@@ -269,6 +265,36 @@ int	len_str_arr(char **str_arr)
 	while (str_arr[i])
 		i++;
 	return (i);
+}
+
+int	create_add_cam(t_scene_struct *s, double *xyz, double *normal, double fov)
+{
+	t_cam_struct *elem;
+
+	if(!(elem = create_cam_elem(xyz, normal, fov)))
+		return (0);
+	add_cam_elem(s, elem);
+	return (1);
+}
+	
+int	create_add_l(t_scene_struct *s, double *xyz, double brightness, int *colour)
+{
+	t_l_struct	*elem;
+
+	if(!(elem = create_l_elem(xyz, brightness, colour)))
+		return (0);
+	add_l_elem(s, elem);
+	return (1);
+}
+
+int	create_add_obj(t_scene_struct *s, double *xyz, double *normal, int *colour)
+{
+	t_obj_struct *elem;
+
+	if(!(elem = create_obj_elem(xyz, normal, colour)))
+		return (0);
+	add_obj_elem(s, elem);
+	return (1);
 }
 
 int	r_func(char *line, t_scene_struct *s)
@@ -288,6 +314,7 @@ int	r_func(char *line, t_scene_struct *s)
 		s->res_xy[X] = MAX_RES_X;
 	if (s->res_xy[Y] > MAX_RES_Y)
 		s->res_xy[Y] = MAX_RES_Y;
+	free_strs(strs);
 	return (0);
 }
 
@@ -307,6 +334,7 @@ int	a_func(char *line, t_scene_struct *s)
 		(err_code = get_colour(strs[2], colour)) < 0)
 		return (err_code);
 	fill_ints(colour, s->ambient_colour, 3);
+	free_strs(strs);
 	return (0);
 }
 
@@ -341,9 +369,9 @@ int	l_func(char *line, t_scene_struct *s)
 		(err_code = get_data(strs[2], &brightness)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0)
 		return (err_code);
-	if(!(elem = create_l_elem(xyz, brightness, colour)))
+	if (!create_add_l(s, xyz, brightness, colour))
 		return (-7);
-	add_l_elem(s, elem);
+	free_strs(strs);
 	return (0);
 }
 
@@ -370,6 +398,18 @@ int	check_normal(double *normal)
 	return (0);
 }
 
+void	add_p_data(t_scene_struct *s)
+{
+	t_obj_struct *obj;
+
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->id = 'p';
+	obj->get_norm = p_normal;
+	obj->solve = plane_intercept;
+}
+
 int	p_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
@@ -377,7 +417,6 @@ int	p_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			normal[3];
 	int				colour[3];
-	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4 || strs[0][1] != 'l')
@@ -387,11 +426,10 @@ int	p_func(char *line, t_scene_struct *s)
 		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0)
 		return (err_code);
-	if(!(elem = create_obj_elem('p', xyz, normal, colour)))
+	if (!create_add_obj(s, xyz, normal, colour))
 		return (-7);
-	elem->get_norm = p_normal;
-	elem->solve = plane_intercept;
-	add_obj_elem(s, elem);
+	add_p_data(s);
+	free_strs(strs);
 	return (0);
 }
 
@@ -408,13 +446,29 @@ void	calc_tr_normal(t_obj_struct *tr)
 	calc_unit_vec(tr->normal, tr->normal);
 }
 
+void	add_tr_data(t_scene_struct *s, double points[3][3])
+{
+	t_obj_struct *obj;
+
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->id = 't';
+	fill_doubles(points[0], obj->data.tr_points[0], 3);
+	fill_doubles(points[1], obj->data.tr_points[1], 3);
+	fill_doubles(points[2], obj->data.tr_points[2], 3);
+	fill_doubles(points[0], obj->xyz, 3);
+	calc_tr_normal(obj);
+	obj->get_norm = tr_normal;
+	obj->solve = tr_intercept;
+}
+
 int	t_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
 	char			**strs;
 	double			points[3][3];
 	int				colour[3];
-	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5 || strs[0][1] != 'r')
@@ -424,16 +478,10 @@ int	t_func(char *line, t_scene_struct *s)
 		(err_code = get_xyz(strs[3], points[2])) < 0 ||
 		(err_code = get_colour(strs[4], colour)) < 0)
 		return (err_code);
-	if(!(elem = create_obj_elem('t', NULL, NULL, colour)))
+	if (!create_add_obj(s, NULL, NULL, colour))
 		return (-7);
-	fill_doubles(points[0], elem->data.tr_points[0], 3);
-	fill_doubles(points[1], elem->data.tr_points[1], 3);
-	fill_doubles(points[2], elem->data.tr_points[2], 3);
-	fill_doubles(points[0], elem->xyz, 3);
-	calc_tr_normal(elem);
-	elem->get_norm = tr_normal;
-	elem->solve = tr_intercept;
-	add_obj_elem(s, elem);
+	add_tr_data(s, points);
+	free_strs(strs);
 	return (0);
 }
 
@@ -458,6 +506,16 @@ void	get_rotation_data(t_cam_struct *cam)
 	scale_vector(cam->rot_axis, -1, cam->rot_axis);
 }
 
+void	add_cam_data(t_scene_struct *s)
+{
+	t_cam_struct *cam;
+
+	cam = s->cam_list;
+	while (cam->next)
+		cam = cam->next;
+	get_rotation_data(cam);
+}
+
 int	cam_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
@@ -465,7 +523,6 @@ int	cam_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			normal[3];
 	double			fov;
-	t_cam_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -475,41 +532,24 @@ int	cam_func(char *line, t_scene_struct *s)
 		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_data(strs[3], &fov)) < 0)
 		return (err_code);
-	if(!(elem = create_cam_elem(xyz, normal, fov)))
+	if (!create_add_cam(s, xyz, normal, fov))
 		return (-7);
-	//calc_unit_vec(elem->normal, elem->normal);
-	get_rotation_data(elem);
-	add_cam_elem(s, elem);
+	add_cam_data(s);
+	free_strs(strs);
 	return (0);
 }
 	
-int	add_end_cap_objs(t_scene_struct *s, t_obj_struct *cy)
+void	add_cy_data(t_scene_struct *s, double *diameter_height)
 {
-	t_obj_struct	*elem;
-	double			proj_height;
-	double			cam_to_centre[3];
-	double			cap_1_xyz[3];
-	double			cap_2_xyz[3];
+	t_obj_struct *obj;
 
-	proj_height = sin(acos(dot(cy->normal, s->cam_list->normal)));
-	proj_height *= (cy->data.cy_d_h[1] / 2);
-	get_cy_end_point(cap_1_xyz, cy);
-	cap_2_xyz[X] = cap_1_xyz[X] - (cy->data.cy_d_h[1] * cy->normal[X]);
-	cap_2_xyz[Y] = cap_1_xyz[Y] - (cy->data.cy_d_h[1] * cy->normal[Y]);
-	cap_2_xyz[Z] = cap_1_xyz[Z] - (cy->data.cy_d_h[1] * cy->normal[Z]);
-	if(!(elem = create_obj_elem('i', cap_1_xyz, cy->normal, cy->colour)))
-		return (0);
-	elem->data.doubl = cy->data.cy_d_h[0];
-	elem->get_norm = ci_normal;
-	elem->solve = ci_intercept;
-	add_obj_elem(s, elem);
-	if(!(elem = create_obj_elem('i', cap_2_xyz, cy->normal, cy->colour)))
-		return (0);
-	elem->data.doubl = cy->data.cy_d_h[0];
-	elem->get_norm = ci_normal;
-	elem->solve = ci_intercept;
-	add_obj_elem(s, elem);
-	return (1);
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->id = 'c';
+	fill_doubles(diameter_height, obj->data.cy_d_h, 2);
+	obj->get_norm = cy_normal;
+	obj->solve = cy_intercept;
 }
 
 int	cy_func(char *line, t_scene_struct *s)
@@ -520,7 +560,6 @@ int	cy_func(char *line, t_scene_struct *s)
 	double			normal[3];
 	double			diameter_height[2];
 	int				colour[3];
-	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 6)
@@ -532,13 +571,24 @@ int	cy_func(char *line, t_scene_struct *s)
 		(err_code = get_data(strs[4], diameter_height)) < 0 ||
 		(err_code = get_data(strs[5], diameter_height + 1)) < 0)
 		return (err_code);
-	if(!(elem = create_obj_elem('c', xyz, normal, colour)))
+	if (!create_add_obj(s, xyz, normal, colour))
 		return (-7);
-	fill_doubles(diameter_height, elem->data.cy_d_h, 2);
-	elem->get_norm = cy_normal;
-	elem->solve = cy_intercept;
-	add_obj_elem(s, elem);
+	add_cy_data(s, diameter_height);
+	free_strs(strs);
 	return (0);
+}
+
+void	add_sp_data(t_scene_struct *s, double diameter)
+{
+	t_obj_struct *obj;
+
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->id = 's';
+	obj->data.doubl = diameter;
+	obj->get_norm = sp_normal;
+	obj->solve = solve_quadratic;
 }
 
 int	sp_func(char *line, t_scene_struct *s)
@@ -548,7 +598,6 @@ int	sp_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			diameter;
 	int				colour[3];
-	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -557,13 +606,24 @@ int	sp_func(char *line, t_scene_struct *s)
 		(err_code = get_data(strs[2], &diameter)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0)
 		return (err_code);
-	if(!(elem = create_obj_elem('s', xyz, NULL, colour)))
+	if (!create_add_obj(s, xyz, NULL, colour))
 		return (-7);
-	elem->data.doubl = diameter;
-	elem->get_norm = sp_normal;
-	elem->solve = solve_quadratic;
-	add_obj_elem(s, elem);
+	add_sp_data(s, diameter);
+	free_strs(strs);
 	return (0);
+}
+
+void	add_sq_data(t_scene_struct *s, double side_size)
+{
+	t_obj_struct *obj;
+
+	obj = s->obj_list;
+	while (obj->next)
+		obj = obj->next;
+	obj->id = 'q';
+	obj->data.doubl = side_size;
+	obj->get_norm = sq_normal;
+	obj->solve = sq_intercept;
 }
 
 int	sq_func(char *line, t_scene_struct *s)
@@ -574,7 +634,6 @@ int	sq_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			normal[3];
 	double			side_size;
-	t_obj_struct	*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5)
@@ -585,11 +644,9 @@ int	sq_func(char *line, t_scene_struct *s)
 		(err_code = get_data(strs[3], &side_size)) < 0 ||
 		(err_code = get_colour(strs[4], colour)) < 0)
 		return (err_code);
-	if(!(elem = create_obj_elem('q', xyz, normal, colour)))
+	if (!create_add_obj(s, xyz, normal, colour))
 		return (-7);
-	elem->data.doubl = side_size;
-	elem->get_norm = sq_normal;
-	elem->solve = sq_intercept;
-	add_obj_elem(s, elem);
+	add_sq_data(s, side_size);
+	free_strs(strs);
 	return (0);
 }
