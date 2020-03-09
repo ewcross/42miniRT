@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/08 19:03:08 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 14:34:50 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,7 @@
 
 /*ERRORS TO HANDLE*/
 
-/*normal of 0,0,0
-  negative dimensions
-  negative resolution
-  all normals should be normalised here and then where this happens
-  elsewhere can be removed*/
+/*multiple R and A values in file.rt*/
 
 void	fill_doubles(double *src, double *dst, int len)
 {
@@ -63,7 +59,8 @@ void	fill_ints(int *src, int *dst, int len)
 	}
 }
 
-t_obj_struct	*create_obj_elem(char id, double *xyz, double *normal, int *colour)
+t_obj_struct	*create_obj_elem(char id, double *xyz, double *normal,
+									int *colour)
 {
 	t_obj_struct *elem;
 
@@ -150,26 +147,6 @@ void	add_l_elem(t_scene_struct *s, t_l_struct *elem)
 	temp->next = elem;
 }
 	
-void	print_elem(t_obj_struct *elem)
-{
-	if (!elem)
-	{
-		printf("\n***NULL elem***\n");
-		return ;
-	}
-	printf("type: %c\n", elem->id);
-	printf("xyz: %f,%f,%f\n", elem->xyz[X], elem->xyz[Y], elem->xyz[Z]);
-	printf("normal: %f,%f,%f\n", elem->normal[X], elem->normal[Y], elem->normal[Z]);
-	printf("colour ptr: %p\n", elem->colour);
-	printf("colour: %d,%d,%d\n", elem->colour[X], elem->colour[Y], elem->colour[Z]);
-	printf("data double: %f\n", elem->data.doubl);
-	printf("tr: (%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)(%.2f,%.2f,%.2f)\n", elem->data.tr_points[0][0], elem->data.tr_points[0][1], elem->data.tr_points[0][2],
-				 								   elem->data.tr_points[1][0], elem->data.tr_points[1][1], elem->data.tr_points[1][2],
-				 								   elem->data.tr_points[2][0], elem->data.tr_points[2][1], elem->data.tr_points[2][2]);
-	printf("data cy: d = %f, h = %f\n", elem->data.cy_d_h[0], elem->data.cy_d_h[1]);
-	printf("norm function ptr: %p\n", elem->get_norm);
-}
-
 void	print_strs(char **strs)
 {
 	int i;
@@ -298,6 +275,8 @@ int	r_func(char *line, t_scene_struct *s)
 {
 	char	**strs;
 
+	if (s->res_xy[X] && s->res_xy[Y])
+		return (-8);
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-1);
@@ -305,10 +284,10 @@ int	r_func(char *line, t_scene_struct *s)
 	s->res_xy[Y] = simple_atoi(strs[2]);
 	if (s->res_xy[X] < 1 || s->res_xy[Y] < 1)
 		return (-5);
-	if (s->res_xy[X] > RES_X)
-		s->res_xy[X] = RES_X;
-	if (s->res_xy[Y] > RES_Y)
-		s->res_xy[Y] = RES_Y;
+	if (s->res_xy[X] > MAX_RES_X)
+		s->res_xy[X] = MAX_RES_X;
+	if (s->res_xy[Y] > MAX_RES_Y)
+		s->res_xy[Y] = MAX_RES_Y;
 	return (0);
 }
 
@@ -318,10 +297,13 @@ int	a_func(char *line, t_scene_struct *s)
 	char	**strs;
 	int		colour[3];
 
+	if (s->ambient_ratio != -1)
+		return (-8);
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 3)
 		return (-2);
-	if ((err_code = get_data(strs[1], &(s->ambient_ratio))) < 0 ||
+	if (((err_code = get_data(strs[1], &(s->ambient_ratio))) < 0 &&
+			s->ambient_ratio < 0) ||
 		(err_code = get_colour(strs[2], colour)) < 0)
 		return (err_code);
 	fill_ints(colour, s->ambient_colour, 3);
@@ -380,6 +362,14 @@ int	s_func(char *line, t_scene_struct *s)
 		return (-1);
 }
 
+int	check_normal(double *normal)
+{
+	if (normal[X] == 0 && normal[Y] == 0 && normal[Z] == 0)
+		return (-4);
+	calc_unit_vec(normal, normal);
+	return (0);
+}
+
 int	p_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
@@ -394,6 +384,7 @@ int	p_func(char *line, t_scene_struct *s)
 		return (-2);
 	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
 		(err_code = get_xyz(strs[2], normal)) < 0 ||
+		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0)
 		return (err_code);
 	if(!(elem = create_obj_elem('p', xyz, normal, colour)))
@@ -451,7 +442,6 @@ void	get_rotation_data(t_cam_struct *cam)
 	double			dot_prod;
 	static double	z_axis[] = {0, 0, 1};
 
-	/*assuming normal direction is unit vec*/
 	dot_prod = dot(cam->normal, z_axis);
 	cam->rot_angle = acos(dot_prod);
 	if (dot_prod == 1)
@@ -482,11 +472,12 @@ int	cam_func(char *line, t_scene_struct *s)
 		return (-2);
 	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
 		(err_code = get_xyz(strs[2], normal)) < 0 ||
+		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_data(strs[3], &fov)) < 0)
 		return (err_code);
 	if(!(elem = create_cam_elem(xyz, normal, fov)))
 		return (-7);
-	calc_unit_vec(elem->normal, elem->normal);
+	//calc_unit_vec(elem->normal, elem->normal);
 	get_rotation_data(elem);
 	add_cam_elem(s, elem);
 	return (0);
@@ -536,20 +527,17 @@ int	cy_func(char *line, t_scene_struct *s)
 		return (-2);
 	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
 		(err_code = get_xyz(strs[2], normal)) < 0 ||
+		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0 ||
 		(err_code = get_data(strs[4], diameter_height)) < 0 ||
 		(err_code = get_data(strs[5], diameter_height + 1)) < 0)
 		return (err_code);
 	if(!(elem = create_obj_elem('c', xyz, normal, colour)))
 		return (-7);
-	/*should do this for all normals*/
-	calc_unit_vec(elem->normal, elem->normal);
 	fill_doubles(diameter_height, elem->data.cy_d_h, 2);
 	elem->get_norm = cy_normal;
 	elem->solve = cy_intercept;
 	add_obj_elem(s, elem);
-	/*if(!add_end_cap_objs(s, elem))
-		return (-7);*/
 	return (0);
 }
 
@@ -593,6 +581,7 @@ int	sq_func(char *line, t_scene_struct *s)
 		return (-2);
 	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
 		(err_code = get_xyz(strs[2], normal)) < 0 ||
+		(err_code = check_normal(normal)) < 0 ||
 		(err_code = get_data(strs[3], &side_size)) < 0 ||
 		(err_code = get_colour(strs[4], colour)) < 0)
 		return (err_code);

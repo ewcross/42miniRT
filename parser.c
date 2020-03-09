@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/02 14:56:06 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 14:35:01 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ void	init_win_struct(t_win_struct *ws, int res_x, int res_y)
 void	init_scene_struct(t_scene_struct *s, double vp_dist)
 {
 	s->vp_dist = vp_dist;
+	s->res_xy[X] = 0;
+	s->res_xy[Y] = 0;
+	s->ambient_ratio = -1;
 	s->obj_list = NULL;
 	s->cam_list = NULL;
 	s->l_list = NULL;

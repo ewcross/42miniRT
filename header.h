@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/05 17:44:45 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/09 14:27:39 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 ** (-1) Invalid object identifier.
 ** (-2) Wrong number of arguments in line.
 ** (-3) One or more invalid coordinate values.
-** (-4) One or more invalid coordinate values.
+** (-4) Invalid normal.
 ** (-5) Invalid object dimension value.
 ** (-6) One or more invalid colour values.
 ** (-7) Error creating list element.
@@ -35,8 +35,8 @@
 */
 
 # define CHARSET "RAclspt"
-# define RES_X 2560
-# define RES_Y 1440
+# define MAX_RES_X 2560
+# define MAX_RES_Y 1440
 # define R 0
 # define G 1
 # define B 2
@@ -50,7 +50,7 @@
 # define BAD_IDENTIFIER "Invalid object identifier."
 # define WRONG_ARG_NO "Wrong number of arguments in line."
 # define POS_ERROR "One or more invalid coordinate values."
-# define NORMAL_ERROR "One or more invalid coordinate values."
+# define NORMAL_ERROR "Invalid normal."
 # define DIMENSION_ERROR "Invalid object dimension value."
 # define COLOUR_ERROR "One or more invalid colour values."
 # define LINKED_LIST_ERROR "Error creating list element."
