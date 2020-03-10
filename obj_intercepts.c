@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/10 10:47:04 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 11:44:55 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,31 +49,27 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 					t_obj_struct *sp)
 {
 	double	sphere_to_cam_vec[3];
-	double	a;
-	double	b;
-	double	c;
-	double	r;
-	double	a_b_c_r[4];
+	double	abcr[4];
 	double	discriminant;
-	double	smallest_root;
+	double	t_other;
 
 	calc_3d_vector(sp->xyz, ray_orig_xyz, sphere_to_cam_vec);
-	r = sp->data.doubl / 2;
-	a = dot(ray_vec, ray_vec);
-	b = 2 * dot(sphere_to_cam_vec, ray_vec);
-	c = dot(sphere_to_cam_vec, sphere_to_cam_vec) - (r * r);
-	discriminant = (b * b) - (4 * a * c);
+	abcr[3] = sp->data.doubl / 2;
+	abcr[0] = dot(ray_vec, ray_vec);
+	abcr[1] = 2 * dot(sphere_to_cam_vec, ray_vec);
+	abcr[2] = dot(sphere_to_cam_vec, sphere_to_cam_vec) - (abcr[3] * abcr[3]);
+	discriminant = (abcr[1] * abcr[1]) - (4 * abcr[0] * abcr[2]);
 	if (discriminant < 0)
 	{
 		*t_min = INFINITY;
 		return (0);
 	}
-	smallest_root = ((-1 * b) + sqrt(discriminant)) / (2 * a);
-	*t_min = ((-1 * b) - sqrt(discriminant)) / (2 * a);
-	if (check_inside(sp, t_min, smallest_root))
+	t_other = ((-1 * abcr[1]) + sqrt(discriminant)) / (2 * abcr[0]);
+	*t_min = ((-1 * abcr[1]) - sqrt(discriminant)) / (2 * abcr[0]);
+	if (check_inside(sp, t_min, t_other))
 		return (1);
-	else if (smallest_root < *t_min)
-		*t_min = smallest_root;
+	else if (t_other < *t_min)
+		*t_min = t_other;
 	return (1);
 }
 
@@ -173,20 +169,22 @@ void	sort_values(double t_min, double t_other, double *small, double *big)
 	}
 }
 
-int	check_ends(t_obj_struct *cy, double *t_min, double t_other, double *end, double *ray_vec)
+int	check_ends(t_obj_struct *cy, double *t_min, double *end_t, double *ray_vec)
 {
 	double	small;
 	double	big;
+	double	small_h;
+	double	big_h;
 
-	sort_values(*t_min, t_other, &small, &big);
-	if (get_p_height(small, end, cy->normal, ray_vec) >= 0 &&
-			get_p_height(small, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+	sort_values(*t_min, end_t[3], &small, &big);
+	small_h = get_p_height(small, end_t, cy->normal, ray_vec);
+	big_h = get_p_height(big, end_t, cy->normal, ray_vec);
+	if (small_h >= 0 && small_h <= cy->data.cy_d_h[1])
 	{
 		*t_min = small;
 		return (1);
 	}
-	if (get_p_height(big, end, cy->normal, ray_vec) >= 0 &&
-			get_p_height(big, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
+	if (big_h >= 0 && big_h <= cy->data.cy_d_h[1])
 	{
 		cy->inside = 1;
 		*t_min = big;
@@ -195,56 +193,39 @@ int	check_ends(t_obj_struct *cy, double *t_min, double t_other, double *end, dou
 	return (0);
 }
 
+double	get_cy_disc(t_obj_struct *cy, double *ray_norm, double *end)
+{
+	double	d;
+
+	d = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0] / 2, 2);
+	d -= pow(dot(end, ray_norm), 2);
+	return (d);
+}
+
 int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *cy)
 {
-	double	discriminant;
-	double	smallest;
-	double	ray_norm[3];
+	double	d;
+	double	t_other;
+	double	ray_n[3];
 	double	end_norm[3];
-	double	end[3];
+	double	end_t[4];
 
 	*t_min = INFINITY;
 	calc_unit_vec(cy->normal, cy->normal);
-	get_cy_end_point(end, cy);
-	get_point(end, end, ray_orig_xyz, -1);
-	cross(ray_vec, cy->normal, ray_norm);
-	if (calc_vector_mag(ray_norm) == 0)
+	get_cy_end_point(end_t, cy);
+	get_point(end_t, end_t, ray_orig_xyz, -1);
+	cross(ray_vec, cy->normal, ray_n);
+	if (calc_vector_mag(ray_n) == 0 || (d = get_cy_disc(cy, ray_n, end_t)) < 0)
 		return (0);
-	discriminant = dot(ray_norm, ray_norm) * pow(cy->data.cy_d_h[0] / 2, 2);
-	discriminant -= pow(dot(end, ray_norm), 2);
-	if (discriminant < 0)
-		return (0);
-	cross(end, cy->normal, end_norm);
-	smallest = dot(ray_norm, end_norm) + sqrt(discriminant);
-	smallest /= dot(ray_norm, ray_norm);
-	*t_min = dot(ray_norm, end_norm) - sqrt(discriminant);
-	*t_min /= dot(ray_norm, ray_norm);
+	cross(end_t, cy->normal, end_norm);
+	end_t[3]= (dot(ray_n, end_norm) + sqrt(d)) / dot(ray_n, ray_n);
+	*t_min = (dot(ray_n, end_norm) - sqrt(d)) / dot(ray_n, ray_n);
 	cy->inside = 0;
-	if (check_inside(cy, t_min, smallest))
+	if (check_inside(cy, t_min, end_t[3]))
 		return (1);
-	if (check_ends(cy, t_min, smallest, end, ray_vec))
+	if (check_ends(cy, t_min, end_t, ray_vec))
 		return (1);
 	*t_min = INFINITY;
 	return (0);
-}
-
-int	ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *ci)
-{
-	double	obj_surface_xyz[3];
-	double	centre_to_point[3];
-
-	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, ci))
-		return (0);
-	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
-	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
-	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
-	calc_3d_vector(ci->xyz, obj_surface_xyz, centre_to_point);
-	if (calc_vector_mag(centre_to_point) > ci->data.doubl / 2)
-	{
-		*t_min = INFINITY;
-		return (0);
-	}
-	return (1);
 }

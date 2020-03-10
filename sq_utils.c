@@ -6,12 +6,11 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/21 11:37:07 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/21 15:35:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 11:47:57 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-#include "structs.h"
 
 void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2)
 {
@@ -44,9 +43,6 @@ void	get_perp_vec(double *norm, double *perp_vec)
 	dummy_vec[X] = -1;
 	dummy_vec[Y] = 1;
 	dummy_vec[Z] = 2;
-	//dummy_vec[X] = norm[X] + 0.5;
-	//dummy_vec[Y] = norm[Y];
-	//dummy_vec[Z] = norm[Z];
 	cross(norm, dummy_vec, perp_vec);
 	i = 1;
 	while (perp_vec[X] == 0 && perp_vec[Y] == 0 && perp_vec[Z] == 0)
