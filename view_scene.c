@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 17:45:04 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 08:44:02 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,14 +125,9 @@ int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj
 	t_min = INFINITY;
 	while (obj_list)
 	{
-		/*if object is a sphere or cylinder and point is inside it, do not skip*/
 		if (obj_list == obj)
 		{
-			if ((obj->id == 's' || obj->id == 'c') && obj->inside)
-			{
-				i = 0;
-			}
-			else
+			if (!((obj->id == 's' || obj->id == 'c') && obj->inside))
 			{
 				obj_list = obj_list->next;
 				continue;
@@ -171,7 +166,7 @@ double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_ve
 	double	surface_to_light_vec[3];
 	double	obj_norm_vec[3];
 
-	get_point(obj_surface_xyz, s->cam_curr->xyz, ray_vec, t_min);
+	get_point(obj_surface_xyz, s->cam_curr->xyz, ray_vec, t_min - THICKNESS);
 	calc_3d_vector(obj_surface_xyz, s->l_curr->xyz, surface_to_light_vec);
 	if (shadow_ray(obj_surface_xyz, surface_to_light_vec, obj, s->obj_list))
 		return (0);

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 15:04:47 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 08:47:31 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 # define Z 2
 # define BMP_HEADER_SIZE 14
 # define BMP_INFO_SIZE 40
+# define THICKNESS 0.000000000001
 
 # define ERR_BUFF_SIZE 75
 # define BAD_IDENTIFIER "Invalid object identifier."

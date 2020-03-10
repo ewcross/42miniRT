@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 14:53:32 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 08:59:55 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,8 @@ int		parse_line(char *line, t_scene_struct *s)
 
 	init_parse_func_arr(func_arr);
 	i = 0;
+	if (line[i] == '#')
+		return (0);
 	while (line[i] == ' ')
 		i++;
 	if (!line[i])
