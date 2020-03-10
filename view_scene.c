@@ -6,91 +6,12 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/04 17:03:58 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/10 08:44:02 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 10:01:10 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 #include "structs.h"
-
-/********
-   maths functions
-********/
-
-double	dot(double *vec1, double *vec2)
-{
-	return ((vec1[0] * vec2[0]) + (vec1[1] * vec2[1]) + (vec1[2] * vec2[2]));
-}
-
-void	cross(double *vec1, double *vec2, double *res)
-{
-	res[X] = (vec1[Y] * vec2[Z]) - (vec1[Z] * vec2[Y]);
-	res[Y] = (vec1[Z] * vec2[X]) - (vec1[X] * vec2[Z]);
-	res[Z] = (vec1[X] * vec2[Y]) - (vec1[Y] * vec2[X]);
-}
-
-void	scale_ints_vector(int *vec, double factor, int *res)
-{
-	res[X] = vec[X] * factor;
-	res[Y] = vec[Y] * factor;
-	res[Z] = vec[Z] * factor;
-}
-
-void	scale_vector(double *vec, double factor, double *res)
-{
-	res[X] = vec[X] * factor;
-	res[Y] = vec[Y] * factor;
-	res[Z] = vec[Z] * factor;
-}
-
-void	calc_3d_vector(double *start, double *end, double *res)
-{
-	res[0] = end[0] - start[0];
-	res[1] = end[1] - start[1];
-	res[2] = end[2] - start[2];
-}
-
-double	calc_vector_mag(double *vec)
-{
-	return(sqrt((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2])));
-}
-
-double	calc_ints_vector_mag(int *vec)
-{
-	return(sqrt((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2])));
-}
-
-void	calc_unit_ints_vec(int *vec, int *unit_vec)
-{
-	double mag;
-
-	mag = calc_ints_vector_mag(vec);
-	printf("mag %f\n", mag);
-	if (mag == 0)
-		mag = 1;
-	unit_vec[0] = vec[0] / mag;
-	unit_vec[1] = vec[1] / mag;
-	unit_vec[2] = vec[2] / mag;
-}
-
-void	calc_unit_vec(double *vec, double *unit_vec)
-{
-	double mag;
-
-	mag = calc_vector_mag(vec);
-	if (mag == 0)
-		return ;
-	unit_vec[0] = vec[0] / mag;
-	unit_vec[1] = vec[1] / mag;
-	unit_vec[2] = vec[2] / mag;
-}
-
-void	get_point(double *point, double *orig, double *vec, double dist)
-{
-	point[X] = orig[X] + (dist * vec[X]);
-	point[Y] = orig[Y] + (dist * vec[Y]);
-	point[Z] = orig[Z] + (dist * vec[Z]);
-}
 
 void	scale_light(t_scene_struct *s)
 {
@@ -115,9 +36,9 @@ void	scale_light(t_scene_struct *s)
 	}
 }
 
-int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj_struct *obj_list)
+int	shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj,
+				t_obj_struct *obj_list)
 {
-	int		i;
 	double	t_min;
 	double	light_unit_vec[3];
 
@@ -133,8 +54,6 @@ int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj
 				continue;
 			}
 		}
-		/*need more conditions here for other cases*/
-		/*might need to normalise vector first to test mag*/
 		if (obj_list->solve(&t_min, light_unit_vec, surface_xyz, obj_list) &&
 				t_min > 0 && t_min < calc_vector_mag(light_vec))
 			return (1);
@@ -143,7 +62,7 @@ int		shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj, t_obj
 	return(0);
 }
 
-void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
+void	get_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 {
 	double	mag1;
 	double	mag2;
@@ -158,7 +77,8 @@ void	choose_correct_normal(double *cam_xyz, double *obj_xyz, double *obj_norm)
 		scale_vector(obj_norm, -1, obj_norm);
 }
 
-double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_vec, double t_min)
+double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj,
+								double *ray_vec, double t_min)
 {
 	double	dot_prod;
 	double	ray_unit_vec[3];
@@ -172,7 +92,7 @@ double	calc_light_intensity(t_scene_struct *s, t_obj_struct *obj, double *ray_ve
 		return (0);
 	obj->get_norm(obj_surface_xyz, obj, obj_norm_vec);
 	if (obj->id != 's' && obj->id != 'c')
-		choose_correct_normal(s->cam_curr->xyz, obj->xyz, obj_norm_vec);
+		get_correct_normal(s->cam_curr->xyz, obj->xyz, obj_norm_vec);
 	else if (obj->inside)
 		scale_vector(obj_norm_vec, -1, obj_norm_vec);
 	if ((dot_prod = dot(surface_to_light_vec, obj_norm_vec)) < 0)
@@ -195,7 +115,8 @@ t_obj_struct	*get_next_elem(t_obj_struct *start, char id)
 	return (start);
 }
 
-t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec)
+t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s,
+									double *ray_vec)
 {
 	double			temp_t_min;
 	t_obj_struct	*obj;
@@ -218,16 +139,17 @@ t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s, double *ray_vec
 }
 
 
-void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *light_colour, double intensity)
+void	adjust_pix_colour(int *res_colour, t_obj_struct *obj, int *l_colour,
+							double intensity)
 {
 	double	x;
 	int		*obj_colour;
 
 	obj_colour = obj->colour;
 	x = 1 / (1 + intensity);
-	res_colour[R] = (obj_colour[R] * x) + (light_colour[R] * x * intensity);
-	res_colour[G] = (obj_colour[G] * x) + (light_colour[G] * x * intensity);
-	res_colour[B] = (obj_colour[B] * x) + (light_colour[B] * x * intensity);
+	res_colour[R] = (obj_colour[R] * x) + (l_colour[R] * x * intensity);
+	res_colour[G] = (obj_colour[G] * x) + (l_colour[G] * x * intensity);
+	res_colour[B] = (obj_colour[B] * x) + (l_colour[B] * x * intensity);
 }
 
 void	rotate_about_x(double *ray, double *axis, int rev)
@@ -289,21 +211,22 @@ void	rotate_ray(double *ray, t_cam_struct *cam)
 void	get_ray_vec(double *ray_vec, double *v_w_h, int *xy, t_scene_struct *s)
 {
 	ray_vec[X] = (v_w_h[0] * ((double)xy[X] / s->res_xy[X])) - (v_w_h[0] / 2);
-	ray_vec[Y] = (-1 * v_w_h[1] * ((double)xy[Y] / s->res_xy[Y])) + (v_w_h[1] / 2);
+	ray_vec[Y] = (-1 * v_w_h[1] * ((double)xy[Y] / s->res_xy[Y]));
+	ray_vec[Y] += (v_w_h[1] / 2);
 	calc_unit_vec(ray_vec, ray_vec);
 	rotate_ray(ray_vec, s->cam_curr);
 }
 
 void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 {
-	static int	black[] = {0, 0, 0};
+	const int	black[] = {0, 0, 0};
 	double		intensity;
 	double		light_adjust;
 	t_l_struct	*light;
 
 	if (ray->t_min == INFINITY)
 	{
-		fill_ints(black, ray->colour, 3);
+		fill_ints((int*)black, ray->colour, 3);
 		return ;
 	}
 	fill_ints(ray->closest_obj->colour, ray->colour, 3);
@@ -315,7 +238,6 @@ void	get_pixel_colour(t_scene_struct *s, t_ray_struct *ray)
 		s->l_curr = light;
 		intensity = calc_light_intensity(s, ray->closest_obj, ray->ray_vec, ray->t_min);
 		light_adjust += light->brightness * intensity;
-		/*need to collect colour of all lights and then mix them all together in one*/
 		adjust_pix_colour(ray->colour, ray->closest_obj, light->colour, intensity);
 		light = light->next;
 	}
@@ -348,7 +270,7 @@ int	trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h)
 
 int	draw_image(t_scene_struct *s, void *img_addr)
 {
-	double			vp_w_h[2];
+	double	vp_w_h[2];
 
 	scale_light(s);
 	vp_w_h[0] = (2 * tan((s->cam_curr->fov * (M_PI / 180)) / 2) * s->vp_dist);
@@ -357,7 +279,8 @@ int	draw_image(t_scene_struct *s, void *img_addr)
 	return (0);
 }
 
-void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam)
+void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr,
+							t_cam_struct *cam)
 {
 	t_img_struct	*elem;
 	t_img_struct	*img_list;

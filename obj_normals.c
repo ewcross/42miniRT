@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 18:49:04 by ecross            #+#    #+#             */
-/*   Updated: 2020/02/22 19:38:29 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 10:02:05 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,6 @@ void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 	height_xyz[Z] = height * obj->normal[Z];
 	calc_3d_vector(height_xyz, surface_xyz, norm);
 	calc_3d_vector(end, norm, norm);
-	calc_unit_vec(norm, norm);
-}
-
-void	ci_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
-{
-	fill_doubles(obj->normal, norm, 3);
 	calc_unit_vec(norm, norm);
 }
 

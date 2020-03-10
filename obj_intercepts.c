@@ -6,12 +6,11 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/13 11:48:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 17:17:59 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 10:47:04 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-#include "structs.h"
 
 int	plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 					t_obj_struct *pl)
@@ -30,6 +29,22 @@ int	plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
+int	check_inside(t_obj_struct *obj, double *t_min, double t_other)
+{
+	if (t_other > 0 && *t_min < 0)
+	{
+		obj->inside = 1;
+		*t_min = t_other;
+		return (1);
+	}
+	else if (*t_min > 0 && t_other < 0)
+	{
+		obj->inside = 1;
+		return (1);
+	}
+	return (0);
+}
+
 int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 					t_obj_struct *sp)
 {
@@ -38,10 +53,10 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	b;
 	double	c;
 	double	r;
+	double	a_b_c_r[4];
 	double	discriminant;
 	double	smallest_root;
 
-	/*revisit using normalised vector here*/
 	calc_3d_vector(sp->xyz, ray_orig_xyz, sphere_to_cam_vec);
 	r = sp->data.doubl / 2;
 	a = dot(ray_vec, ray_vec);
@@ -55,16 +70,8 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	}
 	smallest_root = ((-1 * b) + sqrt(discriminant)) / (2 * a);
 	*t_min = ((-1 * b) - sqrt(discriminant)) / (2 * a);
-	if (smallest_root > 0 && *t_min < 0)
-	{
-		sp->inside = 1;
-		*t_min = smallest_root;
-	}
-	else if (*t_min > 0 && smallest_root < 0)
-	{
-		sp->inside = 1;
+	if (check_inside(sp, t_min, smallest_root))
 		return (1);
-	}
 	else if (smallest_root < *t_min)
 		*t_min = smallest_root;
 	return (1);
@@ -81,9 +88,7 @@ int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 
 	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, sq))
 		return (0);
-	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
-	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
-	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
+	get_point(obj_surface_xyz, ray_orig_xyz, ray_vec, *t_min);
 	get_corners(sq, corners);
 	calc_3d_vector(corners[0], obj_surface_xyz, v);
 	calc_3d_vector(corners[0], corners[2], e1);
@@ -97,6 +102,14 @@ int	sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
+void	calc_uv(double *u_v, double *v1, double *v2, double *v3)
+{
+	u_v[0] = (dot(v2, v2) * dot(v3, v1) - dot(v2, v1) * dot(v3, v2));
+	u_v[0] /= (dot(v1, v1) * dot(v2, v2) - dot(v1, v2) * dot(v2, v1));
+	u_v[1] = (dot(v1, v1) * dot(v3, v2) - dot(v1, v2) * dot(v3, v1));
+	u_v[1] /= (dot(v1, v1) * dot(v2, v2) - dot(v1, v2) * dot(v2, v1));
+}
+
 int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *tr)
 {
@@ -108,22 +121,18 @@ int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 
 	if(!plane_intercept(t_min, ray_vec, ray_orig_xyz, tr))
 		return (0);
-	/*if (*t_min < distance_to_viewport) to not check triangle points which are behind viewport
+	if (*t_min < 0)
 	{
 		*t_min = INFINITY;
 		return (0);
-	}*/
-	obj_surface_xyz[X] = ray_orig_xyz[X] + (*t_min * ray_vec[X]);
-	obj_surface_xyz[Y] = ray_orig_xyz[Y] + (*t_min * ray_vec[Y]);
-	obj_surface_xyz[Z] = ray_orig_xyz[Z] + (*t_min * ray_vec[Z]);
+	}
+	get_point(obj_surface_xyz, ray_orig_xyz, ray_vec, *t_min);
 	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[2], v1);
 	calc_3d_vector(tr->data.tr_points[0], tr->data.tr_points[1], v2);
 	calc_3d_vector(tr->data.tr_points[0], obj_surface_xyz, v3);
-	u_v[0] = (dot(v2, v2) * dot(v3, v1) - dot(v2, v1) * dot(v3, v2));
-	u_v[0] /= (dot(v1, v1) * dot(v2, v2) - dot(v1, v2) * dot(v2, v1));
-	u_v[1] = (dot(v1, v1) * dot(v3, v2) - dot(v1, v2) * dot(v3, v1));
-	u_v[1] /= (dot(v1, v1) * dot(v2, v2) - dot(v1, v2) * dot(v2, v1));
-	if (u_v[0] < 0 || u_v[1] < 0 || u_v[0] > 1 || u_v[1] > 1 || u_v[0] + u_v[1] > 1)
+	calc_uv(u_v, v1, v2, v3);
+	if (u_v[0] < 0 || u_v[1] < 0 || u_v[0] > 1 || u_v[1] > 1 ||
+		u_v[0] + u_v[1] > 1)
 	{
 		*t_min = INFINITY;
 		return (0);
@@ -133,7 +142,6 @@ int	tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 
 void	get_cy_end_point(double *end, t_obj_struct *cy)
 {
-	/*make need to make sure same end is used regardless of normal direction*/
 	end[X] = cy->xyz[X] + ((cy->data.cy_d_h[1] / 2) * cy->normal[X]);
 	end[Y] = cy->xyz[Y] + ((cy->data.cy_d_h[1] / 2) * cy->normal[Y]);
 	end[Z] = cy->xyz[Z] + ((cy->data.cy_d_h[1] / 2) * cy->normal[Z]);
@@ -151,25 +159,26 @@ double	get_p_height(double t_min, double *end, double *normal, double *ray_vec)
 	return (dot(normal, point_to_base));
 }
 
-int	check_ends(t_obj_struct *cy, double *t_min, double t_other, double *end, double *ray_vec)
+void	sort_values(double t_min, double t_other, double *small, double *big)
 {
-	/*store big and small solution
-	  check if smallest falls within height - if so - this is sol - set and return 1
-	  if not, check if big falls within height, if so - this is sol - set and return 1
-	  if neither fall within height - sol is INFINITY - return 0*/
-	double	small;
-	double	big;
-
-	if (t_other < *t_min)
+	if (t_other < t_min)
 	{
-		big = *t_min;
-		small = t_other;
+		*big = t_min;
+		*small = t_other;
 	}
 	else
 	{
-		big = t_other;
-		small = *t_min;
+		*big = t_other;
+		*small = t_min;
 	}
+}
+
+int	check_ends(t_obj_struct *cy, double *t_min, double t_other, double *end, double *ray_vec)
+{
+	double	small;
+	double	big;
+
+	sort_values(*t_min, t_other, &small, &big);
 	if (get_p_height(small, end, cy->normal, ray_vec) >= 0 &&
 			get_p_height(small, end, cy->normal, ray_vec) <= cy->data.cy_d_h[1])
 	{
@@ -198,9 +207,7 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	*t_min = INFINITY;
 	calc_unit_vec(cy->normal, cy->normal);
 	get_cy_end_point(end, cy);
-	end[X] -= ray_orig_xyz[X];
-	end[Y] -= ray_orig_xyz[Y];
-	end[Z] -= ray_orig_xyz[Z];
+	get_point(end, end, ray_orig_xyz, -1);
 	cross(ray_vec, cy->normal, ray_norm);
 	if (calc_vector_mag(ray_norm) == 0)
 		return (0);
@@ -214,17 +221,8 @@ int	cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	*t_min = dot(ray_norm, end_norm) - sqrt(discriminant);
 	*t_min /= dot(ray_norm, ray_norm);
 	cy->inside = 0;
-	if (smallest > 0 && *t_min < 0)
-	{
-		cy->inside = 1;
-		*t_min = smallest;
+	if (check_inside(cy, t_min, smallest))
 		return (1);
-	}
-	else if (*t_min > 0 && smallest < 0)
-	{
-		cy->inside = 1;
-		return (1);
-	}
 	if (check_ends(cy, t_min, smallest, end, ray_vec))
 		return (1);
 	*t_min = INFINITY;

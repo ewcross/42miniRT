@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/10 08:47:31 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 09:22:25 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <math.h>
-# include "structs.h"
 # include "mlx.h"
 # include "libft.h"
 # include "libgnl.h"
 # include "x11.h"
+# include "structs.h"
 
 /*
 **Error codes:
@@ -93,6 +93,7 @@ void	scale_ints_vector(int *vec, double factor, int *res);
 void	scale_vector(double *vec, double factor, double *res);
 double	calc_vector_mag(double *vec);
 double	calc_ints_vector_mag(int *vec);
+void	get_point(double *point, double *orig, double *vec, double dist);
 
 void	fill_doubles(double *src, double *dst, int len);
 void	fill_ints(int *src, int *dst, int len);

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 17:18:57 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/09 16:45:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/03/10 09:19:20 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,11 +277,11 @@ int	create_add_cam(t_scene_struct *s, double *xyz, double *normal, double fov)
 	return (1);
 }
 	
-int	create_add_l(t_scene_struct *s, double *xyz, double brightness, int *colour)
+int	create_add_l(t_scene_struct *s, double *xyz, double bright, int *colour)
 {
 	t_l_struct	*elem;
 
-	if(!(elem = create_l_elem(xyz, brightness, colour)))
+	if(!(elem = create_l_elem(xyz, bright, colour)))
 		return (0);
 	add_l_elem(s, elem);
 	return (1);
@@ -360,7 +360,6 @@ int	l_func(char *line, t_scene_struct *s)
 	double			xyz[3];
 	double			brightness;
 	int				colour[3];
-	t_l_struct		*elem;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 4)
@@ -556,22 +555,21 @@ int	cy_func(char *line, t_scene_struct *s)
 {
 	int				err_code;
 	char			**strs;
-	double			xyz[3];
-	double			normal[3];
+	double			xyz_norm[6];
 	double			diameter_height[2];
 	int				colour[3];
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 6)
 		return (-2);
-	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
-		(err_code = get_xyz(strs[2], normal)) < 0 ||
-		(err_code = check_normal(normal)) < 0 ||
+	if ((err_code = get_xyz(strs[1], xyz_norm)) < 0 ||
+		(err_code = get_xyz(strs[2], xyz_norm + 3)) < 0 ||
+		(err_code = check_normal(xyz_norm + 3)) < 0 ||
 		(err_code = get_colour(strs[3], colour)) < 0 ||
 		(err_code = get_data(strs[4], diameter_height)) < 0 ||
 		(err_code = get_data(strs[5], diameter_height + 1)) < 0)
 		return (err_code);
-	if (!create_add_obj(s, xyz, normal, colour))
+	if (!create_add_obj(s, xyz_norm, xyz_norm + 3, colour))
 		return (-7);
 	add_cy_data(s, diameter_height);
 	free_strs(strs);
@@ -631,20 +629,19 @@ int	sq_func(char *line, t_scene_struct *s)
 	int				err_code;
 	int				colour[3];
 	char			**strs;
-	double			xyz[3];
-	double			normal[3];
+	double			xyz_norm[6];
 	double			side_size;
 
 	strs = ft_split(line, ' ');
 	if (len_str_arr(strs) != 5)
 		return (-2);
-	if ((err_code = get_xyz(strs[1], xyz)) < 0 ||
-		(err_code = get_xyz(strs[2], normal)) < 0 ||
-		(err_code = check_normal(normal)) < 0 ||
+	if ((err_code = get_xyz(strs[1], xyz_norm)) < 0 ||
+		(err_code = get_xyz(strs[2], xyz_norm + 3)) < 0 ||
+		(err_code = check_normal(xyz_norm + 3)) < 0 ||
 		(err_code = get_data(strs[3], &side_size)) < 0 ||
 		(err_code = get_colour(strs[4], colour)) < 0)
 		return (err_code);
-	if (!create_add_obj(s, xyz, normal, colour))
+	if (!create_add_obj(s, xyz_norm, xyz_norm + 3, colour))
 		return (-7);
 	add_sq_data(s, side_size);
 	free_strs(strs);
