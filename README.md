@@ -32,16 +32,19 @@ Here is an example of such an ```.rt``` file:
 
 ## Some examples of generated scenes
 
-![sphere](sphere.png)
+![](sphere.png =250x250)
 A simple sphere illuminated by two spot lights.
 
-![planet](planet.png)
+
+![](planet.png)
 The same sphere, this time with another nearby, and a single spot.
 
-![cylinder](cylinder.png)
+
+![](cylinder.png)
 A cylinder, viewed from one end.
 
-![sphere-cylinder-plane](sphere-cylinder-plane.png)
+
+![](sphere-cylinder-plane.png)
 A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside the cylinder.
 
 ## License
