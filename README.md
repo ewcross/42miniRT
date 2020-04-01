@@ -55,7 +55,7 @@ The same sphere, this time with another nearby, and a single spot:
 
 
 
-A cylinder, viewed from one end"
+A cylinder, viewed from one end:
 
 <img src="cylinder.png" width="600" height="400" />
 
