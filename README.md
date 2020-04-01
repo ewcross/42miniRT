@@ -42,10 +42,8 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 
 ## Some examples of generated scenes
 
-![](sphere.png)
+<img src="sphere.png" width="500" height="325" />
 A simple sphere illuminated by two spot lights.
-
-<img src="sphere.png" width="250" height="200" />
 
 ![](planet.png)The same sphere, this time with another nearby, and a single spot.
 
