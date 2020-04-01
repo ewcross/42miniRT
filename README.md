@@ -45,8 +45,7 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 ![](sphere.png)
 A simple sphere illuminated by two spot lights.
 
-<img src="sphere.png" alt="Kitten"
-	title="A cute kitten" width="150" height="100" />
+<img src="sphere.png" width="250" height="200" />
 
 ![](planet.png)The same sphere, this time with another nearby, and a single spot.
 
