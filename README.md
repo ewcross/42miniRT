@@ -28,20 +28,33 @@ The objects that can be generated are:
 
 Here is an example of such an ```.rt``` file:
 
-![.rt](scene.rt)
+```
+R 1920 1080
+A 0.2 255,255,255
+c -50,0,20 0,0,0 70
+l -40,0,30 0.7 255,255,255
+pl 0,0,0 0,1.0,0 255,0,225
+sp 0,0,20 20 255,0,0
+sq 0,100,40 0,0,1.0 30 42,42,0
+cy 50.0,0.0,20.6 0,0,1.0 14.2 21.42 10,0,255
+tr 10,20,10 10,10,20 20,10,10 0,0,255
+```
 
 ## Some examples of generated scenes
 
-![sphere](sphere.png)
+![](sphere.png)
 A simple sphere illuminated by two spot lights.
 
-![planet](planet.png)
+
+![](planet.png)
 The same sphere, this time with another nearby, and a single spot.
 
-![cylinder](cylinder.png)
+
+![](cylinder.png)
 A cylinder, viewed from one end.
 
-![sphere-cylinder-plane](sphere-cylinder-plane.png)
+
+![](sphere-cylinder-plane.png)
 A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside the cylinder.
 
 ## License
