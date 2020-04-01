@@ -43,7 +43,7 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 ## Some examples of generated scenes
 
 
-<img src="sphere.png" width="600" height="375" />
+<img src="sphere.png" width="600" height="350" />
 A simple sphere illuminated by two spot lights.
 
 
