@@ -42,7 +42,17 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 
 ## Some examples of generated scenes
 
-![](sphere.png)A simple sphere illuminated by two spot lights. ![](planet.png)The same sphere, this time with another nearby, and a single spot. ![](cylinder.png)!   [](sphere-cylinder-plane.png)
+![](sphere.png)
+A simple sphere illuminated by two spot lights.
+
+<img src="sphere.png" alt="Kitten"
+	title="A cute kitten" width="150" height="100" />
+
+![](planet.png)The same sphere, this time with another nearby, and a single spot.
+
+![](cylinder.png)
+
+![](sphere-cylinder-plane.png)
 
 
 
