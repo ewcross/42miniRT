@@ -42,17 +42,16 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 
 ## Some examples of generated scenes
 
-![](sphere.png)![](planet.png)
+![](sphere.png)![](planet.png)![](cylinder.png)![](sphere-cylinder-plane.png)
 A simple sphere illuminated by two spot lights.
 
-![](planet.png)
 The same sphere, this time with another nearby, and a single spot.
 
-![](cylinder.png)
+
 A cylinder, viewed from one end.
 
 
-![](sphere-cylinder-plane.png)
+
 A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside the cylinder.
 
 ## License
