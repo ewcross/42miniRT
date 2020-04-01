@@ -50,6 +50,9 @@ A simple sphere illuminated by two spot lights.
 The same sphere, this time with another nearby, and a single spot.
 
 
+
+
+
 ![](cylinder.png)
 A cylinder, viewed from one end.
 
