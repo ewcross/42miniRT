@@ -32,7 +32,7 @@ Here is an example of such an ```.rt``` file:
 
 ## Some examples of generated scenes
 
-![](sphere.png =250x250)
+![](sphere.png)
 A simple sphere illuminated by two spot lights.
 
 
