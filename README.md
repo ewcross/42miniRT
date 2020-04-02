@@ -20,6 +20,9 @@ The program takes as it's first argument a scene description file with the ```.r
 
 ```miniRT scene.rt```
 
+This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
+Including mulitple cameras will generate multiple scene images. These can be tabbed through using the arrow keys.
+
 The ```.rt``` file contains information for the:
 
 * image resolution
