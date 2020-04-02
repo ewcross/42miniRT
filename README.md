@@ -10,7 +10,17 @@ The ray-tracing algorithm is implemented in c and (due to the rules of the proje
 
 The pixel rendering, window management and event handling aspects are dealt with using functions from the miniLibX, a simple X-Window (X11R6) programming API in C, designed for students and written by Oliver Crouzet. This in turn makes use of the AppKit and OpenGL frameworks.
 
-The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. It contains information for the:
+## Compilation
+
+There is a Makefile, and to compile, simply use the ```make```
+
+## Usage
+
+The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. For example:
+
+```miniRT scene.rt```
+
+The ```.rt``` file contains information for the:
 
 * image resolution
 * ambient lighting (brightness and colour)
@@ -39,6 +49,10 @@ sq 0,100,40 0,0,1.0 30 42,42,0
 cy 50.0,0.0,20.6 0,0,1.0 14.2 21.42 10,0,255
 tr 10,20,10 10,10,20 20,10,10 0,0,255
 ```
+
+The program also includes a bitmap file generator function, and it is possible to save the generates image(s) in bmp format by using ```--save``` as the second argument, for example:
+
+```miniRT scene.rt --save```
 
 ## Some examples of generated scenes
 
