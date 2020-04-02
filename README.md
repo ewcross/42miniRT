@@ -94,3 +94,13 @@ A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside
 ## License
 
 MinilibX is licensed under the BSD license: Copyright Olivier Crouzet - 1999-2015.
+
+## Resources
+
+* [*Computer Graphics From Scratch* by Gabriel Gambette](https://www.gabrielgambetta.com/computer-graphics-from-scratch/introduction.html)
+* [Scratchpixel 2.0](https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing)
+* [keuhdall images-example](https://github.com/keuhdall/images_example)
+* [equation for points inside a triangle](https://blackpawn.com/texts/pointinpoly/)
+* [equation for cylinder line intersection](https://en.wikipedia.org/wiki/User:Nominal_animal)
+* [rotation in 3D space](http://paulbourke.net/geometry/rotate/)
+* [bitmap generation](https://itnext.io/bits-to-bitmaps-a-simple-walkthrough-of-bmp-image-format-765dc6857393)
