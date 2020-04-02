@@ -97,7 +97,7 @@ MinilibX is licensed under the BSD license: Copyright Olivier Crouzet - 1999-201
 
 ## Resources
 
-* [*Computer Graphics From Scratch* by Gabriel Gambette](https://www.gabrielgambetta.com/computer-graphics-from-scratch/introduction.html)
+* [*Computer Graphics From Scratch* by Gabriel Gambetta](https://www.gabrielgambetta.com/computer-graphics-from-scratch/introduction.html)
 * [Scratchpixel 2.0](https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing)
 * [keuhdall images-example](https://github.com/keuhdall/images_example)
 * [equation for points inside a triangle](https://blackpawn.com/texts/pointinpoly/)
