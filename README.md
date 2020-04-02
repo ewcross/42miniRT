@@ -63,7 +63,7 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 
 The program also includes a bitmap file generator function, and it is possible to save the generates image(s) in bmp format by using ```--save``` as the second argument, for example:
 
-```miniRT scene.rt --save```
+<img src="Screenshot 2020-04-02 at 09.50.55.png" width="200" height="25" />
 
 ## Some examples of generated scenes
 
