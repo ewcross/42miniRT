@@ -16,16 +16,17 @@ A Makefile is included, and to compile simply use ```make```.
 
 Compilation on macOS involves linking with the AppKit and OpenGL frameworks:
 
-```gcc <.c files> libmlx.a -framework OpenGL -framework AppKit```
+```gcc <.c files> -lmlx -framework OpenGL -framework AppKit```
 
-and on Windows:
+and on BSD/Linux:
 
-```something```
+```gcc <.c files> -lmlx -lXext -lX11```
 
 ## Usage
 
 The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. For example:
 
+<img src="run1.png" width="100" height="30" />
 ```miniRT scene.rt```
 
 This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
