@@ -26,8 +26,7 @@ and on BSD/Linux:
 
 The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. For example:
 
-<img src="run1.png" width="100" height="30" />
-```miniRT scene.rt```
+<img src="Screenshot 2020-04-02 at 09.40.25.png" width="100" height="30" />
 
 This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
 Including mulitple cameras will generate multiple scene images. These can be tabbed through using the arrow keys.
