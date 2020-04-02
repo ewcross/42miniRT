@@ -15,8 +15,11 @@ The pixel rendering, window management and event handling aspects are dealt with
 A Makefile is included, and to compile simply use ```make```.
 
 Compilation on macOS involves linking with the AppKit and OpenGL frameworks:
+
 ```gcc <.c files> libmlx.a -framework OpenGL -framework AppKit```
+
 and on Windows:
+
 ```something```
 
 ## Usage
