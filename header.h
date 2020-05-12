@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/10 09:22:25 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/12 16:56:51 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,15 @@ int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *pl);
 int		ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *ci);
-
+int		check_inside(t_obj_struct *obj, double *t_min, double t_other);
+void	calc_uv(double *u_v, double *v1, double *v2, double *v3);
 void	get_cy_end_point(double *end, t_obj_struct *cy);
-double	get_p_height(double t_min, double *end, double *normal, double *ray_vec);
+double	get_p_height(double t_min, double *end, double *normal,
+						double *ray_vec);
+void	sort_values(double t_min, double t_other, double *small, double *big);
+int		check_ends(t_obj_struct *cy, double *t_min, double *end_t,
+					double *ray_vec)
+double	get_cy_disc(t_obj_struct *cy, double *ray_norm, double *end);
 
 void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2);
 void	get_perp_vec(double *norm, double *perp_vec);
@@ -99,6 +105,13 @@ void	fill_doubles(double *src, double *dst, int len);
 void	fill_ints(int *src, int *dst, int len);
 
 void	int_to_binary(char buff[4][8], int num);
+int		binary_to_int(char binary[8]);
+int		fill_little_endian(unsigned char *bmp, int num, int i);
+int		fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp);
+int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs);
+void	fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs);
+int		create_bmp_file(unsigned char *bmp, int id, int fs);
+int		create_bmp(t_win_struct *ws, t_img_struct *img, int id);
 void	bmp(t_win_struct *ws, t_img_struct *img);
 
 int		put_image(void *window_struct);
@@ -107,11 +120,15 @@ int		close_program(void *window_struct);
 int		initialise_window(t_win_struct *ws);
 void	colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
 
-void	free_strs(char **strs);
-void	free_scene_struct(t_scene_struct *s);
 void	print_elem(t_obj_struct *elem);
 void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam);
+
+void	free_strs(char **strs);
 void	free_img_list(t_img_struct *img);
+void	free_light_list(t_l_struct *light);
+void	free_cam_list(t_cam_struct *cam);
+void	free_obj_list(t_obj_struct *obj);
+void	free_scene_struct(t_scene_struct *s);
 
 int		pos_in_set(char ch, char *set);
 void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));

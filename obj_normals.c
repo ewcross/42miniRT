@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 18:49:04 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/10 10:02:05 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/12 16:58:27 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 	calc_unit_vec(norm, norm);
 }
 
-void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
+void	p_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
 	fill_doubles(obj->normal, norm, 3);
 	calc_unit_vec(norm, norm);

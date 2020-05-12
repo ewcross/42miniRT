@@ -1,104 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bmp.c                                              :+:      :+:    :+:   */
+/*   bmp_1.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/04 12:01:11 by ecross            #+#    #+#             */
-/*   Updated: 2020/03/06 12:21:18 by ecross           ###   ########.fr       */
+/*   Created: 2020/05/12 16:00:32 by ecross            #+#    #+#             */
+/*   Updated: 2020/05/12 16:09:54 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-
-void	int_to_binary(char buff[4][8], int num)
-{
-	int i;
-
-	i = 31;
-	while (num)
-	{
-		buff[i / 8][i % 8] = (num % 2) + 48;
-		i--;
-		num /= 2;
-	}
-	while (i)
-	{
-		buff[i / 8][i % 8] = 0 + 48;
-		i--;
-	}
-	buff[i / 8][i % 8] = 0 + 48;
-}
-
-int		binary_to_int(char binary[8])
-{
-	int		i;
-	int		output;
-
-	output = 0;
-	i = 0;
-	while (i < 8)
-	{
-		output = (output * 2) + (binary[i] - 48);
-		i++;
-	}
-	return (output);
-}
-	
-int		fill_little_endian(unsigned char *bmp, int num, int i)
-{
-	int		n;
-	char	bin[4][8];
-
-	int_to_binary(bin, num);
-	n = 0;
-	while (n < 4)
-	{
-		bmp[i++] = binary_to_int(bin[3 - n]);
-		n++;
-	}
-	return (i);
-}
-
-int		fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp)
-{
-	int	n;
-
-	i = fill_little_endian(bmp, BMP_INFO_SIZE, i);
-	i = fill_little_endian(bmp, ws->res_x, i);
-	i = fill_little_endian(bmp, ws->res_y, i);
-	bmp[i++] = 1;
-	bmp[i++] = 0;
-	bmp[i++] = bpp;
-	bmp[i++] = 0;
-	n = 0;
-	while (n < 24)
-	{
-		bmp[i++] = 0;
-		n++;
-	}
-	return (i);
-}
-
-int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs)
-{
-	int		i;
-	int		n;
-
-	i = 0;
-	bmp[i++] = 'B';
-	bmp[i++] = 'M';
-	i = fill_little_endian(bmp, fs, i);
-	n = 0;
-	while (n < 4)
-	{
-		bmp[i++] = 0;
-		n++;
-	}
-	i = fill_little_endian(bmp, BMP_HEADER_SIZE + BMP_INFO_SIZE, i);
-	return (i);
-}
 
 void	fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs)
 {
@@ -144,7 +56,8 @@ int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 	int				fs;
 	unsigned char	*bmp;
 
-	fs = BMP_HEADER_SIZE + BMP_INFO_SIZE + (ws->res_x * ws->res_y * (img->bpp / 8));
+	fs = BMP_HEADER_SIZE + BMP_INFO_SIZE;
+	fs += (ws->res_x * ws->res_y * (img->bpp / 8));
 	bmp = (unsigned char*)malloc(fs);
 	if (!bmp)
 	{

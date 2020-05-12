@@ -6,20 +6,17 @@
 #    By: ecross <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/07 15:11:23 by ecross            #+#    #+#              #
-#    Updated: 2020/02/12 16:35:50 by ecross           ###   ########.fr        #
+#    Updated: 2020/05/12 15:58:34 by ecross           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = a.out
+NAME = miniRT
 
-SRCS = 	parser.c \
-		parser_utils.c \
-		view_scene.c
+SRCS = 	sources
 
 OBJS = ${SRCS:.c=.o}
 
-LIBS = libft.a \
-	   libgnl.a
+LIBS = libs
 
 RM = rm -f
 
