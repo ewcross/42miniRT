@@ -1,56 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
+/*   parser_1.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 17:07:56 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/12 17:51:54 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-#include "structs.h"
-
-void	init_win_struct(t_win_struct *ws, int res_x, int res_y)
-{
-	ws->mlx_ptr = NULL;
-	ws->win_ptr = NULL;
-	ws->img_list = NULL;
-	ws->first_img_addr = NULL;
-	ws->res_x = res_x;
-	ws->res_y = res_y;
-}
-
-void	init_scene_struct(t_scene_struct *s, double vp_dist)
-{
-	s->vp_dist = vp_dist;
-	s->res_xy[X] = 0;
-	s->res_xy[Y] = 0;
-	s->ambient_ratio = -1;
-	s->obj_list = NULL;
-	s->cam_list = NULL;
-	s->l_list = NULL;
-	s->cam_curr = NULL;
-	s->l_curr = NULL;
-}
-
-int		pos_in_set(char ch, char *set)
-{
-	int i;
-
-	if (ch == 0)
-		return (-1);
-	i = 0;
-	while (set[i])
-	{
-		if (ch == set[i])
-			return (i);
-		i++;
-	}
-	return (-1);
-}
 
 void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *))
 {
@@ -79,7 +39,7 @@ void	fill_buff_str(char *src, char *dst, int len)
 void	init_error_messages(char err_msgs[][ERR_BUFF_SIZE])
 {
 	fill_buff_str(BAD_IDENTIFIER, err_msgs[0], ERR_BUFF_SIZE);
-	fill_buff_str(WRONG_ARG_NO, err_msgs[1] , ERR_BUFF_SIZE);
+	fill_buff_str(WRONG_ARG_NO, err_msgs[1], ERR_BUFF_SIZE);
 	fill_buff_str(POS_ERROR, err_msgs[2], ERR_BUFF_SIZE);
 	fill_buff_str(NORMAL_ERROR, err_msgs[3], ERR_BUFF_SIZE);
 	fill_buff_str(DIMENSION_ERROR, err_msgs[4], ERR_BUFF_SIZE);
@@ -103,7 +63,7 @@ int		parse_line(char *line, t_scene_struct *s)
 	if (!line[i])
 		return (0);
 	if ((pos = pos_in_set(line[i], CHARSET)) > -1)
-		return(func_arr[pos](line, s));
+		return (func_arr[pos](line, s));
 	else
 		return (-1);
 }

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:56:51 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/12 17:49:36 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,98 +57,119 @@
 # define LINKED_LIST_ERROR "Error creating list element."
 # define MULTIPLE_R_A "Only one 'R' and 'A' field allowed in input file."
 
-void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
-void    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
-void	sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
-void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
-void	ci_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
-void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void			sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void		    p_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void			sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void			cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void			ci_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
+void			tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm);
 
-int		solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
-						t_obj_struct *sp);
-int		plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+int				solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
+								t_obj_struct *sp);
+int				plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+								t_obj_struct *pl);
+int				sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 						t_obj_struct *pl);
-int		sq_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *pl);
-int		tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *pl);
-int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *pl);
-int		ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
-				t_obj_struct *ci);
-int		check_inside(t_obj_struct *obj, double *t_min, double t_other);
-void	calc_uv(double *u_v, double *v1, double *v2, double *v3);
-void	get_cy_end_point(double *end, t_obj_struct *cy);
-double	get_p_height(double t_min, double *end, double *normal,
-						double *ray_vec);
-void	sort_values(double t_min, double t_other, double *small, double *big);
-int		check_ends(t_obj_struct *cy, double *t_min, double *end_t,
-					double *ray_vec)
-double	get_cy_disc(t_obj_struct *cy, double *ray_norm, double *end);
+int				tr_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+						t_obj_struct *pl);
+int				cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+						t_obj_struct *pl);
+int				ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
+						t_obj_struct *ci);
+int				check_inside(t_obj_struct *obj, double *t_min, double t_other);
+void			calc_uv(double *u_v, double *v1, double *v2, double *v3);
+void			get_cy_end_point(double *end, t_obj_struct *cy);
+double			get_p_height(double t_min, double *end, double *normal,
+								double *ray_vec);
+void			sort_values(double t_min, double t_other, double *small, double *big);
+int				check_ends(t_obj_struct *cy, double *t_min, double *end_t,
+							double *ray_vec);
+double			get_cy_disc(t_obj_struct *cy, double *ray_norm, double *end);
 
-void	fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2);
-void	get_perp_vec(double *norm, double *perp_vec);
-void	get_corners(t_obj_struct *sq, double corners[][3]);
+void			fill_corners(double c[][3], t_obj_struct *sq, double *d1, double *d2);
+void			get_perp_vec(double *norm, double *perp_vec);
+void			get_corners(t_obj_struct *sq, double corners[][3]);
 
-void	calc_3d_vector(double *start, double *end, double *res);
-void	calc_unit_vec(double *vec, double *unit_vec);
-void	calc_unit_ints_vec(int *vec, int *unit_vec);
-double	dot(double *vec1, double *vec2);
-void	cross(double *vec1, double *vec2, double *res);
-void	scale_ints_vector(int *vec, double factor, int *res);
-void	scale_vector(double *vec, double factor, double *res);
-double	calc_vector_mag(double *vec);
-double	calc_ints_vector_mag(int *vec);
-void	get_point(double *point, double *orig, double *vec, double dist);
+void			calc_3d_vector(double *start, double *end, double *res);
+void			calc_unit_vec(double *vec, double *unit_vec);
+void			calc_unit_ints_vec(int *vec, int *unit_vec);
+double			dot(double *vec1, double *vec2);
+void			cross(double *vec1, double *vec2, double *res);
+void			scale_ints_vector(int *vec, double factor, int *res);
+void			scale_vector(double *vec, double factor, double *res);
+double			calc_vector_mag(double *vec);
+double			calc_ints_vector_mag(int *vec);
+void			get_point(double *point, double *orig, double *vec, double dist);
 
-void	fill_doubles(double *src, double *dst, int len);
-void	fill_ints(int *src, int *dst, int len);
+void			int_to_binary(char buff[4][8], int num);
+int				binary_to_int(char binary[8]);
+int				fill_little_endian(unsigned char *bmp, int num, int i);
+int				fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp);
+int				fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs);
+void			fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs);
+int				create_bmp_file(unsigned char *bmp, int id, int fs);
+int				create_bmp(t_win_struct *ws, t_img_struct *img, int id);
+void			bmp(t_win_struct *ws, t_img_struct *img);
 
-void	int_to_binary(char buff[4][8], int num);
-int		binary_to_int(char binary[8]);
-int		fill_little_endian(unsigned char *bmp, int num, int i);
-int		fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp);
-int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs);
-void	fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs);
-int		create_bmp_file(unsigned char *bmp, int id, int fs);
-int		create_bmp(t_win_struct *ws, t_img_struct *img, int id);
-void	bmp(t_win_struct *ws, t_img_struct *img);
+int				put_image(void *window_struct);
+int				set_keys(int keycode, void *window_struct);
+int				close_program(void *window_struct);
+int				initialise_window(t_win_struct *ws);
+void			colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
 
-int		put_image(void *window_struct);
-int		set_keys(int keycode, void *window_struct);
-int		close_program(void *window_struct);
-int		initialise_window(t_win_struct *ws);
-void	colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
+void			print_elem(t_obj_struct *elem);
+void			add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam);
 
-void	print_elem(t_obj_struct *elem);
-void	add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam);
+void			free_strs(char **strs);
+void			free_img_list(t_img_struct *img);
+void			free_light_list(t_l_struct *light);
+void			free_cam_list(t_cam_struct *cam);
+void			free_obj_list(t_obj_struct *obj);
+void			free_scene_struct(t_scene_struct *s);
 
-void	free_strs(char **strs);
-void	free_img_list(t_img_struct *img);
-void	free_light_list(t_l_struct *light);
-void	free_cam_list(t_cam_struct *cam);
-void	free_obj_list(t_obj_struct *obj);
-void	free_scene_struct(t_scene_struct *s);
-
-int		pos_in_set(char ch, char *set);
-void	init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));
-int		parse_line(char *line, t_scene_struct *s);
-int		len_str_arr(char **str_arr);
-int		simple_atoi(char *str);
-void	init_win_struct(t_win_struct *ws, int res_x, int res_y);
-void	init_scene_struct(t_scene_struct *s, double vp_dist);
-int		parser(t_scene_struct *s, char *file);
-
-int		r_func(char *line, t_scene_struct *s);
-int		a_func(char *line, t_scene_struct *s);
-int		c_func(char *line, t_scene_struct *s);
-int		l_func(char *line, t_scene_struct *s);
-int		s_func(char *line, t_scene_struct *s);
-int		p_func(char *line, t_scene_struct *s);
-int		t_func(char *line, t_scene_struct *s);
-int		cam_func(char *line, t_scene_struct *s);
-int		cy_func(char *line, t_scene_struct *s);
-int		sp_func(char *line, t_scene_struct *s);
-int		sq_func(char *line, t_scene_struct *s);
+int				pos_in_set(char ch, char *set);
+void			init_parse_func_arr(int (*func_arr[])(char *, t_scene_struct *));
+int				parse_line(char *line, t_scene_struct *s);
+void			init_win_struct(t_win_struct *ws, int res_x, int res_y);
+void			init_scene_struct(t_scene_struct *s, double vp_dist);
+int				parser(t_scene_struct *s, char *file);
+void			fill_doubles(double *src, double *dst, int len);
+void			fill_ints(int *src, int *dst, int len);
+t_obj_struct	*create_obj_elem(double *xyz, double *normal, int *colour);
+t_cam_struct	*create_cam_elem(double *xyz, double *normal, double fov);
+t_l_struct		*create_l_elem(double *xyz, double brightness, int *colour);
+void			add_obj_elem(t_scene_struct *s, t_obj_struct *elem);
+void			add_cam_elem(t_scene_struct *s, t_cam_struct *elem);
+void			add_l_elem(t_scene_struct *s, t_l_struct *elem);
+int				simple_atoi(char *str);
+double			tenths(char *str);
+int				ft_atof(char *str, double *fl);
+int				get_colour(char *str, int *colour);
+int				get_data(char *str, double *data);
+int				get_xyz(char *str, double *xyz);
+int				len_str_arr(char **str_arr);
+int				create_add_cam(t_scene_struct *s, double *xyz, double *normal, double fov);
+int				create_add_l(t_scene_struct *s, double *xyz, double bright, int *colour);
+int				create_add_obj(t_scene_struct *s, double *xyz, double *normal, int *colour);
+int				check_normal(double *normal);
+void			add_p_data(t_scene_struct *s);
+void			calc_tr_normal(t_obj_struct *tr);
+void			add_tr_data(t_scene_struct *s, double points[3][3]);
+void			get_rotation_data(t_cam_struct *cam);
+void			add_cam_data(t_scene_struct *s);
+void			add_cy_data(t_scene_struct *s, double *diameter_height);
+void			add_sp_data(t_scene_struct *s, double diameter);
+void			add_sq_data(t_scene_struct *s, double side_size);
+int				r_func(char *line, t_scene_struct *s);
+int				a_func(char *line, t_scene_struct *s);
+int				c_func(char *line, t_scene_struct *s);
+int				l_func(char *line, t_scene_struct *s);
+int				s_func(char *line, t_scene_struct *s);
+int				p_func(char *line, t_scene_struct *s);
+int				t_func(char *line, t_scene_struct *s);
+int				cam_func(char *line, t_scene_struct *s);
+int				cy_func(char *line, t_scene_struct *s);
+int				sp_func(char *line, t_scene_struct *s);
+int				sq_func(char *line, t_scene_struct *s);
 
 #endif

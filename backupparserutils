@@ -140,18 +140,6 @@ void	add_l_elem(t_scene_struct *s, t_l_struct *elem)
 		temp = temp->next;
 	temp->next = elem;
 }
-	
-void	print_strs(char **strs)
-{
-	int i;
-
-	i = 0;
-	while (strs[i])
-	{
-		printf("%s\n", strs[i]);
-		i++;
-	}
-}
 
 int	simple_atoi(char *str)
 {
