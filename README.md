@@ -26,7 +26,7 @@ and on BSD/Linux:
 
 The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. For example:
 
-<img src="Screenshot 2020-04-02 at 09.40.25.png" width="150" height="25" />
+<img src="readme_utils/Screenshot 2020-04-02 at 09.40.25.png" width="150" height="25" />
 
 This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
 Including mulitple cameras will generate multiple scene images. These can be tabbed through using the arrow keys.
@@ -63,32 +63,32 @@ tr 10,20,10 10,10,20 20,10,10 0,0,255
 
 The program also includes a bitmap file generator function, and it is possible to save the generates image(s) in bmp format by using ```--save``` as the second argument, for example:
 
-<img src="Screenshot 2020-04-02 at 09.50.55.png" width="200" height="25" />
+<img src="readme_utils/Screenshot 2020-04-02 at 09.50.55.png" width="200" height="25" />
 
 ## Some examples of generated scenes
 
 
 A simple sphere illuminated by two spot lights:
 
-<img src="sphere.png" align="middle" width="600" height="400" />
+<img src="readme_utils/sphere.png" align="middle" width="600" height="400" />
 
 
 
 The same sphere, this time with another nearby, and a single spot:
 
-<img src="planet.png" width="600" height="400" />
+<img src="readme_utils/planet.png" width="600" height="400" />
 
 
 
 A cylinder, viewed from one end:
 
-<img src="cylinder.png" width="600" height="400" />
+<img src="readme_utils/cylinder.png" width="600" height="400" />
 
 
 
 A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside the cylinder:
 
-<img src="sphere-cylinder-plane.png" width="600" height="400" />
+<img src="readme_utils/sphere-cylinder-plane.png" width="600" height="400" />
 
 
 ## License
