@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/12 18:49:04 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:58:27 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:20:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,21 @@
 
 void	sp_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
+	(void)surface_xyz;
 	calc_3d_vector(obj->xyz, surface_xyz, norm);
 	calc_unit_vec(norm, norm);
 }
 
 void	p_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
+	(void)surface_xyz;
 	fill_doubles(obj->normal, norm, 3);
 	calc_unit_vec(norm, norm);
 }
 
 void	sq_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
+	(void)surface_xyz;
 	fill_doubles(obj->normal, norm, 3);
 	calc_unit_vec(norm, norm);
 }
@@ -51,6 +54,7 @@ void	cy_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 
 void	tr_normal(double *surface_xyz, t_obj_struct *obj, double *norm)
 {
+	(void)surface_xyz;
 	fill_doubles(obj->normal, norm, 3);
 	calc_unit_vec(norm, norm);
 }

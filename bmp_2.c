@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 16:05:04 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:11:09 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:19:01 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int		fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp)
 	return (i);
 }
 
-int		fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs)
+int		fill_file_header(unsigned char *bmp, int fs)
 {
 	int		i;
 	int		n;

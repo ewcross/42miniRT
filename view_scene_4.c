@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 18:15:59 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 18:32:34 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:31:12 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ double			calc_light_intensity(t_scene_struct *s, t_obj_struct *obj,
 									double *ray_vec, double t_min)
 {
 	double	dot_prod;
-	double	ray_unit_vec[3];
 	double	obj_surface_xyz[3];
 	double	to_light_vec[3];
 	double	obj_norm_vec[3];

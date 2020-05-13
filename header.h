@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 17:49:36 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:35:43 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,40 @@ double			calc_vector_mag(double *vec);
 double			calc_ints_vector_mag(int *vec);
 void			get_point(double *point, double *orig, double *vec, double dist);
 
+void			*get_img_data(void *img_ptr, t_cam_struct *cam);
+int				str_match(char *str, char *real);
+int				check_args(int argc, char **argv);
+void			create_image_list(t_win_struct *ws, t_scene_struct *s);
+int				main(int argc, char **argv);
+void			get_ray_vec(double *ray_vec, double *v_w_h, int *xy,
+							t_scene_struct *s);
+void			get_pixel_colour(t_scene_struct *s, t_ray_struct *ray);
+int				trace_rays(t_scene_struct *s, void *img_addr, double *vp_w_h);
+int				draw_image(t_scene_struct *s, void *img_addr);
+void			add_img_to_list(t_win_struct *ws, void *img_ptr,
+								char *img_addr, t_cam_struct *cam);
+void			adj_cl(int *res_colour, t_obj_struct *obj, int *l_colour,
+						double intensity);
+void			rotate_about_x(double *ray, double *axis, int rev);
+void			rotate_about_y(double *ray, double *axis, int rev);
+void			rotate_about_z(double *ray, double angle);
+void			rotate_ray(double *ray, t_cam_struct *cam);
+void			get_correct_normal(double *cam_xyz, double *obj_xyz,
+									double *obj_norm);
+double			calc_light_intensity(t_scene_struct *s, t_obj_struct *obj,
+										double *ray_vec, double t_min);
+t_obj_struct	*get_next_elem(t_obj_struct *start, char id);
+t_obj_struct	*find_closest_obj(double *t_min, t_scene_struct *s,
+									double *ray_vec);
+void			scale_light(t_scene_struct *s);
+int				shadow_ray(double *surface_xyz, double *light_vec, t_obj_struct *obj,
+							t_obj_struct *obj_list);
+
 void			int_to_binary(char buff[4][8], int num);
 int				binary_to_int(char binary[8]);
 int				fill_little_endian(unsigned char *bmp, int num, int i);
 int				fill_info_header(t_win_struct *ws, unsigned char *bmp, int i, int bpp);
-int				fill_file_header(t_win_struct *ws, unsigned char *bmp, int fs);
+int				fill_file_header(unsigned char *bmp, int fs);
 void			fill_pixel_data(char *img_addr, unsigned char *bmp, int i, int fs);
 int				create_bmp_file(unsigned char *bmp, int id, int fs);
 int				create_bmp(t_win_struct *ws, t_img_struct *img, int id);
@@ -116,9 +145,8 @@ int				set_keys(int keycode, void *window_struct);
 int				close_program(void *window_struct);
 int				initialise_window(t_win_struct *ws);
 void			colour_img_pixel(char *img_addr, int *xy, t_cam_struct *cam, int *colour);
-
-void			print_elem(t_obj_struct *elem);
-void			add_img_to_list(t_win_struct *ws, void *img_ptr, char *img_addr, t_cam_struct *cam);
+void			shift_prev_cam(t_win_struct *ws);
+void			shift_next_cam(t_win_struct *ws);
 
 void			free_strs(char **strs);
 void			free_img_list(t_img_struct *img);
@@ -171,5 +199,4 @@ int				cam_func(char *line, t_scene_struct *s);
 int				cy_func(char *line, t_scene_struct *s);
 int				sp_func(char *line, t_scene_struct *s);
 int				sq_func(char *line, t_scene_struct *s);
-
 #endif

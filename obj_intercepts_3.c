@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 16:43:23 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:50:00 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:19:38 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 				t_obj_struct *cy)
 {
 	double	d;
-	double	t_other;
 	double	ray_n[3];
 	double	end_norm[3];
 	double	end_t[4];

@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 18:15:54 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 18:32:01 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:30:53 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ void	rotate_about_z(double *ray, double angle)
 
 void	rotate_ray(double *ray, t_cam_struct *cam)
 {
-	int		on;
 	double	angle;
 	double	*axis;
 

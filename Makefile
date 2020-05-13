@@ -6,17 +6,45 @@
 #    By: ecross <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/07 15:11:23 by ecross            #+#    #+#              #
-#    Updated: 2020/05/12 15:58:34 by ecross           ###   ########.fr        #
+#    Updated: 2020/05/13 08:37:53 by ecross           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = miniRT
 
-SRCS = 	sources
+SRCS = 	bmp_1.c \
+	bmp_2.c \
+	free_funcs_1.c \
+	free_funcs_2.c \
+	maths_funcs_1.c \
+	maths_funcs_2.c \
+	obj_intercepts_1.c \
+	obj_intercepts_2.c \
+	obj_intercepts_3.c \
+	obj_normals.c \
+	parser_1.c \
+	parser_2.c \
+	parser_3.c \
+	parser_4.c \
+	parser_5.c \
+	parser_6.c \
+	parser_7.c \
+	parser_8.c \
+	sq_utils.c \
+	struct_utils_1.c \
+	struct_utils_2.c \
+	view_scene_1.c \
+	view_scene_2.c \
+	view_scene_3.c \
+	view_scene_4.c \
+	view_scene_5.c \
+	window_1.c \
+	window_2.c
 
 OBJS = ${SRCS:.c=.o}
 
-LIBS = libs
+LIBS = libft.a \
+       libgnl.a
 
 RM = rm -f
 
@@ -24,14 +52,12 @@ GMM = gcc libmlx.a -framework OpenGL -framework AppKit
 
 CFLAGS = -Wall -Wextra -Werror
 
-.c.o: ${GCC} ${CFLAGS} -c $< -o ${<:.c=.o}
+.c.o: ${GMM} ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}:	${OBJS}
 	${GMM} ${OBJS} ${LIBS}
 
 all:		${NAME}
-
-bonus:		all
 
 clean:
 	${RM} ${OBJS}
