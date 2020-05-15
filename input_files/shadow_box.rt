@@ -1,3 +1,6 @@
+# a box comprised of 5 planes, with a single light inside, and a cylinder
+# two cameras present, can switch views with left and right arrow keys
+
 R 1000 650
 A 0.3 255,255,255
 c 0,0,0     0,0,1     80

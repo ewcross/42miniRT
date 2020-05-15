@@ -1,0 +1,22 @@
+# a single cylinder with a red light inside and a single light above
+# multiple cameras:
+# 	use the right arrow to move from above the cylinder, to level
+# 	with it and then move inside it, finally turning round to see
+# 	only the inside
+
+R 1000 650
+A 0.4 0,0,0
+c 0,9,0     1,0,0     60
+c 0,7,0     1,0,0     60
+c 0,5.5,0     1,0,0     60
+c 0,2.5,0     1,0,0     60
+c 0,0,0     1,0,0     60
+c 25,0,0     1,0,0     60
+c 35,0,0     1,0,0     60
+c 35,0,0     1,0,0.4     60
+c 35,0,0     1,0,0.6     60
+c 35,0,0     1,0,1     60
+c 35,0,0     0,0,1     60
+l 30,50,0  0.8   255,255,255
+l 50,0,0  0.6   255,100,100
+cy 50,0,0  1,0,0  0,200,100   10  40

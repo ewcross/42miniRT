@@ -1,0 +1,8 @@
+# a single spot light and single square - move its center
+# and normal to change its position
+
+R 1000 650
+A 0.2 255,255,255
+c -50,0,20 1,0,0 70
+l -40,0,30 0.7 255,0,0
+sq 40,0,0 -1,0,1.0 30 255,0,0

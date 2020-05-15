@@ -1,14 +1,16 @@
 to do:
 
-	- check resolution resizing if scene size is greater than display size
 	- test everything in the VM - try without libmlx and x11 in directory - should work
 	- see if window size function works
+	- make rt files for correction
 
 to show in correction:
 
 	- basic shapes
+		- cylinder long, and limited
 	- shadows
 	- intersects
 	- inside sphere
 	- inside cylinder
 	- multiple cameras - different directions and switching between
+	- resolution too high
