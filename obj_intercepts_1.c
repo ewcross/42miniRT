@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 16:42:46 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:48:40 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 14:19:47 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,22 @@ int	plane_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	return (1);
 }
 
-int	check_inside(t_obj_struct *obj, double *t_min, double t_other)
+int	check_inside(t_obj_struct *obj, double *t_min, double *end_t,
+					double *ray_vec)
 {
+	int		ret;
+	double	t_other;
+	double	orig_t_min;
+
+	ret = 0;
+	orig_t_min = *t_min;
+	t_other = end_t[3];
+	if (obj->id == 'c')
+		if (!(ret = check_ends(obj, t_min, end_t, ray_vec)))
+			return (0);
+	*t_min = orig_t_min;
+	if (ret == 2)
+		obj->inside = 0;
 	if (t_other > 0 && *t_min < 0)
 	{
 		obj->inside = 1;
@@ -51,7 +65,7 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	double	sphere_to_cam_vec[3];
 	double	abcr[4];
 	double	discriminant;
-	double	t_other;
+	double	t_other[4];
 
 	calc_3d_vector(sp->xyz, ray_orig_xyz, sphere_to_cam_vec);
 	abcr[3] = sp->data.doubl / 2;
@@ -64,12 +78,12 @@ int	solve_quadratic(double *t_min, double *ray_vec, double *ray_orig_xyz,
 		*t_min = INFINITY;
 		return (0);
 	}
-	t_other = ((-1 * abcr[1]) + sqrt(discriminant)) / (2 * abcr[0]);
+	t_other[3] = ((-1 * abcr[1]) + sqrt(discriminant)) / (2 * abcr[0]);
 	*t_min = ((-1 * abcr[1]) - sqrt(discriminant)) / (2 * abcr[0]);
-	if (check_inside(sp, t_min, t_other))
+	if (check_inside(sp, t_min, t_other, ray_vec))
 		return (1);
-	else if (t_other < *t_min)
-		*t_min = t_other;
+	else if (t_other[3] < *t_min)
+		*t_min = t_other[3];
 	return (1);
 }
 

@@ -6,7 +6,7 @@
 #    By: ecross <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/07 15:11:23 by ecross            #+#    #+#              #
-#    Updated: 2020/05/13 08:37:53 by ecross           ###   ########.fr        #
+#    Updated: 2020/05/15 10:39:59 by ecross           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,18 +44,21 @@ SRCS = 	bmp_1.c \
 OBJS = ${SRCS:.c=.o}
 
 LIBS = libft.a \
-       libgnl.a
+       libgnl.a \
+       libmlx.a
 
 RM = rm -f
 
-GMM = gcc libmlx.a -framework OpenGL -framework AppKit
+GCC = gcc
+
+GMM = gcc -framework OpenGL -framework AppKit
 
 CFLAGS = -Wall -Wextra -Werror
 
-.c.o: ${GMM} ${CFLAGS} -c $< -o ${<:.c=.o}
+.c.o: ${GCC} ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}:	${OBJS}
-	${GMM} ${OBJS} ${LIBS}
+	${GMM} -o ${NAME} ${OBJS} ${LIBS}
 
 all:		${NAME}
 

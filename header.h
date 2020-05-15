@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/30 14:31:30 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/13 08:35:43 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/15 10:47:25 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ int				cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 						t_obj_struct *pl);
 int				ci_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 						t_obj_struct *ci);
-int				check_inside(t_obj_struct *obj, double *t_min, double t_other);
+int				check_inside(t_obj_struct *obj, double *t_min, double* end_t,
+								double *ray_vec);
 void			calc_uv(double *u_v, double *v1, double *v2, double *v3);
 void			get_cy_end_point(double *end, t_obj_struct *cy);
 double			get_p_height(double t_min, double *end, double *normal,

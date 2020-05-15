@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 16:43:23 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/13 08:19:38 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 13:56:37 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int		check_ends(t_obj_struct *cy, double *t_min, double *end_t,
 	{
 		cy->inside = 1;
 		*t_min = big;
-		return (1);
+		return (2);
 	}
 	return (0);
 }
@@ -79,7 +79,7 @@ int		cy_intercept(double *t_min, double *ray_vec, double *ray_orig_xyz,
 	end_t[3] = (dot(ray_n, end_norm) + sqrt(d)) / dot(ray_n, ray_n);
 	*t_min = (dot(ray_n, end_norm) - sqrt(d)) / dot(ray_n, ray_n);
 	cy->inside = 0;
-	if (check_inside(cy, t_min, end_t[3]))
+	if (check_inside(cy, t_min, end_t, ray_vec))
 		return (1);
 	if (check_ends(cy, t_min, end_t, ray_vec))
 		return (1);

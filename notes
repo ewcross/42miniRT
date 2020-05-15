@@ -1,6 +1,14 @@
 to do:
 
 	- check resolution resizing if scene size is greater than display size
-	- fix issue with cylinder shadows
-	- do norminette
-	- check for leaks
+	- test everything in the VM - try without libmlx and x11 in directory - should work
+	- see if window size function works
+
+to show in correction:
+
+	- basic shapes
+	- shadows
+	- intersects
+	- inside sphere
+	- inside cylinder
+	- multiple cameras - different directions and switching between

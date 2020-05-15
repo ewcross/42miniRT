@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 16:00:32 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 16:09:54 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/13 08:40:34 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ int		create_bmp(t_win_struct *ws, t_img_struct *img, int id)
 		ft_putstr_fd(".\n", 1);
 		return (0);
 	}
-	i = fill_info_header(ws, bmp, fill_file_header(ws, bmp, fs), img->bpp);
+	i = fill_info_header(ws, bmp, fill_file_header(bmp, fs), img->bpp);
 	fill_pixel_data(img->img_addr, bmp, i, fs);
 	create_bmp_file(bmp, id, fs);
 	free(bmp);
