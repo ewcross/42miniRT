@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 17:13:25 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/15 11:41:25 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/18 14:49:04 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,35 +25,10 @@ int	r_func(char *line, t_scene_struct *s)
 	s->res_xy[Y] = simple_atoi(strs[2]);
 	if (s->res_xy[X] < 1 || s->res_xy[Y] < 1)
 		return (-5);
-	/*
-
-int	*get_max_res(int *max_res_xy)
-{
-	void	*mlx_ptr;
-
-	mlx_ptr = mlx_init()
-	res = mlx_get_screen_size(mlx_ptr, max_res_xy, max_res_xy + 1);
-	try
-	free(mlx_ptr)
-	or
-	mlx_destroy_window(mlx_ptr);
-}
-	int		max_res_xy[2];
-	max_res_xy = get_max_res(max_res_xy);
-
-	 */
-	/*if (s->res_xy[X] > max_res_xy[X])*/
 	if (s->res_xy[X] > MAX_RES_X)
-	{
-		/*s->res_xy[X] = max_res_xy[X]*/
 		s->res_xy[X] = MAX_RES_X;
-	}
-	/*if (s->res_xy[Y] > max_res_xy[Y])*/
 	if (s->res_xy[Y] > MAX_RES_Y)
-	{
-		/*s->res_xy[Y] = max_res_xy[Y]*/
 		s->res_xy[Y] = MAX_RES_Y;
-	}
 	free_strs(strs);
 	return (0);
 }
