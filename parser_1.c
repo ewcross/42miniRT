@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/03 16:14:09 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 17:51:54 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/22 13:26:53 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,31 +68,48 @@ int		parse_line(char *line, t_scene_struct *s)
 		return (-1);
 }
 
+int		process_line(t_scene_struct *s, char *line)
+{
+	int		err_code;
+	char	err_msgs[8][ERR_BUFF_SIZE];
+
+	init_error_messages(err_msgs);
+	if ((err_code = parse_line(line, s)))
+	{
+		ft_putstr_fd("Error\n", 1);
+		ft_putstr_fd(err_msgs[(err_code * -1) - 1], 1);
+		ft_putstr_fd("\nCheck line: ", 1);
+		ft_putstr_fd(line, 1);
+		ft_putstr_fd("\n", 1);
+		return (0);
+	}
+	return (1);
+}
+
 int		parser(t_scene_struct *s, char *file)
 {
-	int				fd;
-	int				err_code;
-	char			*line;
-	char			err_msgs[8][ERR_BUFF_SIZE];
+	int		fd;
+	char	*line;
 
 	if ((fd = open(file, O_RDONLY)) < 0)
 	{
 		ft_putstr_fd("Error opening file.\n", 1);
 		return (0);
 	}
-	init_error_messages(err_msgs);
 	while (get_next_line(fd, &line))
 	{
-		if ((err_code = parse_line(line, s)))
+		if (!process_line(s, line))
 		{
-			ft_putstr_fd("Error\n", 1);
-			ft_putstr_fd(err_msgs[(err_code * -1) - 1], 1);
-			ft_putstr_fd("\nCheck line: ", 1);
-			ft_putstr_fd(line, 1);
-			ft_putstr_fd("\n", 1);
+			free(line);
 			return (0);
 		}
 		free(line);
 	}
+	if (!process_line(s, line))
+	{
+		free(line);
+		return (0);
+	}
+	free(line);
 	return (1);
 }

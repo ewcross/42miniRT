@@ -1,0 +1,7 @@
+# one yellow sphere with a single, green light
+
+R 3000 3000
+A 0.3 255,255,255
+c 0,0,0     1,0,0     80
+l 0,14,-22 0.8   0,255,0
+sp 25,0,0  10   255,220,0

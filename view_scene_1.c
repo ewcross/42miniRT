@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/12 18:15:37 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 18:31:45 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/22 12:46:56 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,11 +94,12 @@ int		main(int argc, char **argv)
 		ft_putstr_fd("Failed to initialise window.\n", 1);
 		return (1);
 	}
+	ws.scene_struct_addr = &s;
 	create_image_list(&ws, &s);
 	if (argc == 2)
 		mlx_loop(ws.mlx_ptr);
 	else if (argc == 3)
-		bmp(&ws, ws.img_list);
+		bmp(argv[1], &ws, ws.img_list);
 	free_img_list(ws.img_list);
 	free_scene_struct(&s);
 }

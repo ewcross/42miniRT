@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 10:20:50 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/15 09:30:04 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/21 10:34:59 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,20 +23,6 @@ void	free_strs(char **strs)
 		i++;
 	}
 	free(strs);
-}
-
-void	free_img_list(t_img_struct *img)
-{
-	t_img_struct	*temp;
-
-	while (img)
-	{
-		temp = img;
-		img = img->next;
-		//free(temp->img_ptr);
-		free(temp->img_addr);
-		free(temp);
-	}
 }
 
 void	free_light_list(t_l_struct *light)

@@ -1,0 +1,11 @@
+# one yellow sphere with a single, white light
+# multiple cameras with different fovs
+
+R 1000 650
+A 0.3 255,255,255
+c 0,0,0     1,0,0     80
+c 0,0,0     1,0,0     60
+c 0,0,0     1,0,0     40
+c 0,0,0     1,0,0     20
+l 0,14,-22 0.8   255,255,255
+sp 25,0,0  10   255,220,0

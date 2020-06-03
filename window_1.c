@@ -6,7 +6,7 @@
 /*   By: ecross <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/02/24 11:56:27 by ecross            #+#    #+#             */
-/*   Updated: 2020/05/12 18:29:50 by ecross           ###   ########.fr       */
+/*   Updated: 2020/05/22 12:30:54 by ecross           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,23 +34,25 @@ int		set_keys(int keycode, void *window_struct)
 	t_win_struct	*ws;
 
 	ws = window_struct;
-	if (keycode == 53)
+	if (keycode == 53 || keycode == 65307)
 	{
 		mlx_destroy_window(ws->mlx_ptr, ws->win_ptr);
-		exit(0);
+		close_program(ws);
 	}
-	if (keycode == 8)
-		mlx_clear_window(ws->mlx_ptr, ws->win_ptr);
-	if (keycode == 124)
+	if (keycode == 124 || keycode == 65363)
 		shift_next_cam(ws);
-	if (keycode == 123)
+	if (keycode == 123 || keycode == 65361)
 		shift_prev_cam(ws);
 	return (0);
 }
 
 int		close_program(void *window_struct)
 {
-	(void)window_struct;
+	t_win_struct	*ws;
+
+	ws = window_struct;
+	free_img_list(ws->img_list);
+	free_scene_struct(ws->scene_struct_addr);
 	exit(0);
 }
 
@@ -60,7 +62,8 @@ int		initialise_window(t_win_struct *ws)
 	ws->win_ptr = mlx_new_window(ws->mlx_ptr, ws->res_x, ws->res_y, "window");
 	if (!ws->win_ptr)
 		return (0);
-	mlx_hook(ws->win_ptr, DESTROYNOTIFY, NOEVENTMASK, close_program, 0);
+	mlx_hook(ws->win_ptr, 17, NOEVENTMASK, close_program, ws);
+	mlx_hook(ws->win_ptr, 33, NOEVENTMASK, close_program, ws);
 	mlx_key_hook(ws->win_ptr, set_keys, ws);
 	mlx_loop_hook(ws->mlx_ptr, put_image, ws);
 	return (1);

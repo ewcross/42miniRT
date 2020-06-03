@@ -1,0 +1,9 @@
+# a simple xz plane with a single spot light
+# two cameras, one from above (lit) and one from below (shaded)
+
+R 1000 650
+A 0.3 255,255,255
+c 0,0,0     0,0,1     80
+c 0,-10,0     0,0,1     80
+l 0,10,25  0.8   255,255,255
+pl    0,-5,0    0.0,1.0,0.0  100,0,225
