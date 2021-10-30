@@ -33,8 +33,8 @@ The ```.rt``` file contains information for the scene's resolution, lighting, ca
 
 * image resolution, ```R```, mandatory (horizontal size, vertical size)
 * ambient lighting, ```A```, mandatory (brightness, colour)
-* spot lights, ```l``` (position, brightness, colour)
-* cameras, ```c``` (position, orientation, horizontal field of view)
+* spot light, ```l``` (position, brightness, colour)
+* camera, ```c``` (position, orientation, horizontal field of view)
 * sphere, ```sp``` (position, diameter, colour)
 * plane, ```pl``` (position, orientation, colour)
 * square, ```sq``` (position, orientation, side size, colour)
@@ -57,6 +57,7 @@ R 1920 1080
 A 0.2 255,255,255
 c -50,0,20 0,0,0 70
 l -40,0,30 0.7 255,255,255
+l 40,0,10 0.7 255,255,255
 pl 0,0,0 0,1.0,0 255,0,225
 sp 0,0,20 20 255,0,0
 sq 0,100,40 0,0,1.0 30 42,42,0
