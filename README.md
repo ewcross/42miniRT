@@ -26,26 +26,29 @@ The program takes as it's first argument a scene description file with the ```.r
 
 ```./miniRT scene.rt```
 
-<img src="readme_utils/Screenshot 2020-04-02 at 09.40.25.png" width="150" height="25" />
-
 This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
 Including mulitple cameras will generate multiple scene images. These can be tabbed through using the arrow keys.
 
-The ```.rt``` file contains information for the:
+The ```.rt``` file contains information for the scene's resolution, lighting, camera(s) and object(s):
 
-* image resolution
-* ambient lighting (brightness and colour)
-* spot lighting (position, brightness and colour of spots)
-* cameras (position, angle and field of view)
-* objects (position, dimension, colour and orientation where applicable)
+* image resolution, ```R```, mandatory (horizontal size, vertical size)
+* ambient lighting, ```A```, mandatory (brightness, colour)
+* spot lights, ```l``` (position, brightness, colour)
+* cameras, ```c``` (position, orientation, horizontal field of view)
+* sphere, ```sp``` (position, diameter, colour)
+* plane, ```pl``` (position, orientation, colour)
+* square, ```sq``` (position, orientation, side size, colour)
+* triangle, ```tr``` (vertex positions, colour)
+* cylinder, ```cy``` (position, orientation, diameter, height, colour)
 
-The objects that can be generated are:
+Units:
 
-* sphere
-* plane
-* square
-* triangle
-* cylinder
+* size: pixels
+* brightness: lighting ratio (0 - 1)
+* orientation: normalised orientation vector, (-1 - 1 for each axis)
+* position: Cartesian coordinates
+* colour: RGB values (0 - 255)
+* field of view: degrees (0 - 180)
 
 Here is an example of such an ```.rt``` file:
 
@@ -61,9 +64,9 @@ cy 50.0,0.0,20.6 0,0,1.0 14.2 21.42 10,0,255
 tr 10,20,10 10,10,20 20,10,10 0,0,255
 ```
 
-The program also includes a bitmap file generator function, and it is possible to save the generates image(s) in bmp format by using ```--save``` as the second argument, for example:
+The program also includes a bitmap file generator function, and it is possible to save the generated image(s) in bmp format by using ```--save``` as the second argument, for example:
 
-<img src="readme_utils/Screenshot 2020-04-02 at 09.50.55.png" width="200" height="25" />
+```./miniRT scene.rt --save```
 
 ## Some examples of generated scenes
 
@@ -91,7 +94,7 @@ A horizontal plane, a sphere and a cylinder. Two spots, one above and one inside
 <img src="readme_utils/sphere-cylinder-plane.png" width="600" height="400" />
 
 
-## License
+## Licenses
 
 MinilibX is licensed under the BSD license: Copyright Olivier Crouzet - 1999-2015.
 
