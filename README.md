@@ -6,19 +6,21 @@ This program uses the ray-tracing protocol to generate images. The images repres
 
 ## Details
 
-The ray-tracing algorithm is implemented in C and (due to the constraints of the project) the only external functions used are those in the math.h and miniLibX libraries, along with a handful of other basics (such as malloc and free).
+The ray-tracing algorithm is implemented in C and (due to the constraints of the project) the only external functions used are those in the ```math.h``` and ```miniLibX``` libraries, along with a handful of other basics (such as ```malloc``` and ```free```).
 
-The pixel rendering, window management and event handling aspects are dealt with using functions from the miniLibX, a simple X-Window (X11R6) programming API in C, designed for students and written by Oliver Crouzet. This in turn makes use of the AppKit and OpenGL frameworks.
+The pixel rendering, window management and event handling aspects are dealt with using functions from ```miniLibX```, a simple X-Window (X11R6) programming API in C, designed for students and written by Oliver Crouzet. This in turn makes use of the AppKit and OpenGL frameworks.
 
 ## Compilation
 
 A Makefile is included, and to compile simply use ```make```.
 
-Compilation on macOS involves linking with the AppKit and OpenGL frameworks:
+Compilation details:
+
+* macOS (linking with the AppKit and OpenGL frameworks):
 
 ```gcc <.c files> -lmlx -framework OpenGL -framework AppKit```
 
-and on BSD/Linux:
+* BSD/Linux:
 
 ```gcc <.c files> -lmlx -lXext -lX11```
 
