@@ -24,6 +24,8 @@ Compilation details:
 
 The program takes as it's first argument a scene description file with the ```.rt``` extension which specifies the image details. For example:
 
+```./miniRT scene.rt```
+
 <img src="readme_utils/Screenshot 2020-04-02 at 09.40.25.png" width="150" height="25" />
 
 This will open a window showing the generated scene. Close the window by pressing ```esc``` or the red cross in the corner.
