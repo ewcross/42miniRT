@@ -16,13 +16,9 @@ A Makefile is included, and to compile simply use ```make```.
 
 Compilation details:
 
-* macOS (linking with the AppKit and OpenGL frameworks):
+* macOS (linking with the AppKit and OpenGL frameworks): ```gcc <.c files> -lmlx -framework OpenGL -framework AppKit```
 
-```gcc <.c files> -lmlx -framework OpenGL -framework AppKit```
-
-* BSD/Linux:
-
-```gcc <.c files> -lmlx -lXext -lX11```
+* BSD/Linux: ```gcc <.c files> -lmlx -lXext -lX11```
 
 ## Usage
 
