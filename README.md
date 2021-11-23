@@ -1,6 +1,6 @@
 # MiniRT
 
-A ray-tracer, written in c.
+A ray-tracer, written in C.
 
 This program uses the ray-tracing protocol to generate images. The images represent scenes which are defined by simple geometric objects, a lighting system and one or more cameras with specified angle and position.
 
